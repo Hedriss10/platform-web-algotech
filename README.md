@@ -18,4 +18,4 @@ Sistema para controle de gestão de fins bancários, para gerenciamento de corre
 
 ### Documentação de instalação ⚙️
 Segue a documentação de instalação de dependências `local`, lembrando que o projeto contém variáveis de ambiente e só está disponível em produção, infelizmente não está disponível.
-<a herf="algotech/previews-md-developers.md">Previews developers</a>
+<a herf=".algotech/previews-md-developers.md"><strong>Previews developers</strong></a>
