@@ -8,12 +8,17 @@ import {
   BiLogIn,
   BiEnvelope,
   BiErrorCircle,
-  BiFile
+  BiFile,
+  BiListUl,
+  BiBell,
+  BiChat,
 } from "react-icons/bi";
 
-import { FaRegGem, FaHeart } from "react-icons/fa";
+import { FaRegGem, FaHeart, FaSearch } from "react-icons/fa";
 import { MdPersonAddAlt, MdOutlineQuestionAnswer } from "react-icons/md";
-import { IoListSharp } from "react-icons/io5";
+import { IoListSharp, IoPersonCircleSharp } from "react-icons/io5";
+import { GoGear } from "react-icons/go";
+import { CiBoxList } from "react-icons/ci";
 
 const Icons = {
   BiGrid,
@@ -30,7 +35,14 @@ const Icons = {
   MdPersonAddAlt,
   MdOutlineQuestionAnswer,
   IoListSharp,
-  FaHeart
+  FaHeart,
+  BiListUl,
+  FaSearch,
+  BiBell,
+  BiChat,
+  IoPersonCircleSharp,
+  GoGear,
+  CiBoxList,
 };
 
 export default Icons;

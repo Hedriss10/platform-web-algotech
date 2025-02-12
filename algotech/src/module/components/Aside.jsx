@@ -1,15 +1,7 @@
 import React, { useState } from "react";
 import Icons from "../utils/Icons";
 
-/**
- * The sidebar component.
- *
- * This component renders the sidebar with links to
- * different parts of the application.
- *
- * @returns {React.ReactElement} The sidebar component.
- */
-const Aside = () => {
+const Aside = ({ isOpen }) => {
   const [openMenus, setOpenMenus] = useState({
     components: false,
     forms: false,
@@ -26,37 +18,41 @@ const Aside = () => {
   };
 
   return (
-    <aside id="sidebar" className="w-64 bg-gray-800 text-white min-h-screen">
-      <ul className="sidebar-nav p-4 space-y-2">
+    <aside
+      className={`w-64 bg-gray-800 text-white fixed top-15 bottom-0 transition-transform duration-300 ease-in-out ${
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      }`}
+    >
+      <ul className="p-4 space-y-2">
         {/* Dashboard */}
-        <li className="nav-item">
+        <li>
           <a
-            className="nav-link flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-            href="index.html"
+            href="#"
+            className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
           >
-            <Icons.BiGrid className="text-xl mr-2" />
+            <Icons.BiGrid className="h-5 w-5 mr-2" />
             <span>Dashboard</span>
           </a>
         </li>
 
         {/* Components */}
-        <li className="nav-item">
-          <a
-            className="nav-link flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"
+        <li>
+          <button
             onClick={() => toggleMenu("components")}
+            className="w-full flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"
           >
             <div className="flex items-center">
-              <Icons.BiMenu className="text-xl mr-2" />
+              <Icons.BiMenu className="h-5 w-5 mr-2" />
               <span>Components</span>
             </div>
             <Icons.BiChevronDown
-              className={`text-xl transition-transform duration-300 ${
+              className={`h-5 w-5 transition-transform duration-300 ${
                 openMenus.components ? "rotate-180" : ""
               }`}
             />
-          </a>
+          </button>
           {openMenus.components && (
-            <ul className="nav-content pl-6 mt-2 space-y-2">
+            <ul className="pl-6 mt-2 space-y-2">
               {[
                 "Alerts",
                 "Accordion",
@@ -75,10 +71,10 @@ const Aside = () => {
               ].map((item) => (
                 <li key={item}>
                   <a
-                    href=""
+                    href="#"
                     className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
                   >
-                    <Icons.BiCircle className="text-sm mr-2" />
+                    <Icons.BiCircle className="h-4 w-4 mr-2" />
                     <span>{item}</span>
                   </a>
                 </li>
@@ -88,30 +84,30 @@ const Aside = () => {
         </li>
 
         {/* Forms */}
-        <li className="nav-item">
-          <a
-            className="nav-link flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"
+        <li>
+          <button
             onClick={() => toggleMenu("forms")}
+            className="w-full flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"
           >
             <div className="flex items-center">
-              <Icons.BiLayout className="text-xl mr-2" />
+              <Icons.BiLayout className="h-5 w-5 mr-2" />
               <span>Forms</span>
             </div>
             <Icons.BiChevronDown
-              className={`text-xl transition-transform duration-300 ${
+              className={`h-5 w-5 transition-transform duration-300 ${
                 openMenus.forms ? "rotate-180" : ""
               }`}
             />
-          </a>
+          </button>
           {openMenus.forms && (
-            <ul className="nav-content pl-6 mt-2 space-y-2">
+            <ul className="pl-6 mt-2 space-y-2">
               {["Elements", "Layouts", "Editors", "Validation"].map((item) => (
                 <li key={item}>
                   <a
-                    href={`forms-${item.toLowerCase()}.html`}
+                    href="#"
                     className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
                   >
-                    <BiCircle className="text-sm mr-2" />
+                    <Icons.BiCircle className="h-4 w-4 mr-2" />
                     <span>Form {item}</span>
                   </a>
                 </li>
@@ -140,10 +136,7 @@ const Aside = () => {
             <ul className="nav-content pl-6 mt-2 space-y-2">
               {["General Tables", "Data Tables"].map((item) => (
                 <li key={item}>
-                  <a
-                    href={`tables-${item.toLowerCase().replace(" ", "-")}.html`}
-                    className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-                  >
+                  <a className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300">
                     <Icons.BiCircle className="text-sm mr-2" />
                     <span>{item}</span>
                   </a>
@@ -174,7 +167,7 @@ const Aside = () => {
               {["Chart.js", "ApexCharts", "ECharts"].map((item) => (
                 <li key={item}>
                   <a
-                    href={`charts-${item.toLowerCase()}.html`}
+                    // href=""
                     className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
                   >
                     <Icons.BiCircle className="text-sm mr-2" />
@@ -207,7 +200,7 @@ const Aside = () => {
               {["Bootstrap Icons", "Remix Icons", "Boxicons"].map((item) => (
                 <li key={item}>
                   <a
-                    href={`icons-${item.toLowerCase().replace(" ", "-")}.html`}
+                    // href=""
                     className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
                   >
                     <Icons.BiCircle className="text-sm mr-2" />
@@ -221,7 +214,7 @@ const Aside = () => {
 
         {/* Pages Section */}
         <li className="nav-heading mt-6 mb-2 text-sm font-semibold uppercase text-gray-400">
-          Pages
+          Páginas
         </li>
 
         {/* Profile */}

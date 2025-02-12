@@ -1,7 +1,6 @@
 import React from "react";
 import Icons from "../utils/Icons";
 
-
 /**
  * Footer component.
  *
@@ -13,7 +12,7 @@ import Icons from "../utils/Icons";
  */
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white text-center py-4">
+    <footer className="bg-gray-800 text-white text-center py-4">
       <div className="text-sm">
         &copy; {new Date().getFullYear()}{" "}
         <strong className="text-blue-400">NiceAdmin</strong>. All Rights
