@@ -5,5 +5,6 @@ import App from "../App";
 
 test("renders Ola mundo", () => {
   render(<App />);
-  const linkElement = screen.getByText(/Ola mundo/i);  expect(linkElement).toBeInTheDocument();
+  const linkElement = screen.getByText(/Ola mundo/i);
+  expect(linkElement).toBeInTheDocument();
 });
