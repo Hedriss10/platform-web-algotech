@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthService from "./Service/AuthService";
 import { notify } from "../utils/toastify";
+import { useUser } from "../../service/UserContext";
 
 const Login = () => {
-  const [email, setEamil] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useUser();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,17 +17,23 @@ const Login = () => {
 
     try {
       const response = await AuthService.AuthService(email, password);
+      if (response.data && response.data.length > 0) {
+        const userData = response.data[0];
 
-      // save token in localStorage
-      localStorage.setItem("access_token", response.metadata.access_token);
+        localStorage.setItem("userData", JSON.stringify(userData));
+        console.log("user data da api", userData);
+        login(userData);
 
-      // head notification success
-      notify("Login realizado com sucesso!", { type: "success" });
+        localStorage.setItem("access_token", response.metadata.access_token);
 
-      // redirect to home
-      navigate("/");
+        notify("Login realizado com sucesso!", { type: "success" });
+        navigate("/home");
+      } else {
+        throw new Error("Dados do usuário não encontrados na resposta.");
+      }
     } catch (error) {
-      notify("Erro interno do servidor", { type: "error" });
+      console.error("Erro durante o login:", error);
+      notify("Erro ao realizar login. Tente novamente.", { type: "error" });
     } finally {
       setIsLoading(false);
     }
@@ -37,41 +45,36 @@ const Login = () => {
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <a href="/" className="flex items-center">
-            {/* <img src="assets/img/logo.png" alt="Logo" className="h-12" /> */}
             <span className="text-xl font-semibold text-gray-800 ml-2">
-              NiceAdmin
+              maisbs
             </span>
           </a>
         </div>
 
-        {/* Card de Login */}
+        {/* Card de Login TODO verificar se a possibilidae*/}
         <div className="bg-white rounded-lg">
           <div className="p-6">
             <div className="text-center mb-6">
-              <h5 className="text-2xl font-bold text-gray-800">
-                Login to Your Account
-              </h5>
-              <p className="text-sm text-gray-600">
-                Enter your username & password to login
-              </p>
+              <h5 className="text-2xl font-bold text-gray-800"></h5>
+              <p className="text-sm text-gray-600"></p>
             </div>
 
             {/* Formulário */}
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* email */}
+              {/* Email */}
               <div>
                 <label
                   htmlFor="email"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Email
+                  <strong>Email:</strong>
                 </label>
                 <div className="mt-1">
                   <input
                     type="text"
                     id="email"
                     value={email}
-                    onChange={(e) => setEamil(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   />
@@ -84,7 +87,7 @@ const Login = () => {
                   htmlFor="password"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Password
+                  <strong>Senha:</strong>
                 </label>
                 <div className="mt-1">
                   <input
@@ -110,7 +113,7 @@ const Login = () => {
                     htmlFor="rememberMe"
                     className="ml-2 text-sm text-gray-600"
                   >
-                    Remember me
+                    Lembrar-me
                   </label>
                 </div>
               </div>
@@ -125,29 +128,8 @@ const Login = () => {
                   {isLoading ? "Loading..." : "Login"}
                 </button>
               </div>
-
-              {/* Link para Registrar */}
-              <div className="text-center text-sm text-gray-600">
-                <p>
-                  Don't have an account?{" "}
-                  <a href="/register" className="text-blue-500 hover:underline">
-                    Create an account
-                  </a>
-                </p>
-              </div>
             </form>
           </div>
-        </div>
-
-        {/* Créditos */}
-        <div className="text-center text-sm text-gray-500 mt-6">
-          Designed by{" "}
-          <a
-            href="https://bootstrapmade.com/"
-            className="text-blue-500 hover:underline"
-          >
-            BootstrapMade
-          </a>
         </div>
       </div>
     </main>

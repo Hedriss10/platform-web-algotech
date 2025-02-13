@@ -1,6 +1,8 @@
 import React from "react";
+import { useUser } from "../../service/UserContext";
 
 const Home = ({ isAsideOpen }) => {
+  const user = useUser();
   return (
     <main
       id="main"
@@ -11,6 +13,8 @@ const Home = ({ isAsideOpen }) => {
       {/* Page Title */}
       <div className="p-6 bg-white rounded-lg shadow mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Data Tables</h1>
+        Seja bem-vindo à plataforma {user?.user?.username ?? "Visitante"} e sua
+        identificação é {user?.user?.id ?? "N/A"}
         <nav className="mt-2">
           <ol className="flex space-x-2 text-sm text-gray-600">
             <li>

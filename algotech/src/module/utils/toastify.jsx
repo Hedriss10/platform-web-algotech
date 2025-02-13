@@ -2,12 +2,7 @@ import { Flip, toast } from "react-toastify";
 
 export const notify = (
   message,
-  {
-    type,
-    position = "bottom-right",
-    autoClose = 3000,
-    theme = "dark",
-  }
+  { type, position = "bottom-right", autoClose = 2000, theme = "dark" },
 ) => {
   const toastConfig = {
     position,
