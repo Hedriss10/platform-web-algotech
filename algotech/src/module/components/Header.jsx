@@ -16,15 +16,12 @@ const Header = ({ toggleAside }) => {
           <Icons.BiListUl className="h-6 w-6 cursor-pointer" />
         </button>
         <a href="/" className="flex items-center ml-4">
-          <span className="text-xl font-semibold hidden lg:block">
-            maisbs
-          </span>
+          <span className="text-xl font-semibold hidden lg:block">maisbs</span>
         </a>
       </div>
 
       {/* Menu de navegação */}
       <nav className="flex items-center space-x-6">
-        
         {/* Ícone de notificações */}
         <div className="relative">
           <button className="text-white hover:text-gray-300 focus:outline-none">

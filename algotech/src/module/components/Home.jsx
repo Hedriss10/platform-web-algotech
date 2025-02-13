@@ -14,7 +14,10 @@ const Home = ({ isAsideOpen }) => {
         <nav className="mt-2">
           <ol className="flex space-x-2 text-sm text-gray-600">
             <li>
-              <a href="/" className="hover:text-blue-500 transition duration-300">
+              <a
+                href="/"
+                className="hover:text-blue-500 transition duration-300"
+              >
                 Home
               </a>
             </li>
