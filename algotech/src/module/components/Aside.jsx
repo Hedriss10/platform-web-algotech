@@ -1,11 +1,301 @@
-import React from "react";
+import React, { useState } from "react";
+import Icons from "../utils/Icons";
 
-const Aside = () => {
-    return (
-        <div>
-            <h1>Aside</h1>
-        </div>
-    );
+const Aside = ({ isOpen }) => {
+  const [openMenus, setOpenMenus] = useState({
+    components: false,
+    forms: false,
+    tables: false,
+    charts: false,
+    icons: false,
+  });
+
+  const toggleMenu = (menu) => {
+    setOpenMenus((prev) => ({
+      ...prev,
+      [menu]: !prev[menu],
+    }));
+  };
+
+  return (
+    <aside
+      className={`w-64 bg-gray-800 text-white fixed top-15 bottom-0 transition-transform duration-300 ease-in-out ${
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      }`}
+    >
+      <ul className="p-4 space-y-2">
+        {/* Dashboard */}
+        <li>
+          <a
+            href="#"
+            className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+          >
+            <Icons.BiGrid className="h-5 w-5 mr-2" />
+            <span>Dashboard</span>
+          </a>
+        </li>
+
+        {/* Components */}
+        <li>
+          <button
+            onClick={() => toggleMenu("components")}
+            className="w-full flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"
+          >
+            <div className="flex items-center">
+              <Icons.BiMenu className="h-5 w-5 mr-2" />
+              <span>Components</span>
+            </div>
+            <Icons.BiChevronDown
+              className={`h-5 w-5 transition-transform duration-300 ${
+                openMenus.components ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+          {openMenus.components && (
+            <ul className="pl-6 mt-2 space-y-2">
+              {[
+                "Alerts",
+                "Accordion",
+                "Badges",
+                "Breadcrumbs",
+                "Buttons",
+                "Cards",
+                "Carousel",
+                "List group",
+                "Modal",
+                "Tabs",
+                "Pagination",
+                "Progress",
+                "Spinners",
+                "Tooltips",
+              ].map((item) => (
+                <li key={item}>
+                  <a
+                    href="#"
+                    className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+                  >
+                    <Icons.BiCircle className="h-4 w-4 mr-2" />
+                    <span>{item}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+
+        {/* Forms */}
+        <li>
+          <button
+            onClick={() => toggleMenu("forms")}
+            className="w-full flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"
+          >
+            <div className="flex items-center">
+              <Icons.BiLayout className="h-5 w-5 mr-2" />
+              <span>Forms</span>
+            </div>
+            <Icons.BiChevronDown
+              className={`h-5 w-5 transition-transform duration-300 ${
+                openMenus.forms ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+          {openMenus.forms && (
+            <ul className="pl-6 mt-2 space-y-2">
+              {["Elements", "Layouts", "Editors", "Validation"].map((item) => (
+                <li key={item}>
+                  <a
+                    href="#"
+                    className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+                  >
+                    <Icons.BiCircle className="h-4 w-4 mr-2" />
+                    <span>Form {item}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+
+        {/* Tables */}
+        <li className="nav-item">
+          <a
+            className="nav-link flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"
+            onClick={() => toggleMenu("tables")}
+          >
+            <div className="flex items-center">
+              <Icons.BiLayout className="text-xl mr-2" />
+              <span>Tables</span>
+            </div>
+            <Icons.BiChevronDown
+              className={`text-xl transition-transform duration-300 ${
+                openMenus.tables ? "rotate-180" : ""
+              }`}
+            />
+          </a>
+          {openMenus.tables && (
+            <ul className="nav-content pl-6 mt-2 space-y-2">
+              {["General Tables", "Data Tables"].map((item) => (
+                <li key={item}>
+                  <a className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300">
+                    <Icons.BiCircle className="text-sm mr-2" />
+                    <span>{item}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+
+        {/* Charts */}
+        <li className="nav-item">
+          <a
+            className="nav-link flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"
+            onClick={() => toggleMenu("charts")}
+          >
+            <div className="flex items-center">
+              <Icons.BiBarChart className="text-xl mr-2" />
+              <span>Charts</span>
+            </div>
+            <Icons.BiChevronDown
+              className={`text-xl transition-transform duration-300 ${
+                openMenus.charts ? "rotate-180" : ""
+              }`}
+            />
+          </a>
+          {openMenus.charts && (
+            <ul className="nav-content pl-6 mt-2 space-y-2">
+              {["Chart.js", "ApexCharts", "ECharts"].map((item) => (
+                <li key={item}>
+                  <a
+                    // href=""
+                    className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+                  >
+                    <Icons.BiCircle className="text-sm mr-2" />
+                    <span>{item}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+
+        {/* Icons */}
+        <li className="nav-item">
+          <a
+            className="nav-link flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"
+            onClick={() => toggleMenu("icons")}
+          >
+            <div className="flex items-center">
+              <Icons.FaRegGem className="text-xl mr-2" />
+              <span>Icons</span>
+            </div>
+            <Icons.BiChevronDown
+              className={`text-xl transition-transform duration-300 ${
+                openMenus.icons ? "rotate-180" : ""
+              }`}
+            />
+          </a>
+          {openMenus.icons && (
+            <ul className="nav-content pl-6 mt-2 space-y-2">
+              {["Bootstrap Icons", "Remix Icons", "Boxicons"].map((item) => (
+                <li key={item}>
+                  <a
+                    // href=""
+                    className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+                  >
+                    <Icons.BiCircle className="text-sm mr-2" />
+                    <span>{item}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+
+        {/* Pages Section */}
+        <li className="nav-heading mt-6 mb-2 text-sm font-semibold uppercase text-gray-400">
+          Páginas
+        </li>
+
+        {/* Profile */}
+        <li className="nav-item">
+          <a
+            className="nav-link flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+            href="users-profile.html"
+          >
+            <Icons.MdPersonAddAlt className="text-xl mr-2" />
+            <span>Profile</span>
+          </a>
+        </li>
+
+        {/* FAQ */}
+        <li className="nav-item">
+          <a
+            className="nav-link flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+            href="pages-faq.html"
+          >
+            <Icons.MdOutlineQuestionAnswer className="text-xl mr-2" />
+            <span>F.A.Q</span>
+          </a>
+        </li>
+
+        {/* Contact */}
+        <li className="nav-item">
+          <a
+            className="nav-link flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+            href="pages-contact.html"
+          >
+            <Icons.BiEnvelope className="text-xl mr-2" />
+            <span>Contact</span>
+          </a>
+        </li>
+
+        {/* Register */}
+        <li className="nav-item">
+          <a
+            className="nav-link flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+            href="pages-register.html"
+          >
+            <Icons.IoListSharp className="text-xl mr-2" />
+            <span>Register</span>
+          </a>
+        </li>
+
+        {/* Login */}
+        <li className="nav-item">
+          <a
+            className="nav-link flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+            href="pages-login.html"
+          >
+            <Icons.BiLogIn className="text-xl mr-2" />
+            <span>Login</span>
+          </a>
+        </li>
+
+        {/* Error 404 */}
+        <li className="nav-item">
+          <a
+            className="nav-link flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+            href="pages-error-404.html"
+          >
+            <Icons.BiErrorCircle className="text-xl mr-2" />
+            <span>Error 404</span>
+          </a>
+        </li>
+
+        {/* Blank Page */}
+        <li className="nav-item">
+          <a
+            className="nav-link flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+            href="pages-blank.html"
+          >
+            <Icons.BiFile className="text-xl mr-2" />
+            <span>Blank</span>
+          </a>
+        </li>
+      </ul>
+    </aside>
+  );
 };
 
 export default Aside;
