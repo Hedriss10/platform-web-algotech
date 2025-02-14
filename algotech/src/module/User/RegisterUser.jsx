@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { notify } from "../utils/toastify";
 import { useUser } from "../../service/UserContext";
+import MaskCpf from "../utils/MaskCpf";
 import Roles from "./Service/Roles";
+import manageRegisterUsers from "./Service/ManageuserApi";
 
-// import roles from "../data/Roles"; // Supondo que você tenha uma lista de funções
-
-const RegisterUser = () => {
+const RegisterUser = ({ onClose }) => {
   const { user, token } = useUser();
   const [formData, setFormData] = useState({
     username: "",
@@ -22,23 +22,30 @@ const RegisterUser = () => {
     carga_horaria_semanal: "",
   });
 
-  // função para buscar os roles
-  const role = async () => {
-    const response = await Roles.getAllRoles();
-    return response;
-  };
+  const [roles, setRoles] = useState([]);
+  useEffect(() => {
+    const fetchRoles = async () => {
+      const rolesService = new Roles(user?.id);
+      const response = await rolesService.getAllRoles();
+      if (response?.data) {
+        setRoles(response.data);
+      }
+    };
+
+    fetchRoles();
+  }, [user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [name]: name === "carga_horaria_semanal" ? Number(value) : value });
   };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Lógica para enviar os dados do formulário para a API
+      const usersApi = new manageRegisterUsers(user?.id);
+      const response = await usersApi.registerUser(formData, token);
       notify("Usuário cadastrado com sucesso", { type: "success" });
-      onClose();
     } catch (error) {
       notify("Erro ao cadastrar usuário", { type: "error" });
     }
@@ -69,19 +76,19 @@ const RegisterUser = () => {
         </nav>
       </div>
 
-      <div className="bg-gray-600 rounded-lg shadow-lg p-6">
+      <div className="bg-gray-700 rounded-lg shadow-lg p-6">
         <div className="flex justify-end">
           <button onClick={onClose} className="text-white">
             Fechar
           </button>
         </div>
-        <form onSubmit={handleFormSubmit} className="space-y-4">
+        <form onSubmit={handleFormSubmit} className="space-y-4 text-white">
           <div>
             <label
               htmlFor="username"
               className="block text-sm font-medium text-white"
             >
-              Nome de Usuário
+              Nome de Usuário:
             </label>
             <input
               type="text"
@@ -98,7 +105,7 @@ const RegisterUser = () => {
               htmlFor="lastname"
               className="block text-sm font-medium text-white"
             >
-              Sobrenome
+              Sobrenome:
             </label>
             <input
               type="text"
@@ -115,7 +122,7 @@ const RegisterUser = () => {
               htmlFor="email"
               className="block text-sm font-medium text-white"
             >
-              Email
+              Email:
             </label>
             <input
               type="email"
@@ -132,14 +139,17 @@ const RegisterUser = () => {
               htmlFor="cpf"
               className="block text-sm font-medium text-white"
             >
-              CPF
+              CPF:
             </label>
             <input
               type="text"
               id="cpf"
               name="cpf"
               value={formData.cpf}
-              onChange={handleChange}
+              onChange={(e) => {
+                const formattedCpf = MaskCpf(e.target.value);
+                setFormData({ ...formData, cpf: formattedCpf });
+              }}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -149,7 +159,7 @@ const RegisterUser = () => {
               htmlFor="password"
               className="block text-sm font-medium text-white"
             >
-              Senha
+              Senha:
             </label>
             <input
               type="password"
@@ -166,7 +176,7 @@ const RegisterUser = () => {
               htmlFor="typecontract"
               className="block text-sm font-medium text-white"
             >
-              Cargo
+              Cargo:
             </label>
             <select
               id="typecontract"
@@ -177,13 +187,10 @@ const RegisterUser = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option selected disabled hidden>
-                Selecione o Cargo
+                Selecione o Cargo:
               </option>
-              {Position.map((position) => (
-                <option key={position.name} value={position.name}>
-                  {position.name}
-                </option>
-              ))}
+              <option value="ativo">Estágiario</option>
+              <option value="inativo">Funcionário</option>
             </select>
           </div>
           <div>
@@ -191,7 +198,7 @@ const RegisterUser = () => {
               htmlFor="role"
               className="block text-sm font-medium text-white"
             >
-              Função
+              Função:
             </label>
             <select
               id="role"
@@ -201,10 +208,10 @@ const RegisterUser = () => {
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option selected disabled hidden>
+              <option value="" disabled hidden>
                 Selecione uma Função
               </option>
-              {role.map((role) => (
+              {roles.map((role) => (
                 <option key={role.id} value={role.name}>
                   {role.name}
                 </option>
@@ -216,7 +223,7 @@ const RegisterUser = () => {
               htmlFor="matricula"
               className="block text-sm font-medium text-white"
             >
-              Matrícula
+              Matrícula:
             </label>
             <input
               type="text"
@@ -233,7 +240,7 @@ const RegisterUser = () => {
               htmlFor="numero_pis"
               className="block text-sm font-medium text-white"
             >
-              Número do PIS
+              Número do PIS:
             </label>
             <input
               type="text"
@@ -250,7 +257,7 @@ const RegisterUser = () => {
               htmlFor="empresa"
               className="block text-sm font-medium text-white"
             >
-              Empresa
+              Empresa:
             </label>
             <input
               type="text"
@@ -267,7 +274,7 @@ const RegisterUser = () => {
               htmlFor="situacao_cadastro"
               className="block text-sm font-medium text-white"
             >
-              Situação Cadastro
+              Situação Cadastro:
             </label>
             <select
               id="situacao_cadastro"
