@@ -1,0 +1,318 @@
+import React, { useState } from "react";
+import { notify } from "../utils/toastify";
+import { useUser } from "../../service/UserContext";
+import Roles from "./Service/Roles";
+
+// import roles from "../data/Roles"; // Supondo que você tenha uma lista de funções
+
+const RegisterUser = () => {
+  const { user, token } = useUser();
+  const [formData, setFormData] = useState({
+    username: "",
+    lastname: "",
+    email: "",
+    cpf: "",
+    password: "",
+    typecontract: "",
+    role: "",
+    matricula: "",
+    numero_pis: "",
+    empresa: "",
+    situacao_cadastro: "",
+    carga_horaria_semanal: "",
+  });
+
+  // função para buscar os roles
+  const role = async () => {
+    const response = await Roles.getAllRoles();
+    return response;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Lógica para enviar os dados do formulário para a API
+      notify("Usuário cadastrado com sucesso", { type: "success" });
+      onClose();
+    } catch (error) {
+      notify("Erro ao cadastrar usuário", { type: "error" });
+    }
+  };
+
+  return (
+    <div className="flex-1 p-15 w-full bg-gray-100 h-full text-gray-700">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">Cadastrar Usuários</h1>
+        <nav className="text-sm text-gray-400">
+          <ol className="flex space-x-2">
+            <li>
+              <a href="/home" className="hover:text-bg-gray-200">
+                Home
+              </a>
+            </li>
+            <li>/</li>
+            <li>
+              <a href="/users" className="hover:text-bg-gray-200">
+                Usuários
+              </a>
+            </li>
+            <li>/</li>
+            <li className="text-bg-gray-200">
+              <strong>Cadastrar</strong>
+            </li>
+          </ol>
+        </nav>
+      </div>
+
+      <div className="bg-gray-600 rounded-lg shadow-lg p-6">
+        <div className="flex justify-end">
+          <button onClick={onClose} className="text-white">
+            Fechar
+          </button>
+        </div>
+        <form onSubmit={handleFormSubmit} className="space-y-4">
+          <div>
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-white"
+            >
+              Nome de Usuário
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="lastname"
+              className="block text-sm font-medium text-white"
+            >
+              Sobrenome
+            </label>
+            <input
+              type="text"
+              id="lastname"
+              name="lastname"
+              value={formData.lastname}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-white"
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="cpf"
+              className="block text-sm font-medium text-white"
+            >
+              CPF
+            </label>
+            <input
+              type="text"
+              id="cpf"
+              name="cpf"
+              value={formData.cpf}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-white"
+            >
+              Senha
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="typecontract"
+              className="block text-sm font-medium text-white"
+            >
+              Cargo
+            </label>
+            <select
+              id="typecontract"
+              name="typecontract"
+              value={formData.typecontract}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option selected disabled hidden>
+                Selecione o Cargo
+              </option>
+              {Position.map((position) => (
+                <option key={position.name} value={position.name}>
+                  {position.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label
+              htmlFor="role"
+              className="block text-sm font-medium text-white"
+            >
+              Função
+            </label>
+            <select
+              id="role"
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option selected disabled hidden>
+                Selecione uma Função
+              </option>
+              {role.map((role) => (
+                <option key={role.id} value={role.name}>
+                  {role.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label
+              htmlFor="matricula"
+              className="block text-sm font-medium text-white"
+            >
+              Matrícula
+            </label>
+            <input
+              type="text"
+              id="matricula"
+              name="matricula"
+              value={formData.matricula}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="numero_pis"
+              className="block text-sm font-medium text-white"
+            >
+              Número do PIS
+            </label>
+            <input
+              type="text"
+              id="numero_pis"
+              name="numero_pis"
+              value={formData.numero_pis}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="empresa"
+              className="block text-sm font-medium text-white"
+            >
+              Empresa
+            </label>
+            <input
+              type="text"
+              id="empresa"
+              name="empresa"
+              value={formData.empresa}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="situacao_cadastro"
+              className="block text-sm font-medium text-white"
+            >
+              Situação Cadastro
+            </label>
+            <select
+              id="situacao_cadastro"
+              name="situacao_cadastro"
+              value={formData.situacao_cadastro}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option selected disabled hidden>
+                Selecione um status
+              </option>
+              <option value="ativo">Ativo</option>
+              <option value="inativo">Inativo</option>
+            </select>
+          </div>
+          <div>
+            <label
+              htmlFor="carga_horaria_semanal"
+              className="block text-sm font-medium text-white"
+            >
+              Carga Horária Semanal
+            </label>
+            <input
+              type="number"
+              id="carga_horaria_semanal"
+              name="carga_horaria_semanal"
+              value={formData.carga_horaria_semanal}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Cadastrar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default RegisterUser;

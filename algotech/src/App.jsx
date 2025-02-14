@@ -25,10 +25,10 @@ function App() {
       {!isLoginPage && <Header toggleAside={toggleAside} />}
 
       <div className="flex flex-col min-h-screen">
-        <div className="flex flex-1">
+        <div className="flex flex-2">
           {!isLoginPage && <Aside isOpen={isAsideOpen} />}
           <main
-            className={`flex-1 p-4 transition-margin duration-300 ease-in-out ${
+            className={`flex-12 p-4 transition-margin duration-300 ease-in-out ${
               isAsideOpen ? "ml-64" : "ml-0"
             }`}
           >

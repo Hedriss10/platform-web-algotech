@@ -14,7 +14,13 @@ import {
   BiChat,
 } from "react-icons/bi";
 
-import { FaRegGem, FaHeart, FaSearch } from "react-icons/fa";
+import {
+  FaRegGem,
+  FaHeart,
+  FaSearch,
+  FaRegUser,
+  FaHouseUser,
+} from "react-icons/fa";
 import { MdPersonAddAlt, MdOutlineQuestionAnswer } from "react-icons/md";
 import { IoListSharp, IoPersonCircleSharp } from "react-icons/io5";
 import { GoGear } from "react-icons/go";
@@ -43,6 +49,8 @@ const Icons = {
   IoPersonCircleSharp,
   GoGear,
   CiBoxList,
+  FaRegUser,
+  FaHouseUser,
 };
 
 export default Icons;

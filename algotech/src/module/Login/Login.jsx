@@ -21,7 +21,6 @@ const Login = () => {
         const userData = response.data[0];
 
         localStorage.setItem("userData", JSON.stringify(userData));
-        console.log("user data da api", userData);
         login(userData);
 
         localStorage.setItem("access_token", response.metadata.access_token);
