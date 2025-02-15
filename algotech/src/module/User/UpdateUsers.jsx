@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { notify } from "../utils/toastify";
 import { useUser } from "../../service/UserContext";
 import ManageUser from "../User/Service/UsersApi";
@@ -245,7 +245,7 @@ const UpdateUsers = ({ onClose }) => {
               {loading ? "Salvando..." : "Salvar"}
             </button>
             <button className="ml-2 px-4 py-2 bg-red-500 text-white rounded-md">
-              <a href="/users">Fechar</a>
+              <Link to="/users">Fechar</Link>
             </button>
           </div>
         </form>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom"; // Importe o Link
+import { Link } from "react-router-dom";
 import Icons from "../utils/Icons";
 import { useUser } from "../../service/UserContext";
 
