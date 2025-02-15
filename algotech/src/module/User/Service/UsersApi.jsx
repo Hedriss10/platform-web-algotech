@@ -81,6 +81,25 @@ class ManageUser {
     }
   }
 
+  async resetPassword(data, token) {
+    try {
+      const response = await api.post(`/login/reset-master`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
+        },
+      });
+  
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+  
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
   async deleteUser(id, token) {
     try {
       const response = await api.delete(`/user/${id}`, {
