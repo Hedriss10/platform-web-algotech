@@ -38,7 +38,7 @@ const RegisterRoles = () => {
             <Link to="/home" className="hover:text-bg-gray-200">
               <strong>Home</strong>
             </Link>
-            <Link to="/users" className="hover:text-bg-gray-200">
+            <Link to="/roles" className="hover:text-bg-gray-200">
               <strong>Cargos</strong>
             </Link>
           </ol>
