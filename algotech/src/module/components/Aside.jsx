@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import Icons from "../utils/Icons";
 
 const Aside = ({ isOpen }) => {
@@ -19,9 +20,7 @@ const Aside = ({ isOpen }) => {
 
   return (
     <aside
-      className={`w-64 bg-gray-800 text-white fixed top-15 bottom-0 transition-transform duration-300 ease-in-out ${
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      }`}
+      className={`w-64 bg-gray-800 text-white fixed top-15 bottom-0 transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
       <ul className="p-4 space-y-2">
         {/* Dashboard */}
@@ -179,35 +178,42 @@ const Aside = ({ isOpen }) => {
           )}
         </li>
 
-        {/* Icons */}
+        {/* Gerenciamento de usuários */}
         <li className="nav-item">
-          <a
-            className="nav-link flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"
+          <button
+            className="nav-link flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300 w-full text-left"
             onClick={() => toggleMenu("icons")}
           >
             <div className="flex items-center">
-              <Icons.FaRegGem className="text-xl mr-2" />
-              <span>Icons</span>
+              <Icons.FaRegUser className="text-xl mr-2" />
+              <span>Usuários</span>
             </div>
             <Icons.BiChevronDown
               className={`text-xl transition-transform duration-300 ${
                 openMenus.icons ? "rotate-180" : ""
               }`}
             />
-          </a>
+          </button>
           {openMenus.icons && (
             <ul className="nav-content pl-6 mt-2 space-y-2">
-              {["Bootstrap Icons", "Remix Icons", "Boxicons"].map((item) => (
-                <li key={item}>
-                  <a
-                    // href=""
-                    className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-                  >
-                    <Icons.BiCircle className="text-sm mr-2" />
-                    <span>{item}</span>
-                  </a>
-                </li>
-              ))}
+              <li>
+                <Link
+                  to="/users"
+                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+                >
+                  <Icons.FaHouseUser className="text-sm mr-2" />
+                  <span>Gerenciamento</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/register"
+                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+                >
+                  <Icons.FaUsersGear className="text-sm mr-2" />
+                  <span>Cadastrar</span>
+                </Link>
+              </li>
             </ul>
           )}
         </li>

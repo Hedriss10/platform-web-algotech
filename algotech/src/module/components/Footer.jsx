@@ -1,5 +1,4 @@
 import React from "react";
-import Icons from "../utils/Icons";
 
 /**
  * Footer component.
@@ -15,10 +14,9 @@ const Footer = () => {
     <footer className="bg-gray-800 text-white text-center py-4">
       <div className="text-sm">
         &copy; {new Date().getFullYear()}{" "}
-        <strong className="text-blue-400">NiceAdmin</strong>. All Rights
-        Reserved.
+        <strong className="text-blue-400">Maisbs</strong>. All Rights Reserved.
       </div>
-      <div className="text-sm mt-2 flex items-center justify-center gap-1">
+      {/* <div className="text-sm mt-2 flex items-center justify-center gap-1">
         Designed by
         <a
           href="https://bootstrapmade.com/"
@@ -26,10 +24,10 @@ const Footer = () => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          BootstrapMade
+          
         </a>
         <Icons.FaHeart className="text-blue-500" />
-      </div>
+      </div> */}
     </footer>
   );
 };
