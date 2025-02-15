@@ -210,7 +210,7 @@ const Aside = ({ isOpen }) => {
                   to="/register"
                   className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
                 >
-                  <Icons.FaHouseUser className="text-sm mr-2" />
+                  <Icons.FaUsersGear className="text-sm mr-2" />
                   <span>Cadastrar</span>
                 </Link>
               </li>

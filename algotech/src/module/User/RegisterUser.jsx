@@ -37,7 +37,10 @@ const RegisterUser = ({ onClose }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: name === "carga_horaria_semanal" ? Number(value) : value });
+    setFormData({
+      ...formData,
+      [name]: name === "carga_horaria_semanal" ? Number(value) : value,
+    });
   };
 
   const handleFormSubmit = async (e) => {

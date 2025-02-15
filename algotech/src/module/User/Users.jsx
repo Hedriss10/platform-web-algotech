@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import ManageUser from "../User/Service/UsersApi";
 import { notify } from "../utils/toastify";
 import { useUser } from "../../service/UserContext";
-import { FaTrash, FaBan, FaSearch } from "react-icons/fa";
+import Icons from "../utils/Icons";
 import MaskCpf from "../utils/MaskCpf";
 
 const ManageUsers = () => {
+  const navigate = useNavigate();
   const { user, token } = useUser();
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -68,6 +70,16 @@ const ManageUsers = () => {
     }
   };
 
+  // função para redirecionar para o update do users
+  const handleEditUser = (id) => {
+    try {
+      navigate(`/users/update/${id}`);
+    } catch (error) {
+      console.log(error);
+      notify("Error ao editar usuário", { type: "error" });
+    }
+  };
+
   // Função para mudar a página
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -121,7 +133,7 @@ const ManageUsers = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <button className="p-2 bg-gray-600 rounded-lg hover:bg-gray-500 transition duration-300">
-              <FaSearch className="text-white" />
+              <Icons.FaSearch className="text-white" />
             </button>
           </div>
         </div>
@@ -145,6 +157,9 @@ const ManageUsers = () => {
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   Ações
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
+                  Editar
                 </th>
               </tr>
             </thead>
@@ -199,15 +214,23 @@ const ManageUsers = () => {
                           className="p-2 bg-red-600 rounded-lg hover:bg-red-500 transition duration-300"
                           onClick={() => handleDeleteUser(user.id)}
                         >
-                          <FaTrash className="text-white" />
+                          <Icons.FaTrash className="text-white" />
                         </button>
                         <button
                           className="p-2 bg-yellow-600 rounded-lg hover:bg-yellow-500 transition duration-300"
                           onClick={() => handleBlockUser(user.id)}
                         >
-                          <FaBan className="text-white" />
+                          <Icons.FaBan className="text-white" />
                         </button>
                       </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        className="p-2 bg-blue-600 rounded-lg hover:bg-blue-500 transition duration-300"
+                        onClick={() => handleEditUser(user.id)}
+                      >
+                        <Icons.FaEdit className="text-white" />
+                      </button>
                     </td>
                   </tr>
                 ))

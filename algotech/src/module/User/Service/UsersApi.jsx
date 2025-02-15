@@ -43,6 +43,25 @@ class ManageUser {
     }
   }
 
+  async getUserById(id, token) {
+    try {
+      const response = await api.get(`/user/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
+        },
+      });
+
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
   async updateUser(id, data, token) {
     try {
       const response = await api.put(`/user/${id}`, data, {
