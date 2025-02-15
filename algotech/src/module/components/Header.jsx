@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import Icons from "../utils/Icons";
+import { useUser } from "../../service/UserContext";
 
 const Header = ({ toggleAside }) => {
+  const { user, token } = useUser();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
   const toggleProfileMenu = () => {
@@ -53,7 +55,7 @@ const Header = ({ toggleAside }) => {
               alt="Profile"
               className="h-8 w-8 rounded-full"
             /> */}
-            <span className="ml-2 hidden md:block">K. Anderson</span>
+            <span className="ml-2 hidden md:block">{user?.username}</span>
             <Icons.BiChevronDown className="ml-1 h-5 w-5" />
           </button>
 
@@ -61,36 +63,24 @@ const Header = ({ toggleAside }) => {
           {isProfileMenuOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
               <div className="px-4 py-2 border-b">
-                <h6 className="font-semibold text-gray-800">Kevin Anderson</h6>
-                <span className="text-sm text-gray-600">Web Designer</span>
+                <h6 className="font-semibold text-gray-800">
+                  {user?.username}
+                </h6>
+                <span className="text-sm text-gray-600">{user?.role}</span>
               </div>
               <a
-                href="users-profile.html"
+                href="/profile"
                 className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
               >
                 <Icons.IoPersonCircleSharp className="mr-2 h-5 w-5" />
-                <span>My Profile</span>
-              </a>
-              <a
-                href="users-profile.html"
-                className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
-              >
-                <Icons.GoGear className="mr-2 h-5 w-5" />
-                <span>Account Settings</span>
-              </a>
-              <a
-                href="pages-faq.html"
-                className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
-              >
-                <Icons.BiCircle className="mr-2 h-5 w-5" />
-                <span>Need Help?</span>
+                <span>Meu Perfil</span>
               </a>
               <a
                 href="#"
                 className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
               >
                 <Icons.CiBoxList className="mr-2 h-5 w-5" />
-                <span>Sign Out</span>
+                <span>Sair</span>
               </a>
             </div>
           )}

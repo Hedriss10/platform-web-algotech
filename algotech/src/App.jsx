@@ -10,13 +10,11 @@ import "./App.css";
 
 function App() {
   const [isAsideOpen, setIsAsideOpen] = useState(false);
-  const location = useLocation(); // Obtém a rota atual
+  const location = useLocation();
 
   const toggleAside = () => {
     setIsAsideOpen(!isAsideOpen);
   };
-
-  // Verifica se a página atual é a de login
   const isLoginPage = location.pathname === "/";
 
   return (

@@ -89,11 +89,11 @@ class ManageUser {
           id: this.user_id,
         },
       });
-  
+
       if (response.data.error) {
         throw new Error(response.data.message_id);
       }
-  
+
       return response.data;
     } catch (error) {
       throw new Error(error.message);

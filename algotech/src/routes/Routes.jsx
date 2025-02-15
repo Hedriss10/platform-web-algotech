@@ -5,6 +5,7 @@ import Login from "../module/Login/Login";
 import ManageUsers from "../module/User/Users";
 import RegisterUser from "../module/User/RegisterUser";
 import UpdateUsers from "../module/User/UpdateUsers";
+import Profile from "../module/Profile/Profile";
 
 /**
  * AppRoutes component.
@@ -22,6 +23,7 @@ const AppRoutes = () => {
       <Route path="/home" element={<Home />} />
       <Route path="/users" element={<ManageUsers />} />
       <Route path="/register" element={<RegisterUser />} />
+      <Route path="/profile" element={<Profile />} />
       <Route path="/users/update/:id" element={<UpdateUsers />} />
     </Routes>
   );
