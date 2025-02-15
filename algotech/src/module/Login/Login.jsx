@@ -19,12 +19,10 @@ const Login = () => {
       const response = await AuthService.AuthService(email, password);
       if (response.data && response.data.length > 0) {
         const userData = response.data[0];
+        const token = response.metadata;
 
-        localStorage.setItem("userData", JSON.stringify(userData));
-        login(userData);
-
-        localStorage.setItem("access_token", response.metadata.access_token);
-
+        login(userData, token);
+        
         notify("Login realizado com sucesso!", { type: "success" });
         navigate("/home");
       } else {

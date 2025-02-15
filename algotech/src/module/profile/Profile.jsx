@@ -13,7 +13,6 @@ const UserProfile = () => {
 
   const handleResertPassword = async (e) => {
     e.preventDefault();
-    console.log(formData);
     if (formData.newPassword === formData.confirmPassword) {
         const passowrd = { password: formData.newPassword };
         const usersApi = new ManageUser(user?.id);
@@ -22,7 +21,6 @@ const UserProfile = () => {
     } else {
       notify("Senhas diferentes", { type: "error" });
     }
-    console.log("Resetar senha");
   };
   const handleInputChange = (e) => {
     const { name, value } = e.target;

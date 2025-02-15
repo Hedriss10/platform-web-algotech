@@ -19,7 +19,6 @@ function App() {
 
   return (
     <UserProvider>
-      {/* Renderiza o layout completo apenas se NÃO estiver na página de login */}
       {!isLoginPage && <Header toggleAside={toggleAside} />}
 
       <div className="flex flex-col min-h-screen">

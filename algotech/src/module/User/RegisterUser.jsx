@@ -189,7 +189,7 @@ const RegisterUser = ({ onClose }) => {
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option selected disabled hidden>
+              <option value="" hidden>
                 Selecione o Cargo:
               </option>
               <option value="ativo">Estágiario</option>
@@ -287,7 +287,7 @@ const RegisterUser = ({ onClose }) => {
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option selected disabled hidden>
+              <option value="" hidden>
                 Selecione um status
               </option>
               <option value="ativo">Ativo</option>
