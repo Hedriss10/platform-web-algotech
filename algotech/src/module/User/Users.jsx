@@ -80,6 +80,22 @@ const ManageUsers = () => {
     }
   };
 
+  // Função para resetar a senha
+  const handleResetPassword = async (e, userId) => {
+    e.preventDefault();
+  
+    try {
+      const usersApi = new ManageUser(user?.id);
+      const payload = { id: userId };
+      const response = await usersApi.resetPassword(payload, token);  
+      notify("Senha resetada com sucesso", { type: "success" });
+      loadUsers();
+    } catch (error) {
+      console.log(error);
+      notify("Erro ao resetar senha", { type: "error" });
+    }
+  };
+
   // Função para mudar a página
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -161,6 +177,9 @@ const ManageUsers = () => {
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   Editar
                 </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
+                  Reset
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-500">
@@ -232,13 +251,20 @@ const ManageUsers = () => {
                         <Icons.FaEdit className="text-white" />
                       </button>
                     </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={(e) => handleResetPassword(e, user.id)}
+                        className="p-2 bg-blue-600 rounded-lg hover:bg-blue-500 transition duration-300"
+                      >
+                        <Icons.MdLockReset className="text-white" />
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
         </div>
-
         {/* Paginação */}
         <div className="flex justify-between items-center mt-6">
           <div>

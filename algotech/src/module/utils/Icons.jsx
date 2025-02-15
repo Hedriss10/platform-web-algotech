@@ -24,7 +24,11 @@ import {
   FaTrash,
   FaBan,
 } from "react-icons/fa";
-import { MdPersonAddAlt, MdOutlineQuestionAnswer } from "react-icons/md";
+import {
+  MdPersonAddAlt,
+  MdOutlineQuestionAnswer,
+  MdLockReset,
+} from "react-icons/md";
 import { IoListSharp, IoPersonCircleSharp } from "react-icons/io5";
 import { FaUsersGear } from "react-icons/fa6";
 import { GoGear } from "react-icons/go";
@@ -59,6 +63,7 @@ const Icons = {
   FaEdit,
   FaTrash,
   FaBan,
+  MdLockReset,
 };
 
 export default Icons;
