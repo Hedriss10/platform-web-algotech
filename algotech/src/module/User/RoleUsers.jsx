@@ -1,35 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import ManageUser from "../User/Service/UsersApi";
-import { notify } from "../utils/toastify";
-import { useUser } from "../../service/UserContext";
 import Icons from "../utils/Icons";
-import MaskCpf from "../utils/MaskCpf";
+import { useUser } from "../../service/UserContext";
+import { notify } from "../utils/toastify";
+import Roles from "./Service/Roles";
 
-const ManageUsers = () => {
-  const navigate = useNavigate();
+const RoleUsers = () => {
+  const [role, setRole] = useState("");
   const { user, token } = useUser();
-  const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  // Função para carregar os usuários
-  const loadUsers = async () => {
+  // Função para carregar os cargos
+  const loadRoles = async () => {
     setLoading(true);
     try {
-      const usersApi = new ManageUser(
+      const apiRoles = new Roles(
         user?.id,
         searchTerm,
         currentPage,
         rowsPerPage,
       );
-      const response = await usersApi.getAllUsers();
+      const response = await apiRoles.getAllRoles();
 
       if (response && response.data) {
-        setUsers(response.data); // Use response.data
+        setRole(response.data);
         setTotalPages(response.metadata.total_pages);
       } else {
         throw new Error("Resposta da API inválida: data não encontrado");
@@ -41,60 +39,13 @@ const ManageUsers = () => {
     }
   };
 
-  // Efeito para carregar os usuários
   useEffect(() => {
-    loadUsers();
+    loadRoles();
   }, [currentPage, searchTerm, rowsPerPage]);
 
-  // Função para deletar um usuário
-  const handleDeleteUser = async (id) => {
-    try {
-      const usersApi = new ManageUser();
-      await usersApi.deleteUser(id, token); // Passa o token
-      notify("Usuário deletado com sucesso", { type: "success" });
-      loadUsers();
-    } catch (error) {
-      notify("Erro ao deletar usuário", { type: "error" });
-    }
-  };
-
-  // Função para bloquear um usuário
-  const handleBlockUser = async (id) => {
-    try {
-      const usersApi = new ManageUser();
-      await usersApi.updateUser(id, { is_block: true }, token); // Passa o token
-      notify("Usuário bloqueado com sucesso", { type: "success" });
-      loadUsers();
-    } catch (error) {
-      notify("Error ao bloquear usário", { type: "error" });
-    }
-  };
-
-  // função para redirecionar para o update do users
-  const handleEditUser = (id) => {
-    try {
-      navigate(`/users/update/${id}`);
-    } catch (error) {
-      console.log(error);
-      notify("Error ao editar usuário", { type: "error" });
-    }
-  };
-
-  // Função para resetar a senha
-  const handleResetPassword = async (e, userId) => {
-    e.preventDefault();
-
-    try {
-      const usersApi = new ManageUser(user?.id);
-      const payload = { id: userId };
-      const response = await usersApi.resetPassword(payload, token);
-      notify("Senha resetada com sucesso", { type: "success" });
-      loadUsers();
-    } catch (error) {
-      console.log(error);
-      notify("Erro ao resetar senha", { type: "error" });
-    }
-  };
+  const [formData, setFormData] = useState({
+    name: "",
+  });
 
   // Função para mudar a página
   const handlePageChange = (newPage) => {
@@ -107,18 +58,34 @@ const ManageUsers = () => {
     setCurrentPage(1);
   };
 
+  // Função para deletar um cargo
+  const handleDeleteRole = async (id) => {
+    try {
+      const userApi = new Roles(user?.id);
+      const response = await userApi.deleteRole(id, token);
+      notify("Cargo criado com sucesso", { type: "success" });
+    } catch (error) {
+      notify("Error ao deletar o cargo", { type: "error" });
+    } finally {
+      loadRoles();
+    }
+  };
+
   return (
     <div className="flex-1 p-15 w-full bg-gray-100 h-full text-gray-700">
       {/* Título e Breadcrumb */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Gerenciar Usuários</h1>
+        <h1 className="text-2xl font-bold">Gerenciar Cargos</h1>
         <nav className="text-sm text-gray-400">
           <ol className="flex space-x-2">
             <Link to="/home" className="hover:text-bg-gray-200">
               <strong>Home</strong>
             </Link>
-            <Link to="/users" className="hover:text-bg-gray-200">
-              <strong>Usuários</strong>
+            <Link to="/roles" className="hover:text-bg-gray-200">
+              <strong>Cargos</strong>
+            </Link>
+            <Link to="/newrole" className="hover:text-bg-gray-200">
+              <strong>Cadastrar Cargo</strong>
             </Link>
           </ol>
         </nav>
@@ -128,9 +95,7 @@ const ManageUsers = () => {
       <div className="bg-gray-700 rounded-lg shadow-lg p-6">
         {/* Título e Campo de Busca */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-white">
-            Lista de Usuários
-          </h2>
+          <h2 className="text-xl font-semibold text-white">Lista de Cargos</h2>
           <div className="flex items-center space-x-2">
             <input
               type="text"
@@ -154,22 +119,7 @@ const ManageUsers = () => {
                   Nome
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  CPF
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Ações
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Editar
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Reset
+                  Deletar
                 </th>
               </tr>
             </thead>
@@ -183,72 +133,33 @@ const ManageUsers = () => {
                     Carregando...
                   </td>
                 </tr>
-              ) : users.length === 0 ? (
+              ) : role.length === 0 ? (
                 <tr>
                   <td
                     colSpan="5"
                     className="px-6 py-4 text-center text-gray-300"
                   >
-                    Nenhum usuário encontrado.
+                    Nenhum cargo encontrado.
                   </td>
                 </tr>
               ) : (
-                users.map((user) => (
+                role.map((roles) => (
                   <tr
-                    key={user.id}
+                    key={roles.id}
                     className="hover:bg-gray-550 transition duration-300"
                   >
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      {user.username}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {user.email}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {MaskCpf(user.cpf)}
-                    </td>
-                    <td className="px-6 py-4">
-                      {user.is_block ? (
-                        <span className="px-2 py-1 text-xs font-semibold bg-red-500 text-white rounded-full">
-                          Bloqueado
-                        </span>
-                      ) : (
-                        <span className="px-2 py-1 text-xs font-semibold bg-green-500 text-white rounded-full">
-                          Ativo
-                        </span>
-                      )}
+                      {roles.name}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex space-x-2">
                         <button
                           className="p-2 bg-red-600 rounded-lg hover:bg-red-500 transition duration-300"
-                          onClick={() => handleDeleteUser(user.id)}
+                          onClick={() => handleDeleteRole(roles.id)}
                         >
                           <Icons.FaTrash className="text-white" />
                         </button>
-                        <button
-                          className="p-2 bg-yellow-600 rounded-lg hover:bg-yellow-500 transition duration-300"
-                          onClick={() => handleBlockUser(user.id)}
-                        >
-                          <Icons.FaBan className="text-white" />
-                        </button>
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <button
-                        className="p-2 bg-blue-600 rounded-lg hover:bg-blue-500 transition duration-300"
-                        onClick={() => handleEditUser(user.id)}
-                      >
-                        <Icons.FaEdit className="text-white" />
-                      </button>
-                    </td>
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={(e) => handleResetPassword(e, user.id)}
-                        className="p-2 bg-blue-600 rounded-lg hover:bg-blue-500 transition duration-300"
-                      >
-                        <Icons.MdLockReset className="text-white" />
-                      </button>
                     </td>
                   </tr>
                 ))
@@ -319,4 +230,4 @@ const ManageUsers = () => {
   );
 };
 
-export default ManageUsers;
+export default RoleUsers;

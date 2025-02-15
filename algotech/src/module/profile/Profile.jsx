@@ -14,10 +14,10 @@ const UserProfile = () => {
   const handleResertPassword = async (e) => {
     e.preventDefault();
     if (formData.newPassword === formData.confirmPassword) {
-        const passowrd = { password: formData.newPassword };
-        const usersApi = new ManageUser(user?.id);
-        const response = await usersApi.updateUser(user?.id, passowrd, token);
-        notify("Senha resetada com sucesso", { type: "success" });
+      const passowrd = { password: formData.newPassword };
+      const usersApi = new ManageUser(user?.id);
+      const response = await usersApi.updateUser(user?.id, passowrd, token);
+      notify("Senha resetada com sucesso", { type: "success" });
     } else {
       notify("Senhas diferentes", { type: "error" });
     }
@@ -100,7 +100,9 @@ const UserProfile = () => {
                     Detalhamento de usuário
                   </p>
 
-                  <h5 className="text-xl font-bold mb-4">Detalhes do Perfil:</h5>
+                  <h5 className="text-xl font-bold mb-4">
+                    Detalhes do Perfil:
+                  </h5>
                   <div className="space-y-4">
                     <div className="flex">
                       <div className="w-1/3 font-medium">Nome Completo:</div>

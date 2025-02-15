@@ -28,6 +28,7 @@ import {
   MdPersonAddAlt,
   MdOutlineQuestionAnswer,
   MdLockReset,
+  MdOutlineWork,
 } from "react-icons/md";
 import { IoListSharp, IoPersonCircleSharp } from "react-icons/io5";
 import { FaUsersGear } from "react-icons/fa6";
@@ -64,6 +65,7 @@ const Icons = {
   FaTrash,
   FaBan,
   MdLockReset,
+  MdOutlineWork,
 };
 
 export default Icons;

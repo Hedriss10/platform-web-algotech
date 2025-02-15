@@ -8,6 +8,8 @@ const ManageUsers = lazy(() => import("../module/User/Users"));
 const RegisterUser = lazy(() => import("../module/User/RegisterUser"));
 const UpdateUsers = lazy(() => import("../module/User/UpdateUsers"));
 const Profile = lazy(() => import("../module/Profile/Profile"));
+const RoleUsers = lazy(() => import("../module/User/RoleUsers"));
+const RolersRegister = lazy(() => import("../module/User/RegisterRoles"));
 
 const AppRoutes = () => {
   return (
@@ -17,6 +19,8 @@ const AppRoutes = () => {
         <Route element={<ProtectedRoute />}>
           <Route path="/home" element={<Home />} />
           <Route path="/users" element={<ManageUsers />} />
+          <Route path="/roles" element={<RoleUsers />} />
+          <Route path="/newrole" element={<RolersRegister />} />
           <Route path="/register" element={<RegisterUser />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/users/update/:id" element={<UpdateUsers />} />
