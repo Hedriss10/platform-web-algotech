@@ -83,11 +83,11 @@ const ManageUsers = () => {
   // Função para resetar a senha
   const handleResetPassword = async (e, userId) => {
     e.preventDefault();
-  
+
     try {
       const usersApi = new ManageUser(user?.id);
       const payload = { id: userId };
-      const response = await usersApi.resetPassword(payload, token);  
+      const response = await usersApi.resetPassword(payload, token);
       notify("Senha resetada com sucesso", { type: "success" });
       loadUsers();
     } catch (error) {

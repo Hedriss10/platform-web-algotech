@@ -1,29 +1,28 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
-import Home from "../module/components/Home";
-import Login from "../module/Login/Login";
-import ManageUsers from "../module/User/Users";
-import RegisterUser from "../module/User/RegisterUser";
-import UpdateUsers from "../module/User/UpdateUsers";
+import { ProtectedRoute } from "./ProtectRoutes";
 
-/**
- * AppRoutes component.
- *
- * This component renders the main routes of the application, using the
- * {@link https://reactrouter.com/en/main/route/render-methods `Routes` component}
- * from `react-router-dom`.
- *
- * @returns {JSX.Element} The main routes of the application.
- */
+const Home = lazy(() => import("../module/components/Home"));
+const Login = lazy(() => import("../module/Login/Login"));
+const ManageUsers = lazy(() => import("../module/User/Users"));
+const RegisterUser = lazy(() => import("../module/User/RegisterUser"));
+const UpdateUsers = lazy(() => import("../module/User/UpdateUsers"));
+const Profile = lazy(() => import("../module/Profile/Profile"));
+
 const AppRoutes = () => {
   return (
-    <Routes>
-      <Route path="/" element={<Login />} />
-      <Route path="/home" element={<Home />} />
-      <Route path="/users" element={<ManageUsers />} />
-      <Route path="/register" element={<RegisterUser />} />
-      <Route path="/users/update/:id" element={<UpdateUsers />} />
-    </Routes>
+    <Suspense>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/home" element={<Home />} />
+          <Route path="/users" element={<ManageUsers />} />
+          <Route path="/register" element={<RegisterUser />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/users/update/:id" element={<UpdateUsers />} />
+        </Route>
+      </Routes>
+    </Suspense>
   );
 };
 
