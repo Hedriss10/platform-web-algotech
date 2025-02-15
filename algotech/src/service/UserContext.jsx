@@ -11,10 +11,10 @@ export const UserProvider = ({ children }) => {
     const storedToken = localStorage.getItem("access_token");
 
     if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser)); 
-      setToken(storedToken); 
+      setUser(JSON.parse(storedUser));
+      setToken(storedToken);
     }
-  }, []); 
+  }, []);
 
   const login = (userData, accessToken) => {
     setUser(userData);

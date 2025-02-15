@@ -214,6 +214,15 @@ const Aside = ({ isOpen }) => {
                   <span>Cadastrar</span>
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/roles"
+                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+                >
+                  <Icons.MdOutlineWork className="text-sm mr-2" />
+                  <span>Cargos</span>
+                </Link>
+              </li>
             </ul>
           )}
         </li>

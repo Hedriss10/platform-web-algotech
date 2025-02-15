@@ -22,7 +22,7 @@ const Login = () => {
         const token = response.metadata;
 
         login(userData, token);
-        
+
         notify("Login realizado com sucesso!", { type: "success" });
         navigate("/home");
       } else {

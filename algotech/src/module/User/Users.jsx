@@ -114,16 +114,10 @@ const ManageUsers = () => {
         <h1 className="text-2xl font-bold">Gerenciar Usuários</h1>
         <nav className="text-sm text-gray-400">
           <ol className="flex space-x-2">
-            <Link
-              to="/home"
-              className="hover:text-bg-gray-200"
-            >
+            <Link to="/home" className="hover:text-bg-gray-200">
               <strong>Home</strong>
             </Link>
-            <Link
-              to="/users"
-              className="hover:text-bg-gray-200"
-            >
+            <Link to="/users" className="hover:text-bg-gray-200">
               <strong>Usuários</strong>
             </Link>
           </ol>
