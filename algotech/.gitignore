@@ -1,6 +1,6 @@
 # env variables credentials
 .env
-env
+env/
 .env/
 *.env
 

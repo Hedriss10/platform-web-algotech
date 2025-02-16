@@ -1,81 +1,92 @@
-import React, { useState, useEffect } from "react";
-import { useUser } from "../../service/UserContext";
-import { useNavigate, Link } from "react-router-dom";
-import { notify } from "../utils/toastify";
-import Icons from "../utils/Icons";
-import ManageRoosms from "../Rooms/Service/ManageRooms";
+/// TODO ajustar o deletar e verificar o criar, e deletar em lote
 
-const Rooms = () => {
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link, useParams } from "react-router-dom";
+import { notify } from "../utils/toastify";
+import { useUser } from "../../service/UserContext";
+import Icons from "../utils/Icons";
+import ManageRooms from "../Rooms/Service/ManageRooms";
+
+const PreviewRooms = () => {
+  const { id } = useParams(); // Captura o id da sala da URL
   const navigate = useNavigate();
-  const { user, token } = useUser();
-  const [rooms, setRooms] = useState([]);
+  const {user, token } = useUser();
+  const [usersInRoom, setUsersInRoom] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState([]); // Estado para armazenar os IDs dos usuários selecionados
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  // função para listar salas
-  const loadRooms = async () => {
+  // Função para carregar os usuários da sala
+  const loadUsersRooms = async (id) => {
     setLoading(true);
     try {
-      const usersApi = new ManageRoosms(
+      const usersApi = new ManageRooms(
         user?.id,
         searchTerm,
         currentPage,
-        rowsPerPage,
+        rowsPerPage
       );
-      const response = await usersApi.getAllRooms();
+      const response = await usersApi.getAllUsersRooms(id);
 
       if (response && response.data) {
-        setRooms(response.data);
+        setUsersInRoom(response.data);
         setTotalPages(response.metadata.total_pages);
       } else {
         throw new Error("Resposta da API inválida: data não encontrado");
       }
     } catch (error) {
       console.error(error);
+      notify("Erro ao carregar usuários da sala", { type: "error" });
     } finally {
       setLoading(false);
     }
   };
 
-  // Efeito para carregar os usuários
-  useEffect(() => {
-    loadRooms();
-  }, [currentPage, searchTerm, rowsPerPage]);
-
-  // Deletar uma sala
-  const handleDeleteRooms = async (id) => {
+  // Função para deletar um ou mais usuários da sala
+  const handleDeleteUsersRooms = async (userId, data) => {
     try {
-      const rooms = new ManageRoosms();
-      await rooms.deleteRoom(id, token); // Passa o token
-      notify("Sala deletado com sucesso", { type: "success" });
-      loadRooms();
+      const rooms = new ManageRooms(user?.id);
+      const roomsUsers = {ids: [data[0]]};
+      await rooms.deleteUsersRooms(userId, roomsUsers, token); // Passa o id da sala, os IDs dos usuários e o token
+      notify("Usuário(s) deletado(s) da sala com sucesso", { type: "success" });
+      loadUsersRooms(id); 
+      setSelectedUsers([]);
     } catch (error) {
-      notify("Erro ao deletar sala", { type: "error" });
+      notify("Erro ao deletar usuário(s) da sala", { type: "error" });
     }
   };
 
-  // Editar uma sala
-  const handleEditRooms = (id) => {
-    try {
-      navigate(`/rooms/update/${id}`);
-    } catch (error) {
-      console.log(error);
-      notify("Error ao editar sala", { type: "error" });
+  // Função para selecionar/deselecionar um usuário
+  const handleSelectUser = (userId) => {
+    if (selectedUsers.includes(userId)) {
+      setSelectedUsers(selectedUsers.filter((id) => id !== userId)); // Remove o ID se já estiver selecionado
+    } else {
+      setSelectedUsers([...selectedUsers, userId]); // Adiciona o ID se não estiver selecionado
     }
   };
 
-  // Função para processar a sala
-  const handleGetRoomByid = (id) => {
-    try {
-      navigate(`/rooms/${id}`);
-    } catch (error) {
-      notify("Error ao processar a sala", { type: "error" });
+  // Função para selecionar/deselecionar todos os usuários
+  const handleSelectAllUsers = () => {
+    if (selectedUsers.length === usersInRoom.length) {
+      setSelectedUsers([]); // Desmarca todos se já estiverem selecionados
+    } else {
+      setSelectedUsers(usersInRoom.map((user) => user.id)); // Seleciona todos
     }
   };
 
+  // Função para deletar usuários selecionados em lote
+  const handleDeleteSelectedUsers = () => {
+    if (selectedUsers.length === 0) {
+      notify("Nenhum usuário selecionado", { type: "warning" });
+      return;
+    }
+    handleDeleteUsersRooms(id, selectedUsers); // Passa o id da sala e os IDs dos usuários selecionados
+  };
+
+  // Função para mudar a página
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };
@@ -86,11 +97,18 @@ const Rooms = () => {
     setCurrentPage(1);
   };
 
+  // Carrega os usuários da sala quando o componente é montado ou quando o id, currentPage, rowsPerPage ou searchTerm mudam
+  useEffect(() => {
+    if (id) {
+      loadUsersRooms(id);
+    }
+  }, [id, currentPage, rowsPerPage, searchTerm]);
+
   return (
     <div className="flex-1 p-15 w-full bg-gray-100 h-full text-gray-700">
       {/* Título e Breadcrumb */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Gerenciar Salas</h1>
+        <h1 className="text-2xl font-bold">Lista de Usuário</h1>
         <nav className="text-sm text-gray-400">
           <ol className="flex space-x-2">
             <Link to="/home" className="hover:text-bg-gray-200">
@@ -100,17 +118,16 @@ const Rooms = () => {
               <strong>Salas</strong>
             </Link>
             <Link to="/newrooms" className="hover:text-bg-gray-200">
-              <strong>Cadastrar Sala</strong>
+              <strong>Cadastrar Usuários Na Sala</strong>
             </Link>
           </ol>
         </nav>
       </div>
 
-      {/* Card da Tabela */}
+      {/* Título e Campo de Busca */}
       <div className="bg-gray-700 rounded-lg shadow-lg p-6">
-        {/* Título e Campo de Busca */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-white">Listar Salas</h2>
+          <h2 className="text-xl font-semibold text-white">Lista de Usuários</h2>
           <div className="flex items-center space-x-2">
             <input
               type="text"
@@ -125,74 +142,82 @@ const Rooms = () => {
           </div>
         </div>
 
-        {/* Tabela de Usuários */}
+        {/* Botão para deletar usuários selecionados */}
+        <div className="mb-4">
+          <button
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition duration-300"
+            onClick={handleDeleteSelectedUsers}
+          >
+            Deletar Selecionados
+          </button>
+        </div>
+
+        {/* Tabela de usuários que estão na sala */}
         <div className="overflow-x-auto">
           <table className="min-w-full bg-gray-600 rounded-lg overflow-hidden">
             <thead className="bg-gray-500">
               <tr>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
+                  <input
+                    type="checkbox"
+                    checked={selectedUsers.length === usersInRoom.length}
+                    onChange={handleSelectAllUsers}
+                  />
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
+                  Sala
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   Nome
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Visualizar
+                  Cargo
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Editar
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Apagar
+                  Deletar
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-500">
               {loading ? (
                 <tr>
-                  <td
-                    colSpan="5"
-                    className="px-6 py-4 text-center text-gray-300"
-                  >
+                  <td colSpan="5" className="px-6 py-4 text-center text-gray-300">
                     Carregando...
                   </td>
                 </tr>
-              ) : rooms.length === 0 ? (
+              ) : usersInRoom.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan="5"
-                    className="px-6 py-4 text-center text-gray-300"
-                  >
-                    Nenhum sala encontrado.
+                  <td colSpan="5" className="px-6 py-4 text-center text-gray-300">
+                    Nenhum usuário encontrado na sala.
                   </td>
                 </tr>
               ) : (
-                rooms.map((room) => (
+                usersInRoom.map((user) => (
                   <tr
-                    key={room.id}
+                    key={user.id}
                     className="hover:bg-gray-550 transition duration-300"
                   >
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      {room.name}
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.includes(user.id)}
+                        onChange={() => handleSelectUser(user.id)}
+                      />
                     </td>
-                    <td className="px-6 py-4">
-                      <button
-                        className="p-2 bg-blue-600 rounded-lg hover:bg-blue-500 transition duration-300"
-                        onClick={() => handleGetRoomByid(room.id)}
-                      >
-                        <Icons.MdOutlinePreview className="text-white" />
-                      </button>
+                    <td className="px-6 py-4 text-sm text-gray-200">
+                      {user.room_name}
                     </td>
-                    <td className="px-6 py-4">
-                      <button
-                        className="p-2 bg-blue-600 rounded-lg hover:bg-blue-500 transition duration-300"
-                        onClick={() => handleEditRooms(room.id)}
-                      >
-                        <Icons.FaEdit className="text-white" />
-                      </button>
+                    <td className="px-6 py-4 text-sm text-gray-200">
+                      {user.name}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-200">
+                      {user.role}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex space-x-2">
                         <button
                           className="p-2 bg-red-600 rounded-lg hover:bg-red-500 transition duration-300"
-                          onClick={() => handleDeleteRooms(room.id)}
+                          onClick={() => handleDeleteUsersRooms(id, [user.id])}
                         >
                           <Icons.FaTrash className="text-white" />
                         </button>
@@ -204,6 +229,7 @@ const Rooms = () => {
             </tbody>
           </table>
         </div>
+
         {/* Paginação */}
         <div className="flex justify-between items-center mt-6">
           <div>
@@ -267,4 +293,4 @@ const Rooms = () => {
   );
 };
 
-export default Rooms;
+export default PreviewRooms;

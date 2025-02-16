@@ -153,7 +153,7 @@ const Aside = ({ isOpen }) => {
           >
             <div className="flex items-center">
               <Icons.BiBarChart className="text-xl mr-2" />
-              <span>Charts</span>
+              <span>Salas</span>
             </div>
             <Icons.BiChevronDown
               className={`text-xl transition-transform duration-300 ${
@@ -163,17 +163,15 @@ const Aside = ({ isOpen }) => {
           </a>
           {openMenus.charts && (
             <ul className="nav-content pl-6 mt-2 space-y-2">
-              {["Chart.js", "ApexCharts", "ECharts"].map((item) => (
-                <li key={item}>
-                  <a
-                    // href=""
-                    className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-                  >
-                    <Icons.BiCircle className="text-sm mr-2" />
-                    <span>{item}</span>
-                  </a>
-                </li>
-              ))}
+              <li>
+                <Link
+                  to="/rooms"
+                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+                >
+                  <Icons.FaHouseUser className="text-sm mr-2" />
+                  <span>Gerenciamento</span>
+                </Link>
+              </li>
             </ul>
           )}
         </li>

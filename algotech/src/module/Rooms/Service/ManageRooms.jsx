@@ -21,7 +21,28 @@ class ManageRoosms {
 
   async getAllRooms() {
     try {
-      const response = await api.get("/room", {
+      const response = await api.get("/rooms", {
+        params: {
+          filter_by: this.search_term,
+          current_page: this.current_page,
+          rows_per_page: this.rows_per_page,
+          page_number: this.page_number,
+          order_by: this.order_by,
+          filter_value: this.filter_value,
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async getAllUsersRooms(id) {
+    try {
+      const response = await api.get(`/rooms/rooms-users/${id}`, {
         params: {
           filter_by: this.search_term,
           current_page: this.current_page,
@@ -42,7 +63,7 @@ class ManageRoosms {
 
   async postRooms(data, token) {
     try {
-      const response = await api.post("/room", data, {
+      const response = await api.post("/rooms", data, {
         headers: {
           Authorization: `Bearer ${token}`,
           id: this.user_id,
@@ -59,7 +80,7 @@ class ManageRoosms {
 
   async getRoomsById(id, token) {
     try {
-      const response = await api.get(`/room/${id}`, {
+      const response = await api.get(`/rooms/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           id: this.user_id,
@@ -76,7 +97,24 @@ class ManageRoosms {
 
   async deleteRoom(id, token) {
     try {
-      const response = await api.delete(`/room/${id}`, {
+      const response = await api.delete(`/rooms/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async deleteUsersRooms(id, data, token) {
+    try {
+      const response = await api.post(`/rooms/rooms-users/${id}`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
           id: this.user_id,
@@ -91,3 +129,5 @@ class ManageRoosms {
     }
   }
 }
+
+export default ManageRoosms;
