@@ -48,7 +48,7 @@ const Login = () => {
           </a>
         </div>
 
-        {/* Card de Login TODO verificar se a possibilidae*/}
+        {/* Card de Login TODO verificar se a possibilidades*/}
         <div className="bg-white rounded-lg">
           <div className="p-6">
             <div className="text-center mb-6">

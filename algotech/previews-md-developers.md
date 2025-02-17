@@ -25,3 +25,13 @@ npm install react-router-dom
 ```bash
 npm install jszip react-toastify react-icons react-hook-form file-saver
 ```
+
+
+
+#### Buttos
+Descrição de modelos de `buttons`
+
+```bash
+Search -> bg-gray-600 hover:bg-gray-500
+Cadastrar -> bg-green-400 hover:bg-green-500
+```

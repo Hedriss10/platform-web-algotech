@@ -61,6 +61,23 @@ class ManageRoosms {
     }
   }
 
+  async postRoomsUsers(data, token) {
+    try {
+      const response = await api.post("/rooms/rooms-users", data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
   async postRooms(data, token) {
     try {
       const response = await api.post("/rooms", data, {

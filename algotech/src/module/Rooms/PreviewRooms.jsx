@@ -25,7 +25,7 @@ const PreviewRooms = () => {
         user?.id,
         searchTerm,
         currentPage,
-        rowsPerPage
+        rowsPerPage,
       );
       const response = await usersApi.getAllUsersRooms(id);
 
@@ -51,7 +51,9 @@ const PreviewRooms = () => {
       await rooms.deleteUsersRooms(roomId, roomsUsers, token); // Passa o id da sala, os IDs dos usuários e o token
       notify("Usuário(s) deletado(s) da sala com sucesso", { type: "success" });
       setSelectedUsers([]); // Limpa a seleção de usuários
-      setUsersInRoom((prevUsers) => prevUsers.filter(user => !userIds.includes(user.id))); /// TODO codigo perfomatico
+      setUsersInRoom((prevUsers) =>
+        prevUsers.filter((user) => !userIds.includes(user.id)),
+      ); /// TODO codigo perfomatico
     } catch (error) {
       notify("Erro ao deletar usuário(s) da sala", { type: "error" });
     }
@@ -81,7 +83,7 @@ const PreviewRooms = () => {
       notify("Nenhum usuário selecionado", { type: "warning" });
       return;
     }
-    handleDeleteUsersRooms(id, selectedUsers); // Passa o id da sala e os IDs dos usuários selecionados
+    handleDeleteUsersRooms(id, selectedUsers);
   };
 
   // Função para mudar a página
@@ -115,7 +117,7 @@ const PreviewRooms = () => {
             <Link to="/rooms" className="hover:text-bg-gray-200">
               <strong>Salas</strong>
             </Link>
-            <Link to="/newrooms" className="hover:text-bg-gray-200">
+            <Link to="/usersrooms" className="hover:text-bg-gray-200">
               <strong>Cadastrar Usuários Na Sala</strong>
             </Link>
           </ol>
@@ -125,7 +127,9 @@ const PreviewRooms = () => {
       {/* Título e Campo de Busca */}
       <div className="bg-gray-700 rounded-lg shadow-lg p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-white">Lista de Usuários</h2>
+          <h2 className="text-xl font-semibold text-white">
+            Lista de Usuários
+          </h2>
           <div className="flex items-center space-x-2">
             <input
               type="text"
@@ -143,7 +147,7 @@ const PreviewRooms = () => {
         {/* Botão para deletar usuários selecionados */}
         <div className="mb-4">
           <button
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition duration-300"
+            className="px-4 py-2 bg-red-400 text-white rounded-lg hover:bg-red-500 transition duration-300"
             onClick={handleDeleteSelectedUsers}
           >
             Deletar Selecionados
@@ -179,13 +183,19 @@ const PreviewRooms = () => {
             <tbody className="divide-y divide-gray-500">
               {loading ? (
                 <tr>
-                  <td colSpan="5" className="px-6 py-4 text-center text-gray-300">
+                  <td
+                    colSpan="5"
+                    className="px-6 py-4 text-center text-gray-300"
+                  >
                     Carregando...
                   </td>
                 </tr>
               ) : usersInRoom.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="px-6 py-4 text-center text-gray-300">
+                  <td
+                    colSpan="5"
+                    className="px-6 py-4 text-center text-gray-300"
+                  >
                     Nenhum usuário encontrado na sala.
                   </td>
                 </tr>
