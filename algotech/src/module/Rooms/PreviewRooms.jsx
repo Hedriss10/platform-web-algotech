@@ -1,5 +1,3 @@
-/// TODO ajustar o deletar e verificar o criar, e deletar em lote
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useParams } from "react-router-dom";
 import { notify } from "../utils/toastify";
@@ -10,7 +8,7 @@ import ManageRooms from "../Rooms/Service/ManageRooms";
 const PreviewRooms = () => {
   const { id } = useParams(); // Captura o id da sala da URL
   const navigate = useNavigate();
-  const {user, token } = useUser();
+  const { user, token } = useUser();
   const [usersInRoom, setUsersInRoom] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]); // Estado para armazenar os IDs dos usuários selecionados
   const [searchTerm, setSearchTerm] = useState("");
@@ -46,14 +44,14 @@ const PreviewRooms = () => {
   };
 
   // Função para deletar um ou mais usuários da sala
-  const handleDeleteUsersRooms = async (userId, data) => {
+  const handleDeleteUsersRooms = async (roomId, userIds) => {
     try {
       const rooms = new ManageRooms(user?.id);
-      const roomsUsers = {ids: [data[0]]};
-      await rooms.deleteUsersRooms(userId, roomsUsers, token); // Passa o id da sala, os IDs dos usuários e o token
+      const roomsUsers = { ids: userIds }; // Passa todos os IDs dos usuários
+      await rooms.deleteUsersRooms(roomId, roomsUsers, token); // Passa o id da sala, os IDs dos usuários e o token
       notify("Usuário(s) deletado(s) da sala com sucesso", { type: "success" });
-      loadUsersRooms(id); 
-      setSelectedUsers([]);
+      setSelectedUsers([]); // Limpa a seleção de usuários
+      setUsersInRoom((prevUsers) => prevUsers.filter(user => !userIds.includes(user.id))); /// TODO codigo perfomatico
     } catch (error) {
       notify("Erro ao deletar usuário(s) da sala", { type: "error" });
     }
