@@ -19,10 +19,10 @@ class ManageTablesFinance {
     this.filter_value = filter_value;
   }
 
-  async getAllTablesFinance(bankerID, financial_agreements_id) {
+  async getAllTablesFinance(financial_agreements_id) {
     try {
       const response = await api.get(
-        `/tablesfinance/${bankerID}/${financial_agreements_id}`,
+        `/tablesfinance/${financial_agreements_id}`,
         {
           params: {
             filter_by: this.search_term || "",
@@ -99,18 +99,19 @@ class ManageTablesFinance {
     }
   }
 
-  async deleteTablesFinance(bankerID, financial_agreements_id, data, token) {
+  async deleteTablesFinance(financial_agreements_id, data, token) {
     try {
       const response = await api.delete(
-        `/tablesfinance/${bankerID}/${financial_agreements_id}`,
-        data,
+        `/tablesfinance/${financial_agreements_id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
             id: this.user_id,
           },
+          data,
         },
       );
+      console.log(response);
       if (response.data.error) {
         throw new Error(response.data.message_id);
       }

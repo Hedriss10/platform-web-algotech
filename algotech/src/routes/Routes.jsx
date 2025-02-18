@@ -18,7 +18,9 @@ const PreviewFinance = lazy(() => import("../module/Finance/PreviewFinance"));
 const CardsBank = lazy(() => import("../module/Finance/CardBank"));
 const RegisterBank = lazy(() => import("../module/Finance/RegisterBank"));
 const UpdateBank = lazy(() => import("../module/Finance/UpdateBank"));
-const TablesFinance = lazy(() => import("../module/Finance/Tables/TablesFinance"));
+const TablesFinance = lazy(
+  () => import("../module/Finance/Tables/TablesFinance"),
+);
 
 const AppRoutes = () => {
   return (
@@ -41,7 +43,10 @@ const AppRoutes = () => {
           <Route path="/bank/:id" element={<CardsBank />} />
           <Route path="/newbank" element={<RegisterBank />} />
           <Route path="/bank/update/:id" element={<UpdateBank />} />
-          <Route path="/tablesfinance/:id/:id" element={<TablesFinance />} />
+          <Route
+            path="/tablesfinance/:bankerId/:financialAgreementsId"
+            element={<TablesFinance />}
+          />
         </Route>
       </Routes>
     </Suspense>
