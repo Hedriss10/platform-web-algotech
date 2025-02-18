@@ -14,6 +14,11 @@ const Rooms = lazy(() => import("../module/Rooms/Rooms"));
 const RegisterRooms = lazy(() => import("../module/Rooms/RegisterRooms"));
 const PreviewRooms = lazy(() => import("../module/Rooms/PreviewRooms"));
 const UsersRooms = lazy(() => import("../module/Rooms/AssociateUserRooms"));
+const PreviewFinance = lazy(() => import("../module/Finance/PreviewFinance"));
+const CardsBank = lazy(() => import("../module/Finance/CardBank"));
+const RegisterBank = lazy(() => import("../module/Finance/RegisterBank"));
+const UpdateBank = lazy(() => import("../module/Finance/UpdateBank"));
+const TablesFinance = lazy(() => import("../module/Finance/Tables/TablesFinance"));
 
 const AppRoutes = () => {
   return (
@@ -30,8 +35,13 @@ const AppRoutes = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/rooms" element={<Rooms />} />
           <Route path="/usersrooms" element={<UsersRooms />} />
+          <Route path="/finance" element={<PreviewFinance />} />
           <Route path="/users/update/:id" element={<UpdateUsers />} />
           <Route path="/rooms/:id" element={<PreviewRooms />} />
+          <Route path="/bank/:id" element={<CardsBank />} />
+          <Route path="/newbank" element={<RegisterBank />} />
+          <Route path="/bank/update/:id" element={<UpdateBank />} />
+          <Route path="/tablesfinance/:id/:id" element={<TablesFinance />} />
         </Route>
       </Routes>
     </Suspense>

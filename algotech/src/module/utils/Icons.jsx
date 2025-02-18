@@ -23,6 +23,7 @@ import {
   FaEdit,
   FaTrash,
   FaBan,
+  FaRegMoneyBillAlt,
 } from "react-icons/fa";
 import {
   MdPersonAddAlt,
@@ -30,6 +31,7 @@ import {
   MdLockReset,
   MdOutlineWork,
   MdOutlinePreview,
+  MdOutlineManageAccounts,
 } from "react-icons/md";
 import { IoListSharp, IoPersonCircleSharp } from "react-icons/io5";
 import { FaUsersGear } from "react-icons/fa6";
@@ -68,6 +70,8 @@ const Icons = {
   MdLockReset,
   MdOutlineWork,
   MdOutlinePreview,
+  FaRegMoneyBillAlt,
+  MdOutlineManageAccounts,
 };
 
 export default Icons;

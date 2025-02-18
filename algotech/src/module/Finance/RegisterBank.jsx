@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../../service/UserContext";
 import { notify } from "../utils/toastify";
-import Roles from "./Service/Roles";
+import ManageBankers from "./Service/ManageBankers";
 
-const RegisterRoles = () => {
+const RegisterBank = () => {
   const { user, token } = useUser();
   const [formData, setFormData] = useState({ name: "" });
   const navigate = useNavigate();
@@ -14,32 +14,32 @@ const RegisterRoles = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handlePostNewRole = async (e) => {
-    e.preventDefault();
+  const handlePostNewBank = async (e) => {
+    e.preventDefault(); // Previne o comportamento padrão do formulário
 
     try {
-      const apiRoles = new Roles(user?.id);
-      const resposne = await apiRoles.postRole(formData, token);
-      notify("Cargo criado com sucesso", { type: "success" });
+      const apiRoles = new ManageBankers(user?.id);
+      const resposne = await apiRoles.postBankers(formData, token);
+      notify("Banco criado com sucesso", { type: "success" });
       setTimeout(() => {
-        1000, navigate("/roles");
+        1000, navigate("/finance");
       });
     } catch (error) {
-      notify("Erro ao criar cargo", { type: "error" });
+      notify("Erro ao criar banco", { type: "error" });
     }
   };
 
   return (
     <div className="flex-1 p-15 w-full bg-gray-100 h-full text-gray-700">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Cadastrar Cargos</h1>
+        <h1 className="text-2xl font-bold">Cadastrar Bancos</h1>
         <nav className="text-sm text-gray-400">
           <ol className="flex space-x-2">
             <Link to="/home" className="hover:text-bg-gray-200">
               <strong>Home</strong>
             </Link>
-            <Link to="/roles" className="hover:text-bg-gray-200">
-              <strong>Cargos</strong>
+            <Link to="/finance" className="hover:text-bg-gray-200">
+              <strong>Bancos</strong>
             </Link>
           </ol>
         </nav>
@@ -47,17 +47,17 @@ const RegisterRoles = () => {
 
       <div className="bg-gray-700 rounded-lg shadow-lg p-6">
         <div className="flex justify-end">
-          <Link to="/roles">
+          <Link to="/finance">
             <button className="text-white">Fechar</button>
           </Link>
         </div>
-        <form onSubmit={handlePostNewRole} className="space-y-4 text-white">
+        <form onSubmit={handlePostNewBank} className="space-y-4 text-white">
           <div>
             <label
               htmlFor="name"
               className="block text-sm font-medium text-white"
             >
-              Nome do cargo:
+              Nome do Banco:
             </label>
             <input
               type="text"
@@ -83,4 +83,4 @@ const RegisterRoles = () => {
   );
 };
 
-export default RegisterRoles;
+export default RegisterBank;

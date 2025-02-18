@@ -122,8 +122,8 @@ const Aside = ({ isOpen }) => {
             onClick={() => toggleMenu("tables")}
           >
             <div className="flex items-center">
-              <Icons.BiLayout className="text-xl mr-2" />
-              <span>Tables</span>
+              <Icons.FaRegMoneyBillAlt className="text-xl mr-2" />
+              <span>Financeiro</span>
             </div>
             <Icons.BiChevronDown
               className={`text-xl transition-transform duration-300 ${
@@ -133,14 +133,13 @@ const Aside = ({ isOpen }) => {
           </a>
           {openMenus.tables && (
             <ul className="nav-content pl-6 mt-2 space-y-2">
-              {["General Tables", "Data Tables"].map((item) => (
-                <li key={item}>
-                  <a className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300">
-                    <Icons.BiCircle className="text-sm mr-2" />
-                    <span>{item}</span>
-                  </a>
-                </li>
-              ))}
+              <Link
+                to="/finance"
+                className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+              >
+                <Icons.MdOutlineManageAccounts className="text-sm mr-2" />
+                <span>Gestão Bancária</span>
+              </Link>
             </ul>
           )}
         </li>
