@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import ManageTablesFinance from "../Service/ManageTablesFinance";
 import { notify } from "../../utils/toastify";
 import { useUser } from "../../../service/UserContext";
-import { FaSearch, FaTrash } from "react-icons/fa";
+import Icons from "../../utils/Icons";
 
 const TablesFinance = () => {
   const { bankerId, financialAgreementsId } = useParams();
@@ -58,11 +58,7 @@ const TablesFinance = () => {
     try {
       const tablesApi = new ManageTablesFinance(user?.id);
       const data = { ids: selectedTables };
-      await tablesApi.deleteTablesFinance(
-        financialAgreementsId,
-        data,
-        token,
-      );
+      await tablesApi.deleteTablesFinance(financialAgreementsId, data, token);
       notify("Tabelas deletadas com sucesso", { type: "success" });
 
       setTablesFinance((prevTables) =>
@@ -99,7 +95,7 @@ const TablesFinance = () => {
             <Link to="/finance" className="hover:text-gray-200">
               <strong>Bancos</strong>
             </Link>
-            <Link to="/addtables" className="hover:text-gray-200">
+            <Link to={`/addtables/${financialAgreementsId}`} className="hover:text-gray-200">
               <strong>Cadastrar Tabela</strong>
             </Link>
           </ol>
@@ -120,13 +116,13 @@ const TablesFinance = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <button className="p-2 bg-gray-600 rounded-lg hover:bg-gray-500 transition duration-300">
-              <FaSearch className="text-white" />
+              <Icons.FaSearch className="text-white" />
             </button>
             <button
               className="p-2 bg-red-600 rounded-lg hover:bg-red-500 transition duration-300"
               onClick={handleDeleteTablesFinance}
             >
-              <FaTrash className="text-white" />
+              <Icons.FaTrash className="text-white" />
             </button>
           </div>
         </div>
@@ -216,7 +212,7 @@ const TablesFinance = () => {
                       {table.end_term || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      {table.table_type || "N/A"}
+                      {table.type_table || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
                       {table.table_code || "N/A"}

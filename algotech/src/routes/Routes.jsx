@@ -21,6 +21,17 @@ const UpdateBank = lazy(() => import("../module/Finance/UpdateBank"));
 const TablesFinance = lazy(
   () => import("../module/Finance/Tables/TablesFinance"),
 );
+const RegisterTablesFinance = lazy(
+  () => import("../module/Finance/Tables/RegisterTablesFinance"),
+);
+const FinancialAgreements = lazy(
+  () =>
+    import("../module/Finance/FinancialAgreements/RegisterFinancialAgreements"),
+);
+
+const RegisterTablesOneFinance = lazy(
+  () => import("../module/Finance/Tables/ResgisterTablesOneFinance"),
+);
 
 const AppRoutes = () => {
   return (
@@ -44,8 +55,20 @@ const AppRoutes = () => {
           <Route path="/newbank" element={<RegisterBank />} />
           <Route path="/bank/update/:id" element={<UpdateBank />} />
           <Route
+            path="/newtablesfinance/:id"
+            element={<RegisterTablesFinance />}
+          />
+          <Route
             path="/tablesfinance/:bankerId/:financialAgreementsId"
             element={<TablesFinance />}
+          />
+          <Route
+            path="/financialagreements/:id"
+            element={<FinancialAgreements />}
+          />
+          <Route
+            path="/addtables/:id"
+            element={<RegisterTablesOneFinance />}
           />
         </Route>
       </Routes>

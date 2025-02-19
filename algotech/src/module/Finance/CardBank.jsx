@@ -3,8 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../service/UserContext";
 import { notify } from "../utils/toastify";
 import ManageBankers from "./Service/ManageBankers";
-import { FaSearch, FaEdit, FaTrash } from "react-icons/fa";
-import { MdOutlinePreview } from "react-icons/md";
+import Icons from "../utils/Icons";
 
 const CardBank = () => {
   const { id } = useParams();
@@ -16,26 +15,27 @@ const CardBank = () => {
   const [bankerName, setBankerName] = useState("");
   const [bankerID, setBankerID] = useState("");
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        setLoading(true);
-        const usersApi = new ManageBankers(user?.id);
-        const response = await usersApi.getBankersById(id, token);
-        if (response && response.data.length > 0) {
-          const bankData = response.data[0];
-          setBankerName(bankData.name_bank || "");
-          setBankerID(bankData.banker_id || "");
-          setFinancialAgreements(bankData.financial_agreements || []);
-        }
-      } catch (error) {
-        notify("Erro ao carregar dados do banco", { type: "error" });
-      } finally {
-        setLoading(false);
+  const loadFinancialAgreements = async () => {
+    try {
+      setLoading(true);
+      const usersApi = new ManageBankers(user?.id);
+      const response = await usersApi.getBankersById(id, token);
+      if (response && response.data.length > 0) {
+        const bankData = response.data[0];
+        setBankerName(bankData.name_bank || "");
+        setBankerID(bankData.banker_id || "");
+        setFinancialAgreements(bankData.financial_agreements || []);
       }
-    };
+    } catch (error) {
+      notify("Erro ao carregar dados do banco", { type: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchUserData();
+  /// financial agreements para realizar a busca
+  useEffect(() => {
+    loadFinancialAgreements();
   }, [id, token, user]);
 
   const handleTablesFinance = async (agreementId) => {
@@ -48,10 +48,7 @@ const CardBank = () => {
       const usersApi = new ManageBankers(user?.id);
       await usersApi.deleteFinancialAgreementsBankers(id, token);
       notify("Convênio deletado com sucesso", { type: "success" });
-      const updatedAgreements = financialAgreements.filter(
-        (agreement) => agreement.id !== id,
-      );
-      setFinancialAgreements(updatedAgreements);
+      loadFinancialAgreements();
     } catch (error) {
       notify("Erro ao deletar convênio", { type: "error" });
     }
@@ -69,13 +66,32 @@ const CardBank = () => {
             <Link to="/finance" className="hover:text-bg-gray-200">
               <strong>Lista de Bancos</strong>
             </Link>
+            <Link
+              to={`/financialagreements/${bankerID || id}`}
+              className="hover:text-bg-gray-200"
+            >
+              <strong>Cadastrar Convênios</strong>
+            </Link>
           </ol>
         </nav>
       </div>
+
       <div className="bg-gray-700 rounded-lg shadow-lg p-6">
-        <h2 className="text-xl font-semibold text-white">
-          Convênios Financeiros
-        </h2>
+        {/* Cabeçalho com título e botão de importar */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-white">
+            Convênios Financeiros
+          </h2>
+          <button
+            className="p-2 bg-green-600 rounded-lg hover:bg-green-500 transition duration-300 flex items-center"
+            onClick={() => navigate(`/newtablesfinance/${bankerID || id}`)}
+          >
+            <Icons.RiFileExcel2Line className="mr-2" />
+            Importar tabela de comissão
+          </button>
+        </div>
+
+        {/* Tabela de convênios */}
         <div className="overflow-x-auto">
           <table className="min-w-full bg-gray-600 rounded-lg overflow-hidden">
             <thead className="bg-gray-500">
@@ -126,7 +142,7 @@ const CardBank = () => {
                           handleTablesFinance(agreement.id_financialagreements)
                         }
                       >
-                        <MdOutlinePreview className="text-white" />
+                        <Icons.MdOutlinePreview className="text-white" />
                       </button>
                     </td>
                     <td className="px-6 py-4">
@@ -138,7 +154,7 @@ const CardBank = () => {
                           )
                         }
                       >
-                        <FaTrash className="text-white" />
+                        <Icons.FaTrash className="text-white" />
                       </button>
                     </td>
                   </tr>

@@ -82,14 +82,14 @@ class ManageTablesFinance {
   }
 
   async importTablesFinance(data, token) {
-    // função tem que verificar, ela contem o formdata como parametros
     try {
-      const response = await api.post("/tablesfinance/import", data, {
+      const response = await api.post("/tablesfinance/import-tables", data, {
         headers: {
           Authorization: `Bearer ${token}`,
           id: this.user_id,
         },
       });
+      console.log(response);
       if (response.data.error) {
         throw new Error(response.data.message_id);
       }
