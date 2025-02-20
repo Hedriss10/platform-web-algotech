@@ -35,7 +35,7 @@ const PreviewReport = lazy(
   () => import("../module/Finance/Report/PreviewReport"),
 );
 const ListPayment = lazy(
-  () => import("../module/Finance/Report/Payment/ListPayament"),
+  () => import("../module/Finance/Report/Payment/ListPayment"),
 );
 const PreviewFlags = lazy(
   () => import("../module/Finance/Report/Flags/PreviewFlags"),
@@ -43,6 +43,14 @@ const PreviewFlags = lazy(
 
 const RegisterFlags = lazy(
   () => import("../module/Finance/Report/Flags/RegisterFlags"),
+);
+
+const ReportManager = lazy(
+  () => import("../module/Finance/Report/ReportManager"),
+);
+
+const ProcessPayments = lazy(
+  () => import("../module/Finance/Report/Payment/ProcessPayments"),
 );
 
 const AppRoutes = () => {
@@ -83,6 +91,8 @@ const AppRoutes = () => {
           <Route path="/payments-processed" element={<ListPayment />} />
           <Route path="/flags" element={<PreviewFlags />} />
           <Route path="/newflag" element={<RegisterFlags />} />
+          <Route path="/gerement-reports" element={<ReportManager />} />
+          <Route path="/process-payments" element={<ProcessPayments />} />
         </Route>
       </Routes>
     </Suspense>

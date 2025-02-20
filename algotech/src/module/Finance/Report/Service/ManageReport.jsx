@@ -42,6 +42,45 @@ class ManageReport {
     }
   }
 
+  async getImports() {
+    try {
+      const response = await api.get("/reportfinance/list-imports", {
+        params: {
+          current_page: this.current_page,
+          rows_per_page: this.rows_per_page,
+          filter_by: this.search_term,
+          page_number: this.page_number,
+          order_by: this.order_by,
+          filter_value: this.filter_value,
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async deleteImports(data, token) {
+    try {
+      const response = await api.delete("/reportfinance/delete-imports", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
+        },
+        data: data,
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
   async postFlags(data, token) {
     try {
       const response = await api.post("/reportfinance/flags", data, {
@@ -107,23 +146,20 @@ class ManageReport {
       const response = await api.delete("/reportfinance/flags-delete", {
         headers: {
           Authorization: `Bearer ${token}`,
-          id: this.user_id
+          id: this.user_id,
         },
-        data: data
+        data: data,
       });
-  
+
       if (response.data.error) {
         throw new Error(response.data.message_id);
       }
-  
+
       return response.data;
     } catch (error) {
       throw new Error(error.message);
     }
   }
-
-
-
 }
 
 export default ManageReport;

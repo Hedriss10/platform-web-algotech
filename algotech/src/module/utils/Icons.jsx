@@ -28,6 +28,8 @@ import {
   FaCreditCard,
   FaCog,
   FaFileAlt,
+  FaMoneyCheck,
+  FaMoneyBill,
 } from "react-icons/fa";
 import {
   MdPersonAddAlt,
@@ -84,6 +86,8 @@ const Icons = {
   FaCreditCard,
   FaCog,
   FaFileAlt,
+  FaMoneyCheck,
+  FaMoneyBill,
 };
 
 export default Icons;
