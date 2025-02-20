@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import ManageTablesFinance from "../Service/ManageTablesFinance";
-import { notify } from "../../utils/toastify";
-import { useUser } from "../../../service/UserContext";
-import Icons from "../../utils/Icons";
+import { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useUser } from "../../../../service/UserContext";
+import ManageReport from "../Service/ManageReport";
+import Icons from "../../../utils/Icons";
+import { notify } from "../../../utils/toastify";
 
-const TablesFinance = () => {
-  const { bankerId, financialAgreementsId } = useParams();
+const PreviewFlags = () => {
   const navigate = useNavigate();
   const { user, token } = useUser();
-  const [tablesFinance, setTablesFinance] = useState([]);
+  const [flags, setFlags] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -17,22 +16,18 @@ const TablesFinance = () => {
   const [loading, setLoading] = useState(false);
   const [selectedTables, setSelectedTables] = useState([]);
 
-  // Buscar tabela financeira
-  const loadTablesFinance = async () => {
+  const loadFlags = async () => {
     setLoading(true);
     try {
-      const usersApi = new ManageTablesFinance(
+      const usersApi = new ManageReport(
         user?.id,
         searchTerm,
         currentPage,
         rowsPerPage,
       );
-      const response = await usersApi.getAllTablesFinance(
-        financialAgreementsId,
-      );
-
+      const response = await usersApi.getFlags();
       if (response && response.data) {
-        setTablesFinance(response.data);
+        setFlags(response.data);
         setTotalPages(response.metadata?.total_pages || 1);
       } else {
         throw new Error("Resposta da API inválida: data não encontrado");
@@ -45,33 +40,36 @@ const TablesFinance = () => {
   };
 
   useEffect(() => {
-    loadTablesFinance();
+    loadFlags();
   }, [currentPage, searchTerm, rowsPerPage]);
 
-  // Deletar tabelas financeiras em lote
-  const handleDeleteTablesFinance = async () => {
+
+  // Função para apagar á flag especifica
+  const handleDeleteFlags = async (id) => {
     if (selectedTables.length === 0) {
-      notify("Nenhuma tabela selecionada", { type: "warning" });
+      notify("Nenhuma Flag selecionada", { type: "warning" });
       return;
     }
 
     try {
-      const tablesApi = new ManageTablesFinance(user?.id);
+      const tablesApi = new ManageReport(user?.id);
       const data = { ids: selectedTables };
-      await tablesApi.deleteTablesFinance(financialAgreementsId, data, token);
-      notify("Tabelas deletadas com sucesso", { type: "success" });
+      await tablesApi.deleteFlags(data, token);
+      notify("Flags deletadas com sucesso", { type: "success" });
 
-      setTablesFinance((prevTables) =>
-        prevTables.filter((table) => !selectedTables.includes(table.id)),
+      setFlags((prevTables) =>
+        prevTables.filter((flags) => !selectedTables.includes(flags.id)),
       );
-
       setSelectedTables([]);
+      loadFlags();
     } catch (error) {
-      console.error("Erro ao deletar tabelas:", error);
-      notify("Erro ao deletar tabelas", { type: "error" });
+      console.log(id);
+      console.error("Erro ao deletar Flags:", error);
+      notify("Erro ao deletar Flag", { type: "error" });
     }
   };
 
+  
   // Função para mudar a página
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -86,35 +84,31 @@ const TablesFinance = () => {
   return (
     <div className="flex-1 p-15 w-full bg-gray-100 h-full text-gray-700">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Gerenciar Tabelas</h1>
+        <h1 className="text-2xl font-bold">Gerenciamento de Flags</h1>
         <nav className="text-sm text-gray-400">
           <ol className="flex space-x-2">
-            <Link to="/home" className="hover:text-gray-200">
+            <Link to="/home" className="hover:text-bg-gray-200">
               <strong>Home</strong>
             </Link>
-            <Link to="/finance" className="hover:text-gray-200">
-              <strong>Bancos</strong>
+            <Link to="/report" className="hover:text-bg-gray-200">
+              <strong>Gerenciar Relatórios</strong>
             </Link>
-            <Link
-              to={`/addtables/${financialAgreementsId}`}
-              className="hover:text-gray-200"
-            >
-              <strong>Cadastrar Tabela</strong>
+            <Link to="/newflag" className="hover:text-bg-gray-200">
+              <strong>Cadastrar uma flag</strong>
             </Link>
           </ol>
         </nav>
       </div>
 
       <div className="bg-gray-700 rounded-lg shadow-lg p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-white">
-            Tabelas Registradas
-          </h2>
+        {/* Cabeçalho com título e botão de importar */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-white">Lista de Flags</h2>
           <div className="flex items-center space-x-2">
             <input
               type="text"
               className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Buscar tabela..."
+              placeholder="Buscar usuário..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -123,44 +117,33 @@ const TablesFinance = () => {
             </button>
             <button
               className="p-2 bg-red-600 rounded-lg hover:bg-red-500 transition duration-300"
-              onClick={handleDeleteTablesFinance}
+              onClick={handleDeleteFlags}
             >
               <Icons.FaTrash className="text-white" />
             </button>
           </div>
         </div>
 
+        {/* Tabela de convênios */}
         <div className="overflow-x-auto">
           <table className="min-w-full bg-gray-600 rounded-lg overflow-hidden">
             <thead className="bg-gray-500">
               <tr>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  <input
-                    type="checkbox"
-                    onChange={(e) => {
-                      setSelectedTables(
-                        e.target.checked ? tablesFinance.map((t) => t.id) : [],
-                      );
-                    }}
-                  />
+                    <input
+                      type="checkbox"
+                      onChange={(e) => {
+                        setSelectedTables(
+                          e.target.checked ? flags.map((t) => t.id) : [],
+                        );
+                      }}
+                    />
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Nome
+                  Name
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   Taxa
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Prazo Início
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Prazo Fim
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Tipo Tabela
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Código
                 </th>
               </tr>
             </thead>
@@ -168,57 +151,45 @@ const TablesFinance = () => {
               {loading ? (
                 <tr>
                   <td
-                    colSpan="7"
+                    colSpan="3"
                     className="px-6 py-4 text-center text-gray-300"
                   >
                     Carregando...
                   </td>
                 </tr>
-              ) : tablesFinance.length === 0 ? (
+              ) : flags.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="7"
+                    colSpan="3"
                     className="px-6 py-4 text-center text-gray-300"
                   >
-                    Nenhuma tabela encontrada.
+                    Nenhum flag disponível.
                   </td>
                 </tr>
               ) : (
-                tablesFinance.map((table) => (
+                flags.map((flagsReport, index) => (
                   <tr
-                    key={table.id}
+                    key={index}
                     className="hover:bg-gray-550 transition duration-300"
                   >
                     <td className="px-6 py-4">
                       <input
                         type="checkbox"
-                        checked={selectedTables.includes(table.id)}
+                        checked={selectedTables.includes(flagsReport.id)}
                         onChange={(e) => {
                           setSelectedTables((prev) =>
                             e.target.checked
-                              ? [...prev, table.id]
-                              : prev.filter((id) => id !== table.id),
+                              ? [...prev, flagsReport.id]
+                              : prev.filter((id) => id !== flagsReport.id),
                           );
                         }}
                       />
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      {table.name}
+                      {flagsReport.name || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      {table.rate || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {table.start_term || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {table.end_term || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {table.type_table || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {table.table_code || "N/A"}
+                      % {flagsReport.rate || "N/A"}
                     </td>
                   </tr>
                 ))
@@ -226,6 +197,7 @@ const TablesFinance = () => {
             </tbody>
           </table>
         </div>
+
         {/* Paginação */}
         <div className="flex justify-between items-center mt-6">
           <div>
@@ -287,4 +259,4 @@ const TablesFinance = () => {
   );
 };
 
-export default TablesFinance;
+export default PreviewFlags;

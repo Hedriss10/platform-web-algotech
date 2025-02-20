@@ -1,38 +1,33 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import ManageTablesFinance from "../Service/ManageTablesFinance";
-import { notify } from "../../utils/toastify";
-import { useUser } from "../../../service/UserContext";
-import Icons from "../../utils/Icons";
+import { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useUser } from "../../../../service/UserContext";
+import ManageReport from "../Service/ManageReport";
+import Icons from "../../../utils/Icons";
+import MaskCpf from "../../../utils/MaskCpf";
 
-const TablesFinance = () => {
-  const { bankerId, financialAgreementsId } = useParams();
+const ListPayment = () => {
   const navigate = useNavigate();
   const { user, token } = useUser();
-  const [tablesFinance, setTablesFinance] = useState([]);
+  const [reportsSellers, setReportsSellers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [selectedTables, setSelectedTables] = useState([]);
 
-  // Buscar tabela financeira
-  const loadTablesFinance = async () => {
+  // handle para carregar os pagamentos
+  const loadPaymentsUsers = async () => {
     setLoading(true);
     try {
-      const usersApi = new ManageTablesFinance(
+      const usersApi = new ManageReport(
         user?.id,
         searchTerm,
         currentPage,
         rowsPerPage,
       );
-      const response = await usersApi.getAllTablesFinance(
-        financialAgreementsId,
-      );
-
+      const response = await usersApi.getReport();
       if (response && response.data) {
-        setTablesFinance(response.data);
+        setReportsSellers(response.data);
         setTotalPages(response.metadata?.total_pages || 1);
       } else {
         throw new Error("Resposta da API inválida: data não encontrado");
@@ -45,32 +40,8 @@ const TablesFinance = () => {
   };
 
   useEffect(() => {
-    loadTablesFinance();
+    loadPaymentsUsers();
   }, [currentPage, searchTerm, rowsPerPage]);
-
-  // Deletar tabelas financeiras em lote
-  const handleDeleteTablesFinance = async () => {
-    if (selectedTables.length === 0) {
-      notify("Nenhuma tabela selecionada", { type: "warning" });
-      return;
-    }
-
-    try {
-      const tablesApi = new ManageTablesFinance(user?.id);
-      const data = { ids: selectedTables };
-      await tablesApi.deleteTablesFinance(financialAgreementsId, data, token);
-      notify("Tabelas deletadas com sucesso", { type: "success" });
-
-      setTablesFinance((prevTables) =>
-        prevTables.filter((table) => !selectedTables.includes(table.id)),
-      );
-
-      setSelectedTables([]);
-    } catch (error) {
-      console.error("Erro ao deletar tabelas:", error);
-      notify("Erro ao deletar tabelas", { type: "error" });
-    }
-  };
 
   // Função para mudar a página
   const handlePageChange = (newPage) => {
@@ -86,81 +57,73 @@ const TablesFinance = () => {
   return (
     <div className="flex-1 p-15 w-full bg-gray-100 h-full text-gray-700">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Gerenciar Tabelas</h1>
+        <h1 className="text-2xl font-bold">Gerenciamento de Relatórios</h1>
         <nav className="text-sm text-gray-400">
           <ol className="flex space-x-2">
-            <Link to="/home" className="hover:text-gray-200">
+            <Link to="/home" className="hover:text-bg-gray-200">
               <strong>Home</strong>
             </Link>
-            <Link to="/finance" className="hover:text-gray-200">
-              <strong>Bancos</strong>
-            </Link>
-            <Link
-              to={`/addtables/${financialAgreementsId}`}
-              className="hover:text-gray-200"
-            >
-              <strong>Cadastrar Tabela</strong>
+            <Link to="/report" className="hover:text-bg-gray-200">
+              <strong>Gerenciar Relatórios</strong>
             </Link>
           </ol>
         </nav>
       </div>
 
       <div className="bg-gray-700 rounded-lg shadow-lg p-6">
-        <div className="flex justify-between items-center mb-6">
+        {/* Cabeçalho com título e botão de importar */}
+        <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-white">
-            Tabelas Registradas
+            Lista de Pagamentos
           </h2>
           <div className="flex items-center space-x-2">
             <input
               type="text"
               className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Buscar tabela..."
+              placeholder="Buscar usuário..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <button className="p-2 bg-gray-600 rounded-lg hover:bg-gray-500 transition duration-300">
               <Icons.FaSearch className="text-white" />
             </button>
-            <button
-              className="p-2 bg-red-600 rounded-lg hover:bg-red-500 transition duration-300"
-              onClick={handleDeleteTablesFinance}
-            >
-              <Icons.FaTrash className="text-white" />
-            </button>
           </div>
         </div>
 
+        {/* Tabela de convênios */}
         <div className="overflow-x-auto">
           <table className="min-w-full bg-gray-600 rounded-lg overflow-hidden">
             <thead className="bg-gray-500">
               <tr>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  <input
-                    type="checkbox"
-                    onChange={(e) => {
-                      setSelectedTables(
-                        e.target.checked ? tablesFinance.map((t) => t.id) : [],
-                      );
-                    }}
-                  />
+                  Vendedor
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Nome
+                  CPF
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Taxa
+                  Número da Proposta
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Prazo Início
+                  Código da Tabela
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Prazo Fim
+                  Taxa de comissão
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Tipo Tabela
+                  Valor Base
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Código
+                  Taxa de Repasse
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
+                  Código de Tabela
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
+                  Repasse de comissão
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
+                  Valor da Operação
                 </th>
               </tr>
             </thead>
@@ -168,57 +131,56 @@ const TablesFinance = () => {
               {loading ? (
                 <tr>
                   <td
-                    colSpan="7"
+                    colSpan="3"
                     className="px-6 py-4 text-center text-gray-300"
                   >
                     Carregando...
                   </td>
                 </tr>
-              ) : tablesFinance.length === 0 ? (
+              ) : reportsSellers.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="7"
+                    colSpan="3"
                     className="px-6 py-4 text-center text-gray-300"
                   >
-                    Nenhuma tabela encontrada.
+                    Nenhum pagamento disponível.
                   </td>
                 </tr>
               ) : (
-                tablesFinance.map((table) => (
+                reportsSellers.map((ListPayment, index) => (
                   <tr
-                    key={table.id}
+                    key={index}
                     className="hover:bg-gray-550 transition duration-300"
                   >
-                    <td className="px-6 py-4">
-                      <input
-                        type="checkbox"
-                        checked={selectedTables.includes(table.id)}
-                        onChange={(e) => {
-                          setSelectedTables((prev) =>
-                            e.target.checked
-                              ? [...prev, table.id]
-                              : prev.filter((id) => id !== table.id),
-                          );
-                        }}
-                      />
+                    <td className="px-6 py-4 text-sm text-gray-200">
+                      {ListPayment.username || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      {table.name}
+                      {MaskCpf(ListPayment.cpf) || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      {table.rate || "N/A"}
+                      {ListPayment.number_proposal || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      {table.start_term || "N/A"}
+                      {ListPayment.table_code || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      {table.end_term || "N/A"}
+                      {ListPayment.taxe_comission || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      {table.type_table || "N/A"}
+                      {ListPayment.value_base || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      {table.table_code || "N/A"}
+                      % {ListPayment.taxe_repasse || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-200">
+                      {ListPayment.table_code || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-200">
+                      R$ {ListPayment.comission || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-200">
+                      R$ {ListPayment.value_operation || "N/A"}
                     </td>
                   </tr>
                 ))
@@ -226,6 +188,7 @@ const TablesFinance = () => {
             </tbody>
           </table>
         </div>
+
         {/* Paginação */}
         <div className="flex justify-between items-center mt-6">
           <div>
@@ -287,4 +250,4 @@ const TablesFinance = () => {
   );
 };
 
-export default TablesFinance;
+export default ListPayment;

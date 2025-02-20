@@ -28,9 +28,21 @@ const FinancialAgreements = lazy(
   () =>
     import("../module/Finance/FinancialAgreements/RegisterFinancialAgreements"),
 );
-
 const RegisterTablesOneFinance = lazy(
   () => import("../module/Finance/Tables/ResgisterTablesOneFinance"),
+);
+const PreviewReport = lazy(
+  () => import("../module/Finance/Report/PreviewReport"),
+);
+const ListPayment = lazy(
+  () => import("../module/Finance/Report/Payment/ListPayament"),
+);
+const PreviewFlags = lazy(
+  () => import("../module/Finance/Report/Flags/PreviewFlags"),
+);
+
+const RegisterFlags = lazy(
+  () => import("../module/Finance/Report/Flags/RegisterFlags"),
 );
 
 const AppRoutes = () => {
@@ -66,10 +78,11 @@ const AppRoutes = () => {
             path="/financialagreements/:id"
             element={<FinancialAgreements />}
           />
-          <Route
-            path="/addtables/:id"
-            element={<RegisterTablesOneFinance />}
-          />
+          <Route path="/addtables/:id" element={<RegisterTablesOneFinance />} />
+          <Route path="/report" element={<PreviewReport />} />
+          <Route path="/payments-processed" element={<ListPayment />} />
+          <Route path="/flags" element={<PreviewFlags />} />
+          <Route path="/newflag" element={<RegisterFlags />} />
         </Route>
       </Routes>
     </Suspense>

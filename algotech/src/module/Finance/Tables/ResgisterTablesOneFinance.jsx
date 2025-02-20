@@ -15,8 +15,8 @@ const RegisterTablesOneFinance = () => {
     type_table: "",
     start_term: "",
     end_term: "",
-    rate: 0.0, 
-    issue_date: ""
+    rate: 0.0,
+    issue_date: "",
   });
 
   const handleChange = (e) => {
@@ -31,7 +31,10 @@ const RegisterTablesOneFinance = () => {
     e.preventDefault();
     try {
       const usersApi = new ManageTablesFinance(user?.id);
-      const response = await usersApi.postTablesFinance({...formData, issue_date: issueDate}, token);
+      const response = await usersApi.postTablesFinance(
+        { ...formData, issue_date: issueDate },
+        token,
+      );
       notify("Tabela cadastrado com sucesso", { type: "success" });
     } catch (error) {
       notify("Erro ao cadastrar tabela", { type: "error" });
@@ -62,7 +65,10 @@ const RegisterTablesOneFinance = () => {
         </div>
         <form onSubmit={handleFormSubmit} className="space-y-4 text-white">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-white">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-white"
+            >
               Nome:
             </label>
             <input
@@ -77,7 +83,10 @@ const RegisterTablesOneFinance = () => {
             />
           </div>
           <div>
-            <label htmlFor="table_code" className="block text-sm font-medium text-white">
+            <label
+              htmlFor="table_code"
+              className="block text-sm font-medium text-white"
+            >
               Código da Tabela:
             </label>
             <input
@@ -92,7 +101,10 @@ const RegisterTablesOneFinance = () => {
             />
           </div>
           <div>
-            <label htmlFor="type_table" className="block text-sm font-medium text-white">
+            <label
+              htmlFor="type_table"
+              className="block text-sm font-medium text-white"
+            >
               Tipo da Tabela:
             </label>
             <input
@@ -107,7 +119,10 @@ const RegisterTablesOneFinance = () => {
             />
           </div>
           <div>
-            <label htmlFor="start_term" className="block text-sm font-medium text-white">
+            <label
+              htmlFor="start_term"
+              className="block text-sm font-medium text-white"
+            >
               Prazo Inicio:
             </label>
             <input
@@ -122,7 +137,10 @@ const RegisterTablesOneFinance = () => {
             />
           </div>
           <div>
-            <label htmlFor="end_term" className="block text-sm font-medium text-white">
+            <label
+              htmlFor="end_term"
+              className="block text-sm font-medium text-white"
+            >
               Prazo Fim:
             </label>
             <input
@@ -137,7 +155,10 @@ const RegisterTablesOneFinance = () => {
             />
           </div>
           <div>
-            <label htmlFor="rate" className="block text-sm font-medium text-white">
+            <label
+              htmlFor="rate"
+              className="block text-sm font-medium text-white"
+            >
               Taxa:
             </label>
             <input
