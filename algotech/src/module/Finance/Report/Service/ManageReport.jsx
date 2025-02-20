@@ -9,7 +9,7 @@ class ManageReport {
     page_number = null,
     order_by = null,
     filter_value = null,
-    has_report = null,
+    has_report = false,
   ) {
     this.user_id = user_id;
     this.search_term = search_term;
@@ -44,7 +44,7 @@ class ManageReport {
 
   async getImports() {
     try {
-      const response = await api.get("/reportfinance/list-imports", {
+      const response = await api.get("/reportfinance/list-import", {
         params: {
           current_page: this.current_page,
           rows_per_page: this.rows_per_page,
@@ -119,13 +119,19 @@ class ManageReport {
     }
   }
 
-  async getAllReportSellers() {
+
+  async getAllReportSellers(checked = false) {
     try {
+      if (checked ==  false){
+        this.has_report = false
+      } else {
+        this.has_report = true
+      }
       const response = await api.get("/reportfinance/sellers", {
         params: {
-          filter_by: this.search_term,
           current_page: this.current_page,
           rows_per_page: this.rows_per_page,
+          filter_by: this.search_term,
           page_number: this.page_number,
           order_by: this.order_by,
           filter_value: this.filter_value,
@@ -155,6 +161,23 @@ class ManageReport {
         throw new Error(response.data.message_id);
       }
 
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async importReport(data, token) {
+    try {
+      const response = await api.post("/reportfinance/import-reports", data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
       return response.data;
     } catch (error) {
       throw new Error(error.message);

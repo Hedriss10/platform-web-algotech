@@ -30,6 +30,7 @@ import {
   FaFileAlt,
   FaMoneyCheck,
   FaMoneyBill,
+  FaUpload,
 } from "react-icons/fa";
 import {
   MdPersonAddAlt,
@@ -88,6 +89,7 @@ const Icons = {
   FaFileAlt,
   FaMoneyCheck,
   FaMoneyBill,
+  FaUpload,
 };
 
 export default Icons;

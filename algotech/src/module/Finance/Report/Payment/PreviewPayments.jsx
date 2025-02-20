@@ -4,10 +4,11 @@ import { useUser } from "../../../../service/UserContext";
 import ManageReport from "../Service/ManageReport";
 import Icons from "../../../utils/Icons";
 
-const ProcessPayments = () => {
+const PreviewPayments = () => {
   const navigate = useNavigate();
   const { user, token } = useUser();
   const [reportImports, setImports] = useState([]);
+  const [selectedTables, setSelectedTables] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -15,10 +16,10 @@ const ProcessPayments = () => {
   const [loading, setLoading] = useState(false);
 
   const handleProcessPayments = () => {
-    navigate("/newprocesspayments");
+    navigate("/process-payments");
   };
 
-  // handle para carregar os pagamentos
+  // Função para carregar os pagamentos
   const loadListImports = async () => {
     setLoading(true);
     try {
@@ -32,8 +33,6 @@ const ProcessPayments = () => {
       if (response && response.data) {
         setImports(response.data);
         setTotalPages(response.metadata?.total_pages || 1);
-      } else {
-        throw new Error("Resposta da API inválida: data não encontrado");
       }
     } catch (error) {
       console.error("Erro ao carregar tabelas financeiras:", error);
@@ -46,10 +45,10 @@ const ProcessPayments = () => {
     loadListImports();
   }, [currentPage, searchTerm, rowsPerPage]);
 
-  // função para deletar o relatório
-  const handleDeleteImports = async (id) => {
+  // Função para deletar o relatório
+  const handleDeleteImports = async () => {
     if (selectedTables.length === 0) {
-      notify("Nenhuma Relatório selecionado", { type: "warning" });
+      alert("Nenhum relatório selecionado");
       return;
     }
 
@@ -57,16 +56,16 @@ const ProcessPayments = () => {
       const tablesApi = new ManageReport(user?.id);
       const data = { ids: selectedTables };
       await tablesApi.deleteImports(data, token);
-      notify("Relatório deletado com sucesso", { type: "success" });
+      alert("Relatório deletado com sucesso");
 
-      setFlags((prevTables) =>
-        prevTables.filter((flags) => !selectedTables.includes(flags.id)),
+      setImports((prevTables) =>
+        prevTables.filter((item) => !selectedTables.includes(item.name)),
       );
       setSelectedTables([]);
       loadListImports();
     } catch (error) {
-      console.error("Erro ao deletar Relatório:", error);
-      notify("Erro ao deletar Flag", { type: "error" });
+      console.error("Erro ao deletar relatório:", error);
+      alert("Erro ao deletar relatório");
     }
   };
 
@@ -101,34 +100,37 @@ const ProcessPayments = () => {
 
       {/* Container de gestão de pagamentos */}
       <div className="bg-gray-700 rounded-lg shadow-lg p-6 text-white">
-        <h2 className="text-xl font-bold mb-4">Gestão de pagamentos</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Gestão de pagamentos</h2>
+          <div className="flex items-center space-x-2">
+            <input
+              type="text"
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Buscar relatório..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <button className="p-2 bg-gray-600 rounded-lg hover:bg-gray-500 transition duration-300">
+              <Icons.FaSearch className="text-white" />
+            </button>
+            <button
+              className="p-2 bg-red-600 rounded-lg hover:bg-red-500 transition duration-300"
+              onClick={handleDeleteImports}
+            >
+              <Icons.FaTrash className="text-white" />
+            </button>
+          </div>
+        </div>
         <div className="space-y-4">
           <button
             className="w-full flex items-center gap-2 p-2 border rounded-md hover:bg-gray-800"
             onClick={handleProcessPayments}
           >
-            <Icons.FaRegMoneyBillAlt size={18} /> Processar Pagamentos
+            <Icons.FaRegMoneyBillAlt size={18} /> Processar Pagamentos Internos
           </button>
         </div>
-        <div className="flex items-center space-x-2">
-          <input
-            type="text"
-            className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Buscar relatório..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <button className="p-2 bg-gray-600 rounded-lg hover:bg-gray-500 transition duration-300">
-            <Icons.FaSearch className="text-white" />
-          </button>
-          <button
-            className="p-2 bg-red-600 rounded-lg hover:bg-red-500 transition duration-300"
-            onClick={handleDeleteImports}
-          >
-            <Icons.FaTrash className="text-white" />
-          </button>
-        </div>
-        {/* Tabela de relatorios importados */}
+        <br />
+        {/* Tabela de relatórios importados */}
         <div className="overflow-x-auto">
           <table className="min-w-full bg-gray-600 rounded-lg overflow-hidden">
             <thead className="bg-gray-500">
@@ -138,9 +140,15 @@ const ProcessPayments = () => {
                     type="checkbox"
                     onChange={(e) => {
                       setSelectedTables(
-                        e.target.checked ? flags.map((t) => t.name) : [],
+                        e.target.checked
+                          ? reportImports.map((item) => item.name) // Seleciona todos os nomes
+                          : [], // Desmarca todos
                       );
                     }}
+                    checked={
+                      selectedTables.length === reportImports.length &&
+                      reportImports.length > 0
+                    }
                   />
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
@@ -158,7 +166,7 @@ const ProcessPayments = () => {
               {loading ? (
                 <tr>
                   <td
-                    colSpan="3"
+                    colSpan="4"
                     className="px-6 py-4 text-center text-gray-300"
                   >
                     Carregando...
@@ -167,7 +175,7 @@ const ProcessPayments = () => {
               ) : reportImports.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="3"
+                    colSpan="4"
                     className="px-6 py-4 text-center text-gray-300"
                   >
                     Nenhum relatório disponível.
@@ -182,29 +190,26 @@ const ProcessPayments = () => {
                     <td className="px-6 py-4">
                       <input
                         type="checkbox"
-                        checked={selectedTables.includes(reportImports.name)}
+                        checked={selectedTables.includes(importReports.name)}
                         onChange={(e) => {
-                          setSelectedTables((prev) =>
-                            e.target.checked
-                              ? [...prev, reportImports.name]
-                              : prev.filter(
-                                  (name) => name !== reportImports.name,
-                                ),
+                          const itemName = importReports.name;
+                          setSelectedTables(
+                            (prev) =>
+                              e.target.checked
+                                ? [...prev, itemName] // Adiciona o nome à lista de selecionados
+                                : prev.filter((name) => name !== itemName), // Remove o nome da lista de selecionados
                           );
                         }}
                       />
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
+                      {importReports.name || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-200">
                       {importReports.username || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      {MaskCpf(importReports.cpf) || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {importReports.number_proposal || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {importReports.table_code || "N/A"}
+                      {importReports.created_at || "N/A"}
                     </td>
                   </tr>
                 ))
@@ -213,7 +218,7 @@ const ProcessPayments = () => {
           </table>
         </div>
 
-        {/* paginação */}
+        {/* Paginação */}
         <div className="flex justify-between items-center mt-6">
           <div>
             <select
@@ -274,4 +279,4 @@ const ProcessPayments = () => {
   );
 };
 
-export default ProcessPayments;
+export default PreviewPayments;

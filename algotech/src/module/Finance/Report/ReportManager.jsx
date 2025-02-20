@@ -6,11 +6,11 @@ const ReportManager = () => {
   const navigate = useNavigate();
 
   const handleProcessPayments = () => {
-    navigate("/process-payments");
+    navigate("/preview-payments");
   };
 
   const handleImportReports = () => {
-    navigate("/gerement-reports");
+    navigate("/import-reports");
   };
 
   const handleDeleteReports = () => {
