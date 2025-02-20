@@ -134,14 +134,14 @@ const ProcessPayments = () => {
             <thead className="bg-gray-500">
               <tr>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                    <input
-                      type="checkbox"
-                      onChange={(e) => {
-                        setSelectedTables(
-                          e.target.checked ? flags.map((t) => t.name) : [],
-                        );
-                      }}
-                    />
+                  <input
+                    type="checkbox"
+                    onChange={(e) => {
+                      setSelectedTables(
+                        e.target.checked ? flags.map((t) => t.name) : [],
+                      );
+                    }}
+                  />
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   Nome
@@ -157,13 +157,19 @@ const ProcessPayments = () => {
             <tbody className="divide-y divide-gray-500">
               {loading ? (
                 <tr>
-                  <td colSpan="3" className="px-6 py-4 text-center text-gray-300">
+                  <td
+                    colSpan="3"
+                    className="px-6 py-4 text-center text-gray-300"
+                  >
                     Carregando...
                   </td>
                 </tr>
               ) : reportImports.length === 0 ? (
                 <tr>
-                  <td colSpan="3" className="px-6 py-4 text-center text-gray-300">
+                  <td
+                    colSpan="3"
+                    className="px-6 py-4 text-center text-gray-300"
+                  >
                     Nenhum relatório disponível.
                   </td>
                 </tr>
@@ -174,17 +180,19 @@ const ProcessPayments = () => {
                     className="hover:bg-gray-550 transition duration-300"
                   >
                     <td className="px-6 py-4">
-                        <input
-                          type="checkbox"
-                          checked={selectedTables.includes(reportImports.name)}
-                          onChange={(e) => {
-                            setSelectedTables((prev) =>
-                              e.target.checked
-                                ? [...prev, reportImports.name]
-                                : prev.filter((name) => name !== reportImports.name),
-                            );
-                          }}
-                        />
+                      <input
+                        type="checkbox"
+                        checked={selectedTables.includes(reportImports.name)}
+                        onChange={(e) => {
+                          setSelectedTables((prev) =>
+                            e.target.checked
+                              ? [...prev, reportImports.name]
+                              : prev.filter(
+                                  (name) => name !== reportImports.name,
+                                ),
+                          );
+                        }}
+                      />
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
                       {importReports.username || "N/A"}
