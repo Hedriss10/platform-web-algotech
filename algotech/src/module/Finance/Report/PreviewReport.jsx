@@ -1,5 +1,7 @@
 import { useNavigate, Link } from "react-router-dom";
 import Icons from "../../utils/Icons";
+import ManageReport from "./Service/ManageReport";
+import { notify } from "../../utils/toastify";
 
 const PreviewReport = () => {
   const navigate = useNavigate();
@@ -16,9 +18,31 @@ const PreviewReport = () => {
     navigate("/gerement-reports");
   };
 
-  const handleDeletarRelatorio = () => {
-    alert("Deletar Relatório de Comissão");
-    // navigate("/deletar-relatorio");
+  const handleImportsGetAllProposal = async () => {
+    try {
+      const usersApi = new ManageReport();
+      const csvData = await usersApi.getAllReportProposals();
+
+      if (!csvData || typeof csvData !== "string") {
+        throw new Error("Dados inválidos retornados pela API");
+      }
+
+      const blob = new Blob([csvData], { type: "text/csv" });
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "relatorio_propostas.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      notify("Relatório baixado e processado com sucesso", { type: "success" });
+    } catch (error) {
+      console.error("Erro ao baixar o relatório:", error);
+      notify("Erro ao baixar Relatório", { type: "error" });
+    }
   };
 
   return (
@@ -63,10 +87,11 @@ const PreviewReport = () => {
             <Icons.FaFileAlt size={18} /> Gerenciar Relatório de Comissão
           </button>
           <button
-            className="w-full flex items-center gap-2 p-2 border rounded-md text-red-600 hover:bg-red-100"
-            onClick={handleDeletarRelatorio}
+            className="w-full flex items-center gap-2 p-2 border rounded-md text-green-600 hover:bg-green-100"
+            onClick={handleImportsGetAllProposal}
           >
-            <Icons.FaTrash size={18} /> Deletar Relatório
+            <Icons.FaRegFileExcel size={18} /> Exportar Relatório de Comissão
+            Pagas
           </button>
         </div>
       </div>

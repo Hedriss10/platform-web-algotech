@@ -21,6 +21,23 @@ class ManageReport {
     this.has_report = has_report;
   }
 
+  async postReport(data, token) {
+    try {
+      const response = await api.post("/reportfinance", data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
   async getReport() {
     try {
       const response = await api.get("/reportfinance", {
@@ -63,9 +80,29 @@ class ManageReport {
     }
   }
 
-  async deleteImports(data, token) {
+  async deleteImports(name, token) {
     try {
-      const response = await api.delete("/reportfinance/delete-imports", {
+      const response = await api.delete(
+        `/reportfinance/delete-imports/${name}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            id: this.user_id,
+          },
+        },
+      );
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async deletePayments(data, token) {
+    try {
+      const response = await api.delete(`/reportfinance/delete-payments`, {
         headers: {
           Authorization: `Bearer ${token}`,
           id: this.user_id,
@@ -119,13 +156,12 @@ class ManageReport {
     }
   }
 
-
   async getAllReportSellers(checked = false) {
     try {
-      if (checked ==  false){
-        this.has_report = false
+      if (checked == false) {
+        this.has_report = false;
       } else {
-        this.has_report = true
+        this.has_report = true;
       }
       const response = await api.get("/reportfinance/sellers", {
         params: {
@@ -175,6 +211,21 @@ class ManageReport {
           id: this.user_id,
         },
       });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async getAllReportProposals() {
+    try {
+      const response = await api.get(
+        "/reportfinance/export-report?file=csv",
+        {},
+      );
       if (response.data.error) {
         throw new Error(response.data.message_id);
       }

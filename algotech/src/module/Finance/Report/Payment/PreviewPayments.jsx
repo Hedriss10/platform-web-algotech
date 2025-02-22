@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../../../service/UserContext";
+import { notify } from "../../../utils/toastify";
 import ManageReport from "../Service/ManageReport";
 import Icons from "../../../utils/Icons";
 
@@ -46,26 +47,27 @@ const PreviewPayments = () => {
   }, [currentPage, searchTerm, rowsPerPage]);
 
   // Função para deletar o relatório
-  const handleDeleteImports = async () => {
-    if (selectedTables.length === 0) {
-      alert("Nenhum relatório selecionado");
+  const handleDeleteImports = async (names) => {
+    if (names.length === 0) {
+      notify("Nenhum relatório selecionado", { type: "warning" });
       return;
     }
 
     try {
       const tablesApi = new ManageReport(user?.id);
-      const data = { ids: selectedTables };
-      await tablesApi.deleteImports(data, token);
-      alert("Relatório deletado com sucesso");
+      for (const name of names) {
+        await tablesApi.deleteImports(name, token);
+      }
+      notify("Relatórios deletados com sucesso", { type: "success" });
 
       setImports((prevTables) =>
-        prevTables.filter((item) => !selectedTables.includes(item.name)),
+        prevTables.filter((item) => !names.includes(item.name)),
       );
       setSelectedTables([]);
       loadListImports();
     } catch (error) {
-      console.error("Erro ao deletar relatório:", error);
-      alert("Erro ao deletar relatório");
+      console.error("Erro ao deletar relatórios:", error);
+      alert("Erro ao deletar relatórios");
     }
   };
 
@@ -115,7 +117,13 @@ const PreviewPayments = () => {
             </button>
             <button
               className="p-2 bg-red-600 rounded-lg hover:bg-red-500 transition duration-300"
-              onClick={handleDeleteImports}
+              onClick={() => {
+                if (selectedTables.length > 0) {
+                  handleDeleteImports(selectedTables);
+                } else {
+                  alert("Nenhum relatório selecionado");
+                }
+              }}
             >
               <Icons.FaTrash className="text-white" />
             </button>

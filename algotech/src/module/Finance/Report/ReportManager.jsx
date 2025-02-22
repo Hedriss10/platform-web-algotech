@@ -13,11 +13,6 @@ const ReportManager = () => {
     navigate("/import-reports");
   };
 
-  const handleDeleteReports = () => {
-    alert("Deletar Relatório de Comissão");
-    // navigate("/deletar-relatorio");
-  };
-
   return (
     <div className="flex-1 p-15 w-full bg-gray-100 h-full text-gray-700">
       <div className="mb-6">
@@ -53,12 +48,6 @@ const ReportManager = () => {
             onClick={handleImportReports}
           >
             <Icons.FaFileAlt size={18} /> Importar Relatório
-          </button>
-          <button
-            className="w-full flex items-center gap-2 p-2 border rounded-md text-red-600 hover:bg-red-100"
-            onClick={handleDeleteReports}
-          >
-            <Icons.FaTrash size={18} /> Deletar Relatório
           </button>
         </div>
       </div>

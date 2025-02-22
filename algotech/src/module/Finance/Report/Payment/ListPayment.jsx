@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../../../service/UserContext";
+import { notify } from "../../../utils/toastify";
 import ManageReport from "../Service/ManageReport";
 import Icons from "../../../utils/Icons";
 import MaskCpf from "../../../utils/MaskCpf";
@@ -14,8 +15,9 @@ const ListPayment = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]); // Estado para armazenar IDs selecionados
 
-  // handle para carregar os pagamentos
+  // Função para carregar os pagamentos
   const loadPaymentsUsers = async () => {
     setLoading(true);
     try {
@@ -42,6 +44,50 @@ const ListPayment = () => {
   useEffect(() => {
     loadPaymentsUsers();
   }, [currentPage, searchTerm, rowsPerPage]);
+
+  // Função para deletar pagamentos
+  const handleDeletePayment = async () => {
+    try {
+      if (selectedIds.length === 0) {
+        notify("Nenhum pagamento selecionado", { type: "warning" });
+        return;
+      }
+      const usersApi = new ManageReport(user?.id);
+      const payload = { ids: selectedIds };
+      const response = await usersApi.deletePayments(payload, token);
+
+      if (response) {
+        notify("Pagamentos deletados com sucesso!", { type: "success" });
+        loadPaymentsUsers(); // Recarrega a lista após a exclusão
+        setSelectedIds([]); // Limpa os IDs selecionados
+      }
+    } catch (error) {
+      console.error("Erro ao deletar pagamentos:", error);
+      notify("Erro ao deletar pagamentos", { type: "error" });
+    }
+  };
+
+  // Função para selecionar/deselecionar IDs
+  const handleSelectId = (id) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id)); // Remove o ID se já estiver selecionado
+    } else {
+      setSelectedIds([...selectedIds, id]); // Adiciona o ID se não estiver selecionado
+    }
+  };
+
+  // Função para selecionar/deselecionar todos os IDs da página atual
+  const handleSelectAll = () => {
+    const allIdsOnPage = reportsSellers.map((payment) => payment.id); // Pega todos os IDs da página atual
+
+    if (selectedIds.length === allIdsOnPage.length) {
+      // Se todos já estiverem selecionados, limpa a seleção
+      setSelectedIds([]);
+    } else {
+      // Caso contrário, seleciona todos
+      setSelectedIds(allIdsOnPage);
+    }
+  };
 
   // Função para mudar a página
   const handlePageChange = (newPage) => {
@@ -87,6 +133,12 @@ const ListPayment = () => {
             <button className="p-2 bg-gray-600 rounded-lg hover:bg-gray-500 transition duration-300">
               <Icons.FaSearch className="text-white" />
             </button>
+            <button
+              className="p-2 bg-red-600 rounded-lg hover:bg-red-500 transition duration-300"
+              onClick={handleDeletePayment}
+            >
+              <Icons.FaTrash className="text-white" />
+            </button>
           </div>
         </div>
 
@@ -95,6 +147,16 @@ const ListPayment = () => {
           <table className="min-w-full bg-gray-600 rounded-lg overflow-hidden">
             <thead className="bg-gray-500">
               <tr>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
+                  <input
+                    type="checkbox"
+                    checked={
+                      selectedIds.length > 0 &&
+                      selectedIds.length === reportsSellers.length
+                    }
+                    onChange={handleSelectAll}
+                  />
+                </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   Vendedor
                 </th>
@@ -131,7 +193,7 @@ const ListPayment = () => {
               {loading ? (
                 <tr>
                   <td
-                    colSpan="3"
+                    colSpan="12"
                     className="px-6 py-4 text-center text-gray-300"
                   >
                     Carregando...
@@ -140,7 +202,7 @@ const ListPayment = () => {
               ) : reportsSellers.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="3"
+                    colSpan="12"
                     className="px-6 py-4 text-center text-gray-300"
                   >
                     Nenhum pagamento disponível.
@@ -152,6 +214,13 @@ const ListPayment = () => {
                     key={index}
                     className="hover:bg-gray-550 transition duration-300"
                   >
+                    <td className="px-6 py-4 text-sm text-gray-200">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(ListPayment.id)}
+                        onChange={() => handleSelectId(ListPayment.id)}
+                      />
+                    </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
                       {ListPayment.username || "N/A"}
                     </td>
