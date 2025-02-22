@@ -115,7 +115,7 @@ const Aside = ({ isOpen }) => {
           )}
         </li>
 
-        {/* Tables */}
+        {/* Financeiro */}
         <li className="nav-item">
           <a
             className="nav-link flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"
@@ -140,11 +140,18 @@ const Aside = ({ isOpen }) => {
                 <Icons.MdOutlineManageAccounts className="text-sm mr-2" />
                 <span>Gestão Bancária</span>
               </Link>
+              <Link
+                to="/report"
+                className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+              >
+                <Icons.HiOutlineDocumentReport className="text-sm mr-2" />
+                <span>Relatório</span>
+              </Link>
             </ul>
           )}
         </li>
 
-        {/* Charts */}
+        {/* salas */}
         <li className="nav-item">
           <a
             className="nav-link flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"

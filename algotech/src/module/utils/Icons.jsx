@@ -25,6 +25,12 @@ import {
   FaBan,
   FaRegMoneyBillAlt,
   FaRegFileExcel,
+  FaCreditCard,
+  FaCog,
+  FaFileAlt,
+  FaMoneyCheck,
+  FaMoneyBill,
+  FaUpload,
 } from "react-icons/fa";
 import {
   MdPersonAddAlt,
@@ -33,12 +39,14 @@ import {
   MdOutlineWork,
   MdOutlinePreview,
   MdOutlineManageAccounts,
+  MdPayments,
 } from "react-icons/md";
 import { IoListSharp, IoPersonCircleSharp } from "react-icons/io5";
 import { FaUsersGear } from "react-icons/fa6";
 import { GoGear } from "react-icons/go";
 import { CiBoxList } from "react-icons/ci";
 import { RiFileExcel2Line } from "react-icons/ri";
+import { HiOutlineDocumentReport } from "react-icons/hi";
 
 const Icons = {
   BiGrid,
@@ -76,6 +84,14 @@ const Icons = {
   MdOutlineManageAccounts,
   FaRegFileExcel,
   RiFileExcel2Line,
+  HiOutlineDocumentReport,
+  FaCreditCard,
+  FaCog,
+  FaFileAlt,
+  FaMoneyCheck,
+  FaMoneyBill,
+  FaUpload,
+  MdPayments,
 };
 
 export default Icons;
