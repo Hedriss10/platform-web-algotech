@@ -61,6 +61,8 @@ const ProcessPayments = lazy(
   () => import("../module/Finance/Report/Payment/ProcessPayment"),
 );
 
+const PreviewSellers = lazy(() => import("../module/Sellers/Propsoal/PreviewSellers"));
+
 const AppRoutes = () => {
   return (
     <Suspense>
@@ -103,6 +105,7 @@ const AppRoutes = () => {
           <Route path="/preview-payments" element={<PreviewPayments />} />
           <Route path="/import-reports" element={<ImportsReports />} />
           <Route path="/process-payments" element={<ProcessPayments />} />
+          <Route path="/sellers" element={<PreviewSellers />} />
         </Route>
       </Routes>
     </Suspense>
