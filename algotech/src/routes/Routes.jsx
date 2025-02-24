@@ -61,7 +61,13 @@ const ProcessPayments = lazy(
   () => import("../module/Finance/Report/Payment/ProcessPayment"),
 );
 
-const PreviewSellers = lazy(() => import("../module/Sellers/Propsoal/PreviewSellers"));
+const PreviewSellers = lazy(() => import("../module/Sellers/Proposal/PreviewSellers"));
+
+const PreviewProposalById = lazy(() => import("../module/Sellers/Proposal/PreviewProposal"));
+
+const UpdateProposalById = lazy(() => import("../module/Sellers/Proposal/UpdateProposal"))
+
+const RegisterProposal = lazy(() => import("../module/Sellers/Proposal/RegisterProposal"));
 
 const AppRoutes = () => {
   return (
@@ -106,6 +112,9 @@ const AppRoutes = () => {
           <Route path="/import-reports" element={<ImportsReports />} />
           <Route path="/process-payments" element={<ProcessPayments />} />
           <Route path="/sellers" element={<PreviewSellers />} />
+          <Route path="/proposal" element={<RegisterProposal />} />
+          <Route path="/proposal/:id" element={<PreviewProposalById />} />
+          <Route path="/proposal/update/:id" element={<UpdateProposalById />} />
         </Route>
       </Routes>
     </Suspense>

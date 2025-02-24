@@ -9,6 +9,7 @@ import ManageSellers from "../Service/ManageSellers";
 
 const PreviewProposal = () => {
   const { user, token } = useUser();
+  const navigate = useNavigate();
   const [proposal, setProposal] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -40,16 +41,8 @@ const PreviewProposal = () => {
     loadProposal();
   }, [currentPage, searchTerm, rowsPerPage]);
 
-  // passando o handle preview bankers passando o id e entrando em nova rota
-  const handlePreviewProposal = async (id) => {
-    try {
-      navigate(`/proposal/${id}`);
-    } catch (error) {
-      notify("Erro ao processar a Proposta", { type: "error" });
-    }
-  };
 
-  // Função para deletar o banks
+  // Função para deletar o proposal
   const handleDeleteProposal = async (id) => {
     try {
       const usersApi = new ManageSellers(user?.id);
@@ -61,9 +54,25 @@ const PreviewProposal = () => {
     }
   };
 
-  // função para redirecionar para o update do banks
+  // Função para redirecionar a visualização da proposta
+  const handlePreviewProposal = (id) => {
+    try {
+      navigate(`/proposal/${id}`);
+    } catch (error) {
+      console.log(error)
+      notify("Erro ao processar a Proposta", { type: "error" });
+    }
+  };
+  
+  
+  // função para redirecionar para o update do proposal
   const handleUpdateProposal = (id) => {
-    console.log("Edit proposal")
+    try {
+      navigate(`/proposal/update/${id}`);
+    } catch (error) {
+      console.log(error);
+      notify("Error ao editar Proposta", { type: "error" });
+    }
   };
 
   // Função para mudar a página
@@ -206,7 +215,7 @@ const PreviewProposal = () => {
                       <div className="flex space-x-2">
                         <button
                           className="p-2 bg-blue-600 rounded-lg hover:bg-blue-500 transition duration-300"
-                          onClick={() => handlePreviewBankers(proposal.id)}
+                          onClick={() => handlePreviewProposal(proposal.id)}
                         >
                           <Icons.MdOutlinePreview className="text-white" />
                         </button>
