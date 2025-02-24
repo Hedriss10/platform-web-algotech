@@ -82,7 +82,7 @@ const Aside = ({ isOpen }) => {
           )}
         </li>
 
-        {/* Forms */}
+        {/* Sellers */}
         <li>
           <button
             onClick={() => toggleMenu("forms")}
@@ -90,7 +90,7 @@ const Aside = ({ isOpen }) => {
           >
             <div className="flex items-center">
               <Icons.BiLayout className="h-5 w-5 mr-2" />
-              <span>Forms</span>
+              <span>Área Comercial</span>
             </div>
             <Icons.BiChevronDown
               className={`h-5 w-5 transition-transform duration-300 ${
@@ -100,17 +100,27 @@ const Aside = ({ isOpen }) => {
           </button>
           {openMenus.forms && (
             <ul className="pl-6 mt-2 space-y-2">
-              {["Elements", "Layouts", "Editors", "Validation"].map((item) => (
-                <li key={item}>
-                  <a
-                    href="#"
-                    className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-                  >
-                    <Icons.BiCircle className="h-4 w-4 mr-2" />
-                    <span>Form {item}</span>
-                  </a>
-                </li>
-              ))}
+              <Link
+                to="/sellers"
+                className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+              >
+                <Icons.FaRegAddressBook className="text-sm mr-2" />
+                <span>Proposta</span>
+              </Link>
+              <Link
+                to="rankingtables"
+                className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+              >
+                <Icons.MdOutlineDashboard className="text-sm mr-2" />
+                <span>Ranking Tabelas</span>
+              </Link>
+              <Link
+                to="/profit"
+                className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+              >
+                <Icons.FaRegMoneyBillAlt className="text-sm mr-2" />
+                <span>Expectativa de Ganhos</span>
+              </Link>
             </ul>
           )}
         </li>
