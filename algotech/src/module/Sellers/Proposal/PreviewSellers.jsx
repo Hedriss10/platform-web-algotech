@@ -6,7 +6,6 @@ import MaskCpf from "../../utils/MaskCpf";
 import Icons from "../../utils/Icons";
 import ManageSellers from "../Service/ManageSellers";
 
-
 const PreviewProposal = () => {
   const { user, token } = useUser();
   const navigate = useNavigate();
@@ -41,7 +40,6 @@ const PreviewProposal = () => {
     loadProposal();
   }, [currentPage, searchTerm, rowsPerPage]);
 
-
   // Função para deletar o proposal
   const handleDeleteProposal = async (id) => {
     try {
@@ -59,12 +57,11 @@ const PreviewProposal = () => {
     try {
       navigate(`/proposal/${id}`);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       notify("Erro ao processar a Proposta", { type: "error" });
     }
   };
-  
-  
+
   // função para redirecionar para o update do proposal
   const handleUpdateProposal = (id) => {
     try {
@@ -107,7 +104,9 @@ const PreviewProposal = () => {
       <div className="bg-gray-700 rounded-lg shadow-lg p-6">
         {/* Título e Campo de Busca */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-white">Lista de Propostas</h2>
+          <h2 className="text-xl font-semibold text-white">
+            Lista de Propostas
+          </h2>
           <div className="flex items-center space-x-2">
             <input
               type="text"
@@ -142,7 +141,7 @@ const PreviewProposal = () => {
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   Atualizado Por
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white"> 
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   Tipo da operação
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
@@ -300,9 +299,9 @@ const PreviewProposal = () => {
               </li>
             </ul>
           </nav>
-        </div> 
+        </div>
       </div>
-    </div>    
+    </div>
   );
 };
 

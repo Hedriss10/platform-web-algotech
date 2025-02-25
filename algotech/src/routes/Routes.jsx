@@ -61,13 +61,21 @@ const ProcessPayments = lazy(
   () => import("../module/Finance/Report/Payment/ProcessPayment"),
 );
 
-const PreviewSellers = lazy(() => import("../module/Sellers/Proposal/PreviewSellers"));
+const PreviewSellers = lazy(
+  () => import("../module/Sellers/Proposal/PreviewSellers"),
+);
 
-const PreviewProposalById = lazy(() => import("../module/Sellers/Proposal/PreviewProposal"));
+const PreviewProposalById = lazy(
+  () => import("../module/Sellers/Proposal/PreviewProposal"),
+);
 
-const UpdateProposalById = lazy(() => import("../module/Sellers/Proposal/UpdateProposal"))
+const UpdateProposalById = lazy(
+  () => import("../module/Sellers/Proposal/UpdateProposal"),
+);
 
-const RegisterProposal = lazy(() => import("../module/Sellers/Proposal/RegisterProposal"));
+const RegisterProposal = lazy(
+  () => import("../module/Sellers/Proposal/RegisterProposal"),
+);
 
 const AppRoutes = () => {
   return (

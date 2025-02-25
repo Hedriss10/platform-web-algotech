@@ -19,7 +19,6 @@ class ManageSellers {
     this.filter_value = filter_value;
   }
 
-
   async getAllProposal(token) {
     try {
       const response = await api.get("/proposal", {
@@ -50,7 +49,7 @@ class ManageSellers {
       const response = await api.post("/proposal", data, {
         headers: {
           Authorization: `Bearer ${token}`,
-          id: this.user_id,
+          id: Number(this.user_id),
         },
       });
       if (response.data.error) {
@@ -78,7 +77,6 @@ class ManageSellers {
       throw new Error(error.message);
     }
   }
-
 
   async updateProposal(id, data, token) {
     try {
@@ -113,8 +111,6 @@ class ManageSellers {
       throw new Error(error.message);
     }
   }
-
 }
-
 
 export default ManageSellers;
