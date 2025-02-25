@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { useUser } from "../../service/UserContext";
 import { notify } from "../utils/toastify";
 import ManageUser from "../User/Service/UsersApi";
@@ -38,9 +39,9 @@ const UserProfile = () => {
         <nav className="text-sm text-gray-500 mt-2">
           <ol className="flex space-x-2">
             <li>
-              <a href="/home" className="hover:text-gray-700">
+              <Link to="/home" className="hover:text-gray-700">
                 Home
-              </a>
+              </Link>
             </li>
             <li>/</li>
             <li>Perfil</li>
