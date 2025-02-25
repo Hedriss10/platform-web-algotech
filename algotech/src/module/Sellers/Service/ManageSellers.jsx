@@ -1,6 +1,6 @@
 import api from "../../Hooks/ApiConfig";
 
-class ManageTablesFinance {
+class ManageSellers {
   constructor(
     user_id = null,
     search_term = null,
@@ -19,77 +19,22 @@ class ManageTablesFinance {
     this.filter_value = filter_value;
   }
 
-  async getAllTablesFinance(financial_agreements_id) {
+  async getAllProposal(token) {
     try {
-      const response = await api.get(
-        `/tablesfinance/${financial_agreements_id}`,
-        {
-          params: {
-            filter_by: this.search_term || "",
-            current_page: this.current_page || 1,
-            rows_per_page: this.rows_per_page || 10,
-            page_number: this.page_number || 1,
-            order_by: this.order_by || "",
-            filter_value: this.filter_value || "",
-          },
-        },
-      );
-      if (response.data.error) {
-        throw new Error(response.data.message_id);
-      }
-      return response.data;
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  }
-
-  async postTablesFinance(data, token) {
-    try {
-      const response = await api.post("/tablesfinance", data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          id: this.user_id,
-        },
-      });
-      if (response.data.error) {
-        throw new Error(response.data.message_id);
-      }
-      return response.data;
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  }
-
-  async rankingTablesFinance() {
-    try {
-      const response = await api.get("/tablesfinance/ranks", {
+      const response = await api.get("/proposal", {
         params: {
-          filter_by: this.search_term,
           current_page: this.current_page,
           rows_per_page: this.rows_per_page,
+          filter_by: this.search_term,
           page_number: this.page_number,
           order_by: this.order_by,
           filter_value: this.filter_value,
         },
-      });
-      if (response.data.error) {
-        throw new Error(response.data.message_id);
-      }
-      return response.data;
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  }
-
-  async importTablesFinance(data, token) {
-    try {
-      const response = await api.post("/tablesfinance/import-tables", data, {
         headers: {
           Authorization: `Bearer ${token}`,
           id: this.user_id,
         },
       });
-      console.log(response);
       if (response.data.error) {
         throw new Error(response.data.message_id);
       }
@@ -99,19 +44,65 @@ class ManageTablesFinance {
     }
   }
 
-  async deleteTablesFinance(financial_agreements_id, data, token) {
+  async postProposal(data, token) {
     try {
-      const response = await api.delete(
-        `/tablesfinance/${financial_agreements_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            id: this.user_id,
-          },
-          data,
+      const response = await api.post("/proposal", data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: Number(this.user_id),
         },
-      );
-      console.log(response);
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async getProposalById(id, token) {
+    try {
+      const response = await api.get(`/proposal/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async updateProposal(id, data, token) {
+    try {
+      const response = await api.put(`/proposal/${id}`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async deleteProposal(id, token) {
+    try {
+      const response = await api.delete(`/proposal/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
+        },
+      });
       if (response.data.error) {
         throw new Error(response.data.message_id);
       }
@@ -122,4 +113,4 @@ class ManageTablesFinance {
   }
 }
 
-export default ManageTablesFinance;
+export default ManageSellers;
