@@ -62,7 +62,7 @@ class ManageTablesFinance {
 
   async rankingTablesFinance() {
     try {
-      const response = await api.get("/tablesfinance/ranking", {
+      const response = await api.get("/tablesfinance/ranks", {
         params: {
           filter_by: this.search_term,
           current_page: this.current_page,

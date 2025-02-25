@@ -288,7 +288,6 @@ const UpdateProposal = () => {
     }
   }, [formData.financial_agreements_id]);
 
-
   useEffect(() => {
     if (bank_id) {
       console.log("Carregando convênios para bank_id:", bank_id);

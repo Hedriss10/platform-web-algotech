@@ -77,6 +77,12 @@ const RegisterProposal = lazy(
   () => import("../module/Sellers/Proposal/RegisterProposal"),
 );
 
+const RankingTables = lazy(
+  () => import("../module/Sellers/RankingTables/RankingTables"),
+);
+
+const Profit = lazy(() => import("../module/Sellers/Profit/Profit"));
+
 const AppRoutes = () => {
   return (
     <Suspense>
@@ -123,6 +129,8 @@ const AppRoutes = () => {
           <Route path="/proposal" element={<RegisterProposal />} />
           <Route path="/proposal/:id" element={<PreviewProposalById />} />
           <Route path="/proposal/update/:id" element={<UpdateProposalById />} />
+          <Route path="/rankingtables" element={<RankingTables />} />
+          <Route path="/profit" element={<Profit />} />
         </Route>
       </Routes>
     </Suspense>

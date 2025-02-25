@@ -1,12 +1,3 @@
-/**
- * ## telefones 
-    formdata.append("telefone", "3213030");
-    formdata.append("telefone_residencial", "6199940532");
-    formdata.append("telefone_comercial", "6199940532");
-
-  * TODO: Ajustar os campos do telefone, e criar o update proposal
- */
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { notify } from "../../utils/toastify";
