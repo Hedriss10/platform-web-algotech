@@ -825,7 +825,7 @@ const RegisterProposal = () => {
               <strong>Salário Liquido:</strong>
             </label>
             <input
-              type="text"
+              type="number"
               name="salario_liquido"
               id="salario_liquido"
               value={formData.salario_liquido}
