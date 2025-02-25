@@ -558,6 +558,32 @@ const RegisterProposal = () => {
               className="w-full p-2 border rounded"
             />
           </div>
+          <div>
+            <label>
+              <strong>Telefone:</strong>
+            </label>
+            <input
+              type="text"
+              name="telefone"
+              id="telefone"
+              value={formData.telefone}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            />
+          </div>
+          <div>
+            <label>
+              <strong>Telefone Comercial:</strong>
+            </label>
+            <input
+              type="text"
+              name="telefone_comercial"
+              id="telefone_comercial"
+              value={formData.telefone_comercial}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            />
+          </div>
         </div>
         <br />
         <hr />

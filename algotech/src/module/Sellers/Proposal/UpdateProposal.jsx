@@ -166,6 +166,7 @@ const UpdateProposal = () => {
         data_nascimento,
         email,
         telefone,
+        genero,
         endereco,
         bairro,
         cidade,
@@ -173,9 +174,14 @@ const UpdateProposal = () => {
         cep,
         nome_mae,
         nome_pai,
+        numero_endereco,
         rg_documento,
         orgao_emissor,
         data_emissao,
+        telefone_comercial,
+        complemento_endereco,
+        valor_salario,
+        cidade_naturalidade,
         naturalidade,
         uf_naturalidade,
         tipo_beneficio,
@@ -185,6 +191,7 @@ const UpdateProposal = () => {
         margem,
         tipo_operacao,
         tipo_pagamento,
+        data_dispacho,
         banker_name,
         agencia_banco,
         numero_conta,
@@ -199,7 +206,7 @@ const UpdateProposal = () => {
         nome,
         data_nascimento,
         email,
-        telefone,
+        genero,
         endereco,
         bairro,
         cidade,
@@ -210,9 +217,16 @@ const UpdateProposal = () => {
         rg_documento,
         orgao_emissor,
         data_emissao,
+        numero_endereco,
+        complemento_endereco,
+        telefone,
+        telefone_comercial,
         naturalidade,
+        valor_salario,
         uf_naturalidade,
+        cidade_naturalidade,
         tipo_beneficio,
+        data_dispacho,
         matricula,
         salario_liquido,
         valor_operacao,
@@ -229,6 +243,58 @@ const UpdateProposal = () => {
       });
     }
   }, [proposal]);
+
+  // financialAgreements
+  const handleFinancialAgreements = async (bankId) => {
+    try {
+      const userApi = new ManageBankers(user?.id);
+      const response = await userApi.getBankersById(bankId);
+      setFinancialAgreements(response.data[0].financial_agreements);
+    } catch (error) {
+      notify("Carregue o convênio", { type: "warning" });
+    }
+  };
+
+  // Busca as tabelas financeiras com base no ID do convênio
+  const handleTablesFinance = async (financialAgreementId) => {
+    try {
+      const userApi = new ManageTablesFinance(user?.id);
+      const response = await userApi.getAllTablesFinance(financialAgreementId);
+      setTablesFinance(response.data);
+    } catch (error) {
+      notify("Carregue a tabela", { type: "warning" });
+    }
+  };
+
+  // Combine os useEffect para evitar a alteração da ordem dos hooks
+  useEffect(() => {
+    if (bank_id) {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        financial_agreements_id: "",
+        tables_finance_id: "",
+      }));
+      handleFinancialAgreements(bank_id);
+    }
+  }, [bank_id]);
+
+  useEffect(() => {
+    if (formData.financial_agreements_id) {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        tables_finance_id: "",
+      }));
+      handleTablesFinance(formData.financial_agreements_id);
+    }
+  }, [formData.financial_agreements_id]);
+
+
+  useEffect(() => {
+    if (bank_id) {
+      console.log("Carregando convênios para bank_id:", bank_id);
+      handleFinancialAgreements(bank_id);
+    }
+  }, [bank_id]);
 
   // Busca a proposta ao montar o componente
   useEffect(() => {
@@ -250,14 +316,9 @@ const UpdateProposal = () => {
 
   const handleAddImage = (e) => {
     const { name, files: selectedFiles } = e.target;
-    const newImageUrl = URL.createObjectURL(selectedFiles[0]);
-
-    setProposal((prevProposal) => ({
-      ...prevProposal,
-      image_urls: {
-        ...prevProposal.image_urls,
-        [name]: [...(prevProposal.image_urls[name] || []), newImageUrl],
-      },
+    setFiles((prevFiles) => ({
+      ...prevFiles,
+      [name]: selectedFiles[0],
     }));
   };
 
@@ -290,8 +351,10 @@ const UpdateProposal = () => {
     try {
       const formDataToSend = new FormData();
 
+      // Prepara os dados do formulário
       prepareDataForBackend(formDataToSend, formData);
 
+      // Adiciona os arquivos
       for (const key in files) {
         if (files[key]) {
           formDataToSend.append(key, files[key]);
@@ -320,6 +383,12 @@ const UpdateProposal = () => {
     }));
   };
 
+  /**
+   * Função que renderiza os campos adicionais de acordo com o tipo de pagamento
+   * escolhido.
+   *
+   * @returns {ReactElement} Componente com os campos adicionais
+   */
   const renderAdditionalFields = () => {
     const tipoPagamento = formData.tipo_pagamento
       ? formData.tipo_pagamento.toLowerCase()
@@ -500,7 +569,7 @@ const UpdateProposal = () => {
   return (
     <div className="flex-1 p-15 w-full bg-gray-100 h-full text-gray-700">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Cadastro de Proposta</h1>
+        <h1 className="text-2xl font-bold">Editar Proposta</h1>
         <nav className="text-sm text-gray-400">
           <ol className="flex space-x-2">
             <Link to="/home" className="hover:text-bg-gray-200">
@@ -618,6 +687,32 @@ const UpdateProposal = () => {
                 name="uf_naturalidade"
                 id="uf_naturalidade"
                 value={formData.uf_naturalidade}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+            </div>
+            <div>
+              <label>
+                <strong>Telefone:</strong>
+              </label>
+              <input
+                type="text"
+                name="telefone"
+                id="telefone"
+                value={formData.telefone}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+            </div>
+            <div>
+              <label>
+                <strong>Telefone Comercial:</strong>
+              </label>
+              <input
+                type="text"
+                name="telefone_comercial"
+                id="telefone_comercial"
+                value={formData.telefone_comercial}
                 onChange={handleChange}
                 className="w-full p-2 border rounded"
               />
