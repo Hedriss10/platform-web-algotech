@@ -87,6 +87,10 @@ const PreviewOperational = lazy(
   () => import("../module/Operational/PreviewOperational"),
 );
 
+const Operacional = lazy(
+  () => import("../module/Operational/Proposal/Operational"),
+);
+
 const AppRoutes = () => {
   return (
     <Suspense>
@@ -136,6 +140,7 @@ const AppRoutes = () => {
           <Route path="/rankingtables" element={<RankingTables />} />
           <Route path="/profit" element={<Profit />} />
           <Route path="/operational" element={<PreviewOperational />} />
+          <Route path="/operational/proposal/:id" element={<Operacional />} />
         </Route>
       </Routes>
     </Suspense>

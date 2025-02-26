@@ -78,7 +78,7 @@ class ManageOperational {
 
   async getProposalDetails(token, id) {
     try {
-      const response = await api.get(`/operational/${id}`, {
+      const response = await api.get(`/operational/proposal/details/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           id: this.user_id,
@@ -112,7 +112,7 @@ class ManageOperational {
 
   async postStatusProposal(token, id, data) {
     try {
-      const response = await api.post(`/operational/status/${id}`, data, {
+      const response = await api.post(`/operational/${id}`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
           id: this.user_id,
