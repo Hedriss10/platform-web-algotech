@@ -83,6 +83,10 @@ const RankingTables = lazy(
 
 const Profit = lazy(() => import("../module/Sellers/Profit/Profit"));
 
+const PreviewOperational = lazy(
+  () => import("../module/Operational/PreviewOperational"),
+);
+
 const AppRoutes = () => {
   return (
     <Suspense>
@@ -131,6 +135,7 @@ const AppRoutes = () => {
           <Route path="/proposal/update/:id" element={<UpdateProposalById />} />
           <Route path="/rankingtables" element={<RankingTables />} />
           <Route path="/profit" element={<Profit />} />
+          <Route path="/operational" element={<PreviewOperational />} />
         </Route>
       </Routes>
     </Suspense>

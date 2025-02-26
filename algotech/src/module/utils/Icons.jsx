@@ -46,7 +46,7 @@ import {
 import { IoListSharp, IoPersonCircleSharp } from "react-icons/io5";
 import { FaUsersGear } from "react-icons/fa6";
 import { GoGear } from "react-icons/go";
-import { CiBoxList } from "react-icons/ci";
+import { CiBoxList, CiFilter } from "react-icons/ci";
 import { RiFileExcel2Line } from "react-icons/ri";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 
@@ -96,6 +96,7 @@ const Icons = {
   MdPayments,
   FaRegAddressBook,
   MdOutlineDashboard,
+  CiFilter,
 };
 
 export default Icons;
