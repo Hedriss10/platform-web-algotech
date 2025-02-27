@@ -26,7 +26,7 @@ class ManageFinace {
         params: {
           filter_by: this.search_term || "",
           current_page: this.current_page || 1,
-          rows_per_page: this.rows_per_page || 10,
+          rows_per_page: this.rows_per_page || 50,
           page_number: this.page_number || 1,
           order_by: this.order_by || "",
           filter_value: this.filter_value || "",
@@ -49,10 +49,10 @@ class ManageFinace {
     try {
       const response = await api.get(`/datacatalog/benefit`, {
         params: {
-          filter_by: this.search_term || "",
           current_page: this.current_page || 1,
-          rows_per_page: this.rows_per_page || 10,
+          rows_per_page: this.rows_per_page || 40,
           page_number: this.page_number || 1,
+          filter_by: this.search_term || "",
           order_by: this.order_by || "",
           filter_value: this.filter_value || "",
         },

@@ -73,9 +73,13 @@ const RegisterUser = ({ onClose }) => {
 
       <div className="bg-gray-700 rounded-lg shadow-lg p-6">
         <div className="flex justify-end">
-          <button onClick={onClose} className="text-white">
-            Fechar
-          </button>
+          <Link
+             to="/users"
+            >
+            <button onClick={onClose} className="text-white">
+              Fechar
+            </button>
+          </Link>
         </div>
         <form onSubmit={handleFormSubmit} className="space-y-4 text-white">
           <div>
@@ -184,8 +188,8 @@ const RegisterUser = ({ onClose }) => {
               <option value="" hidden>
                 Selecione o Cargo:
               </option>
-              <option value="ativo">Estágiario</option>
-              <option value="inativo">Funcionário</option>
+              <option value="Estagiario">Estágiario</option>
+              <option value="Funcionário">Funcionário</option>
             </select>
           </div>
           <div>
