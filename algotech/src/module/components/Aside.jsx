@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import Icons from "../utils/Icons";
-import Permission from "../utils/Permissions";
+import Icons from "../Utils/Icons";
+import Permission from "../Utils/Permissions";
 import { useUser } from "../../service/UserContext";
 
 const Aside = ({ isOpen }) => {
@@ -25,8 +25,6 @@ const Aside = ({ isOpen }) => {
     return user?.role === permission;
   };
 
-  console.log(user?.role, "ESSA É SUA FUNÇÃO");
-
   return (
     <aside
       className={`w-64 bg-gray-800 text-white fixed top-15 bottom-0 transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
@@ -46,7 +44,9 @@ const Aside = ({ isOpen }) => {
         )}
 
         {/* Operacional */}
-        {(chekPermission(Permission.Operacional) || chekPermission(Permission.Financeiro) || chekPermission(Permission.Administrador)) && (
+        {(chekPermission(Permission.Operacional) ||
+          chekPermission(Permission.Financeiro) ||
+          chekPermission(Permission.Administrador)) && (
           <li>
             <button
               onClick={() => toggleMenu("components")}
@@ -77,7 +77,9 @@ const Aside = ({ isOpen }) => {
         )}
 
         {/* Sellers */}
-        {(chekPermission(Permission.Vendedor) || chekPermission(Permission.Financeiro) || chekPermission(Permission.Administrador)) && (
+        {(chekPermission(Permission.Vendedor) ||
+          chekPermission(Permission.Financeiro) ||
+          chekPermission(Permission.Administrador)) && (
           <li>
             <button
               onClick={() => toggleMenu("forms")}
@@ -122,7 +124,8 @@ const Aside = ({ isOpen }) => {
         )}
 
         {/* Financeiro */}
-        {(chekPermission(Permission.Financeiro) || chekPermission(Permission.Administrador)) && (
+        {(chekPermission(Permission.Financeiro) ||
+          chekPermission(Permission.Administrador)) && (
           <li className="nav-item">
             <a
               className="nav-link flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"
@@ -160,7 +163,8 @@ const Aside = ({ isOpen }) => {
         )}
 
         {/* Salas */}
-        {(chekPermission(Permission.Suporte) || chekPermission(Permission.Administrador)) && (
+        {(chekPermission(Permission.Suporte) ||
+          chekPermission(Permission.Administrador)) && (
           <li className="nav-item">
             <a
               className="nav-link flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"

@@ -4,7 +4,6 @@ import ManageUser from "../User/Service/UsersApi";
 import ManageRooms from "../Rooms/Service/ManageRooms";
 import { notify } from "../utils/toastify";
 import { useUser } from "../../service/UserContext";
-import Icons from "../utils/Icons";
 
 const UsersRooms = () => {
   const navigate = useNavigate();

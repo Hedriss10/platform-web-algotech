@@ -73,9 +73,7 @@ const RegisterUser = ({ onClose }) => {
 
       <div className="bg-gray-700 rounded-lg shadow-lg p-6">
         <div className="flex justify-end">
-          <Link
-             to="/users"
-            >
+          <Link to="/users">
             <button onClick={onClose} className="text-white">
               Fechar
             </button>

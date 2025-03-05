@@ -13,6 +13,7 @@ const RolersRegister = lazy(() => import("../module/User/RegisterRoles"));
 const Rooms = lazy(() => import("../module/Rooms/Rooms"));
 const RegisterRooms = lazy(() => import("../module/Rooms/RegisterRooms"));
 const PreviewRooms = lazy(() => import("../module/Rooms/PreviewRooms"));
+const UpdateRooms = lazy(() => import("../module/Rooms/UpdateRooms"));
 const UsersRooms = lazy(() => import("../module/Rooms/AssociateUserRooms"));
 const PreviewFinance = lazy(() => import("../module/Finance/PreviewFinance"));
 const CardsBank = lazy(() => import("../module/Finance/CardBank"));
@@ -109,6 +110,7 @@ const AppRoutes = () => {
           <Route path="/finance" element={<PreviewFinance />} />
           <Route path="/users/update/:id" element={<UpdateUsers />} />
           <Route path="/rooms/:id" element={<PreviewRooms />} />
+          <Route path="/rooms/update/:id" element={<UpdateRooms />} />
           <Route path="/bank/:id" element={<CardsBank />} />
           <Route path="/newbank" element={<RegisterBank />} />
           <Route path="/bank/update/:id" element={<UpdateBank />} />

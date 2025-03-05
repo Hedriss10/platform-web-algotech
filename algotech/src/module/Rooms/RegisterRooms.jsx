@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { notify } from "../utils/toastify";
 import { useUser } from "../../service/UserContext";
-import ManageRoosms from "../Rooms/Service/ManageRooms";
+import ManageRooms from "../Rooms/Service/ManageRooms";
 
 const RegisterRooms = () => {
   const { user, token } = useUser();
@@ -19,7 +19,7 @@ const RegisterRooms = () => {
     e.preventDefault(); // Previne o comportamento padrão do formulário
 
     try {
-      const apiRooms = new ManageRoosms(user?.id);
+      const apiRooms = new ManageRooms(user?.id);
       const resposne = await apiRooms.postRooms(formData, token);
       notify("Sala criado com sucesso", { type: "success" });
       setTimeout(() => {

@@ -3,7 +3,7 @@ import { useUser } from "../../service/UserContext";
 import { useNavigate, Link } from "react-router-dom";
 import { notify } from "../utils/toastify";
 import Icons from "../utils/Icons";
-import ManageRoosms from "../Rooms/Service/ManageRooms";
+import ManageRooms from "../Rooms/Service/ManageRooms";
 
 const Rooms = () => {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ const Rooms = () => {
   const loadRooms = async () => {
     setLoading(true);
     try {
-      const usersApi = new ManageRoosms(
+      const usersApi = new ManageRooms(
         user?.id,
         searchTerm,
         currentPage,
@@ -48,7 +48,7 @@ const Rooms = () => {
   // Deletar uma sala
   const handleDeleteRooms = async (id) => {
     try {
-      const rooms = new ManageRoosms();
+      const rooms = new ManageRooms();
       await rooms.deleteRoom(id, token); // Passa o token
       notify("Sala deletado com sucesso", { type: "success" });
       loadRooms();
@@ -182,7 +182,7 @@ const Rooms = () => {
                     </td>
                     <td className="px-6 py-4">
                       <button
-                        className="p-2 bg-blue-600 rounded-lg hover:bg-blue-500 transition duration-300"
+                        className="p-2 bg-orange-600 rounded-lg hover:bg-blue-500 transition duration-300"
                         onClick={() => handleEditRooms(room.id)}
                       >
                         <Icons.FaEdit className="text-white" />

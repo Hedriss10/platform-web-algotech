@@ -1,6 +1,6 @@
 import api from "../../Hooks/ApiConfig";
 
-class ManageRoosms {
+class ManageRooms {
   constructor(
     user_id = null,
     search_term = null,
@@ -112,6 +112,23 @@ class ManageRoosms {
     }
   }
 
+  async updateRooms(id, data, token) {
+    try {
+      const response = await api.put(`/rooms/${id}`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
   async deleteRoom(id, token) {
     try {
       const response = await api.delete(`/rooms/${id}`, {
@@ -147,4 +164,4 @@ class ManageRoosms {
   }
 }
 
-export default ManageRoosms;
+export default ManageRooms;
