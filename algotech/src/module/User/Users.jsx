@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import ManageUser from "../User/Service/UsersApi";
 import { notify } from "../utils/toastify";
 import { useUser } from "../../service/UserContext";
-import Icons from "../Utils/Icons";
+import Icons from "../utils/Icons";
 import MaskCpf from "../utils/MaskCpf";
 
 const ManageUsers = () => {

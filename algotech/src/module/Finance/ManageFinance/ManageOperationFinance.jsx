@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../../service/UserContext";
 import { notify } from "../../utils/toastify";
 import ManageFinace from "../Service/ManageFinance";
-import Icons from "../../Utils/Icons";
+import Icons from "../../utils/Icons";
 
 const ManageFinanceOperation = () => {
   const navigate = useNavigate();
