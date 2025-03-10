@@ -7,7 +7,7 @@ const Login = lazy(() => import("../module/Login/Login"));
 const ManageUsers = lazy(() => import("../module/User/Users"));
 const RegisterUser = lazy(() => import("../module/User/RegisterUser"));
 const UpdateUsers = lazy(() => import("../module/User/UpdateUsers"));
-const Profile = lazy(() => import("../module/Profile/Profile"));
+const Profile = lazy(() => import("../module/profile/Profile"));
 const RoleUsers = lazy(() => import("../module/User/RoleUsers"));
 const RolersRegister = lazy(() => import("../module/User/RegisterRoles"));
 const Rooms = lazy(() => import("../module/Rooms/Rooms"));
