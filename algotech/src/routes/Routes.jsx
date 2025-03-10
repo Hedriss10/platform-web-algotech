@@ -62,6 +62,14 @@ const ProcessPayments = lazy(
   () => import("../module/Finance/Report/Payment/ProcessPayment"),
 );
 
+const ManageOperationFinance = lazy(
+  () => import("../module/Finance/ManageFinance/ManageOperationFinance"),
+);
+
+const RegisterOperationsFinance = lazy(
+  () => import("../module/Finance/ManageFinance/RegisterOperationsFinance"),
+);
+
 const PreviewSellers = lazy(
   () => import("../module/Sellers/Proposal/PreviewSellers"),
 );
@@ -125,6 +133,14 @@ const AppRoutes = () => {
           <Route
             path="/financialagreements/:id"
             element={<FinancialAgreements />}
+          />
+          <Route
+            path="/manageoperationfinance"
+            element={<ManageOperationFinance />}
+          />
+          <Route
+            path="/register-operations"
+            element={<RegisterOperationsFinance />}
           />
           <Route path="/addtables/:id" element={<RegisterTablesOneFinance />} />
           <Route path="/report" element={<PreviewReport />} />

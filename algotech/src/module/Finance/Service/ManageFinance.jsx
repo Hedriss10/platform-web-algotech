@@ -69,6 +69,90 @@ class ManageFinace {
       throw new Error(error.message);
     }
   }
+
+  async postOperation(data, toke) {
+    try {
+      const response = await api.post(`/datacatalog`, data, {
+        headers: {
+          Authorization: `Bearer ${toke}`,
+          id: this.user_id,
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+  async updateOperation(id, data, token) {
+    try {
+      const response = await api.put(`/datacatalog/${id}`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async deleteOperation(id, token) {
+    try {
+      const response = await api.delete(`/datacatalog/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async postBenefit(data, token) {
+    try {
+      const response = await api.post(`/datacatalog/benefit`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async deleteBenefit(id, token) {
+    try {
+      const response = await api.delete(`/datacatalog/benefit/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
 }
 
 export default ManageFinace;

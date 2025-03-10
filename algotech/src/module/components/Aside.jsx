@@ -157,6 +157,13 @@ const Aside = ({ isOpen }) => {
                   <Icons.HiOutlineDocumentReport className="text-sm mr-2" />
                   <span>Relatório</span>
                 </Link>
+                <Link
+                  to="/manageoperationfinance"
+                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+                >
+                  <Icons.FaRegMoneyBillAlt className="text-sm mr-2" />
+                  <span>Operações Financeiras</span>
+                </Link>
               </ul>
             )}
           </li>
