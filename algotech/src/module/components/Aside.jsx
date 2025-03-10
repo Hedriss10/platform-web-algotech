@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import Icons from "../Utils/Icons";
-import Permission from "../Utils/Permissions";
+import Icons from "../utils/Icons";
+import Permission from "../utils/Permissions";
 import { useUser } from "../../service/UserContext";
 
 const Aside = ({ isOpen }) => {
