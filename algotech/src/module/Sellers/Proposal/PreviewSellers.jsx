@@ -62,7 +62,7 @@ const PreviewProposal = () => {
     }
   };
 
-  // função para redirecionar para o update do proposal
+  // função para redirecionar para o update do proposal e verificando se ela está paga 
   const handleUpdateProposal = (id) => {
     try {
       navigate(`/proposal/update/${id}`);
@@ -222,8 +222,17 @@ const PreviewProposal = () => {
                     </td>
                     <td className="px-6 py-4">
                       <button
-                        className="p-2 bg-orange-600 rounded-lg hover:bg-orange-500 transition duration-300"
-                        onClick={() => handleUpdateProposal(proposal.id)}
+                        className={`p-2 rounded-lg transition duration-300 ${
+                          proposal.current_status === "Contrato Pago"
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-orange-600 hover:bg-orange-500"
+                        }`}
+                        onClick={() => {
+                          if (proposal.current_status !== "Contrato Pago") {
+                            handleUpdateProposal(proposal.id);
+                          }
+                        }}
+                        disabled={proposal.current_status === "Contrato Pago"}
                       >
                         <Icons.FaEdit className="text-white" />
                       </button>
