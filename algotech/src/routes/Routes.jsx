@@ -25,6 +25,11 @@ const TablesFinance = lazy(
 const RegisterTablesFinance = lazy(
   () => import("../module/Finance/Tables/RegisterTablesFinance"),
 );
+
+const ImportTablesFinance = lazy(
+  () => import("../module/Finance/Tables/ImportsTablesFinance"),
+);
+
 const FinancialAgreements = lazy(
   () =>
     import("../module/Finance/FinancialAgreements/RegisterFinancialAgreements"),
@@ -126,6 +131,7 @@ const AppRoutes = () => {
             path="/newtablesfinance/:id"
             element={<RegisterTablesFinance />}
           />
+          <Route path="/importablesfinance" element={<ImportTablesFinance />} />
           <Route
             path="/tablesfinance/:bankerId/:financialAgreementsId"
             element={<TablesFinance />}

@@ -48,4 +48,3 @@ const QuestionareDelete = ({ onDelete, onCancel }) => {
 };
 
 export default QuestionareDelete;
-

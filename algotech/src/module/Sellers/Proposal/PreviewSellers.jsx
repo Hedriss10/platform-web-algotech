@@ -62,7 +62,7 @@ const PreviewProposal = () => {
     }
   };
 
-  // função para redirecionar para o update do proposal e verificando se ela está paga 
+  // função para redirecionar para o update do proposal e verificando se ela está paga
   const handleUpdateProposal = (id) => {
     try {
       navigate(`/proposal/update/${id}`);
