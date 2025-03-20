@@ -31,6 +31,7 @@ const TablesFinance = () => {
         financialAgreementsId,
       );
 
+      console.log("RETORNO DA API DAS TABELAS", response);
       if (response && response.data) {
         setTablesFinance(response.data);
         setTotalPages(response.metadata?.total_pages || 1);
@@ -148,7 +149,7 @@ const TablesFinance = () => {
                   Nome
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Taxa
+                  Flat
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   Prazo Início
@@ -161,6 +162,12 @@ const TablesFinance = () => {
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   Código
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
+                  Taxa Inicio
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
+                  Taxa Fim
                 </th>
               </tr>
             </thead>
@@ -219,6 +226,12 @@ const TablesFinance = () => {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
                       {table.table_code || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-200">
+                      {table.start_rate + "%" || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-200">
+                      {table.end_rate + "%" || "N/A"}
                     </td>
                   </tr>
                 ))

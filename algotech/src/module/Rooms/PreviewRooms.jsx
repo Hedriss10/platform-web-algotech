@@ -118,7 +118,7 @@ const PreviewRooms = () => {
               <strong>Salas</strong>
             </Link>
             <Link to="/usersrooms" className="hover:text-bg-gray-200">
-              <strong>Cadastrar Usuários Na Sala</strong>
+              <strong>Cadastrar usuarios na sala</strong>
             </Link>
           </ol>
         </nav>
@@ -141,17 +141,14 @@ const PreviewRooms = () => {
             <button className="p-2 bg-gray-600 rounded-lg hover:bg-gray-500 transition duration-300">
               <Icons.FaSearch className="text-white" />
             </button>
-          </div>
-        </div>
-
-        {/* Botão para deletar usuários selecionados */}
-        <div className="mb-4">
-          <button
+            {/* Botão para deletar usuários selecionados */}
+            <button 
             className="px-4 py-2 bg-red-400 text-white rounded-lg hover:bg-red-500 transition duration-300"
             onClick={handleDeleteSelectedUsers}
-          >
-            Deletar Selecionados
+            >
+                <Icons.FaTrash className="text-white" />
           </button>
+          </div>
         </div>
 
         {/* Tabela de usuários que estão na sala */}
