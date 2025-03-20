@@ -15,6 +15,8 @@ const RegisterTablesOneFinance = () => {
     type_table: "",
     start_term: "",
     end_term: "",
+    start_rate: 0.0,
+    end_rate: 0.0,
     rate: 0.0,
     issue_date: "",
   });
@@ -159,7 +161,7 @@ const RegisterTablesOneFinance = () => {
               htmlFor="rate"
               className="block text-sm font-medium text-white"
             >
-              Taxa:
+              Flat:
             </label>
             <input
               type="number"
@@ -167,6 +169,44 @@ const RegisterTablesOneFinance = () => {
               id="rate"
               name="rate"
               value={formData.rate}
+              onChange={handleChange}
+              placeholder="3.75"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="rate"
+              className="block text-sm font-medium text-white"
+            >
+              Taxa Inicio:
+            </label>
+            <input
+              type="number"
+              step="1.8"
+              id="start_rate"
+              name="start_rate"
+              value={formData.start_rate}
+              onChange={handleChange}
+              placeholder="3.75"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="rate"
+              className="block text-sm font-medium text-white"
+            >
+              Taxa Fim:
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              id="end_rate"
+              name="end_rate"
+              value={formData.end_rate}
               onChange={handleChange}
               placeholder="3.75"
               required
