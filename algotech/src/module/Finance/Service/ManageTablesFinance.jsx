@@ -21,19 +21,16 @@ class ManageTablesFinance {
 
   async getAllTablesFinance(financial_agreements_id) {
     try {
-      const response = await api.get(
-        `/tablesfinance/${financial_agreements_id}`,
-        {
-          params: {
-            filter_by: this.search_term || "",
-            current_page: this.current_page || 1,
-            rows_per_page: this.rows_per_page || 10,
-            page_number: this.page_number || 1,
-            order_by: this.order_by || "",
-            filter_value: this.filter_value || "",
-          },
+      const response = await api.get(`/table/${financial_agreements_id}`, {
+        params: {
+          filter_by: this.search_term || "",
+          current_page: this.current_page || 1,
+          rows_per_page: this.rows_per_page || 10,
+          page_number: this.page_number || 1,
+          order_by: this.order_by || "",
+          filter_value: this.filter_value || "",
         },
-      );
+      });
       if (response.data.error) {
         throw new Error(response.data.message_id);
       }
@@ -45,7 +42,7 @@ class ManageTablesFinance {
 
   async postTablesFinance(data, token) {
     try {
-      const response = await api.post("/tablesfinance", data, {
+      const response = await api.post("/table", data, {
         headers: {
           Authorization: `Bearer ${token}`,
           id: this.user_id,
@@ -62,7 +59,7 @@ class ManageTablesFinance {
 
   async rankingTablesFinance() {
     try {
-      const response = await api.get("/tablesfinance/ranks", {
+      const response = await api.get("/table/ranks", {
         params: {
           filter_by: this.search_term,
           current_page: this.current_page,
@@ -83,7 +80,7 @@ class ManageTablesFinance {
 
   async importTablesFinance(data, token) {
     try {
-      const response = await api.post("/tablesfinance/import-tables", data, {
+      const response = await api.post("/table/import-tables", data, {
         headers: {
           Authorization: `Bearer ${token}`,
           id: this.user_id,
@@ -101,16 +98,13 @@ class ManageTablesFinance {
 
   async deleteTablesFinance(financial_agreements_id, data, token) {
     try {
-      const response = await api.delete(
-        `/tablesfinance/${financial_agreements_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            id: this.user_id,
-          },
-          data,
+      const response = await api.delete(`/table/${financial_agreements_id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
         },
-      );
+        data,
+      });
       console.log(response);
       if (response.data.error) {
         throw new Error(response.data.message_id);

@@ -327,3 +327,4 @@ const ImportsTablesFianance = () => {
 export default ImportsTablesFianance;
 
 /// TODO - analisar o fator dessa implementação... se realmente compensa realizar pelo FE
+/// TODO - essa implementação está pausada

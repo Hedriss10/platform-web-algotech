@@ -1007,7 +1007,9 @@ const RegisterProposal = () => {
               <option>Selecione a Tabela:</option>
               {tablesFinance.map((table) => (
                 <option key={table.id} value={table.id}>
-                    Nome: {table.name} | Prazos: {table.start_tem}{table.end_term} | Taxas: {table.start_rate} á {table.end_rate}
+                  Nome: {table.name} | Prazos: {table.start_tem}
+                  {table.end_term} | Taxas: {table.start_rate} á{" "}
+                  {table.end_rate}
                 </option>
               ))}
             </select>
