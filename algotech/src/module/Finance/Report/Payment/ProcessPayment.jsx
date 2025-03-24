@@ -98,7 +98,7 @@ const ProcessPayments = () => {
         currentPage,
         rowsPerPage,
       );
-      const response = await usersApi.postReport(payload, token);
+      const response = await usersApi.postPayment(payload, token);
       if (response && response.data) {
         setSellers(response.data);
         setTotalPages(response.metadata?.total_pages || 1);

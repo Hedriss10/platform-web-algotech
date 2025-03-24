@@ -142,12 +142,12 @@ const PreviewRooms = () => {
               <Icons.FaSearch className="text-white" />
             </button>
             {/* Botão para deletar usuários selecionados */}
-            <button 
-            className="px-4 py-2 bg-red-400 text-white rounded-lg hover:bg-red-500 transition duration-300"
-            onClick={handleDeleteSelectedUsers}
+            <button
+              className="px-4 py-2 bg-red-400 text-white rounded-lg hover:bg-red-500 transition duration-300"
+              onClick={handleDeleteSelectedUsers}
             >
-                <Icons.FaTrash className="text-white" />
-          </button>
+              <Icons.FaTrash className="text-white" />
+            </button>
           </div>
         </div>
 

@@ -21,9 +21,9 @@ class ManageReport {
     this.has_report = has_report;
   }
 
-  async postReport(data, token) {
+  async postPayment(data, token) {
     try {
-      const response = await api.post("/reportfinance", data, {
+      const response = await api.post("/payment", data, {
         headers: {
           Authorization: `Bearer ${token}`,
           id: this.user_id,
@@ -38,9 +38,10 @@ class ManageReport {
     }
   }
 
-  async getReport() {
+  async getProcessPayments() {
+    /// utilizado para carregamento de pagamentos
     try {
-      const response = await api.get("/reportfinance", {
+      const response = await api.get("/payment", {
         params: {
           current_page: this.current_page,
           rows_per_page: this.rows_per_page,
@@ -102,7 +103,7 @@ class ManageReport {
 
   async deletePayments(data, token) {
     try {
-      const response = await api.delete(`/reportfinance/delete-payments`, {
+      const response = await api.delete(`/payment`, {
         headers: {
           Authorization: `Bearer ${token}`,
           id: this.user_id,
@@ -120,7 +121,7 @@ class ManageReport {
 
   async postFlags(data, token) {
     try {
-      const response = await api.post("/reportfinance/flags", data, {
+      const response = await api.post("/flags", data, {
         headers: {
           Authorization: `Bearer ${token}`,
           id: this.user_id,
@@ -137,7 +138,7 @@ class ManageReport {
 
   async getFlags() {
     try {
-      const response = await api.get("/reportfinance/flags", {
+      const response = await api.get("/flags", {
         params: {
           current_page: this.current_page,
           rows_per_page: this.rows_per_page,
@@ -163,7 +164,7 @@ class ManageReport {
       } else {
         this.has_report = true;
       }
-      const response = await api.get("/reportfinance/sellers", {
+      const response = await api.get("/payment/sellers", {
         params: {
           current_page: this.current_page,
           rows_per_page: this.rows_per_page,
@@ -185,7 +186,7 @@ class ManageReport {
 
   async deleteFlags(data, token) {
     try {
-      const response = await api.delete("/reportfinance/flags-delete", {
+      const response = await api.delete("/flags", {
         headers: {
           Authorization: `Bearer ${token}`,
           id: this.user_id,

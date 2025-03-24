@@ -27,7 +27,7 @@ const ListPayment = () => {
         currentPage,
         rowsPerPage,
       );
-      const response = await usersApi.getReport();
+      const response = await usersApi.getProcessPayments();
       if (response && response.data) {
         setReportsSellers(response.data);
         setTotalPages(response.metadata?.total_pages || 1);
