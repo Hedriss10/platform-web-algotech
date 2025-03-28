@@ -87,6 +87,16 @@ const PreviewOperational = () => {
     setCurrentPage(1);
   };
 
+  // função para redirecionar para o update do proposal e verificando se ela está paga
+  const handleUpdateProposal = (id) => {
+    try {
+      navigate(`/operational/proposal/update/${id}`);
+    } catch (error) {
+      console.log(error);
+      notify("Error ao editar Proposta", { type: "error" });
+    }
+  };
+
   return (
     <div className="flex-1 p-15 w-full bg-gray-100 h-full text-gray-700">
       {/* Título e Breadcrumb */}
@@ -217,6 +227,9 @@ const PreviewOperational = () => {
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   Visualizar
                 </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
+                  Editar
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-500">
@@ -277,6 +290,23 @@ const PreviewOperational = () => {
                           <Icons.MdOutlinePreview className="text-white" />
                         </button>
                       </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        className={`p-2 rounded-lg transition duration-300 ${
+                          proposal.current_status === "Contrato Pago"
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-orange-600 hover:bg-orange-500"
+                        }`}
+                        onClick={() => {
+                          if (proposal.current_status !== "Contrato Pago") {
+                            handleUpdateProposal(proposal.id);
+                          }
+                        }}
+                        disabled={proposal.current_status === "Contrato Pago"}
+                      >
+                        <Icons.FaEdit className="text-white" />
+                      </button>
                     </td>
                   </tr>
                 ))

@@ -43,6 +43,31 @@ class ManageProfit {
       throw new Error(error.message);
     }
   }
+
+  async getProfitSellers(token) {
+    try {
+      const response = await api.get("/statistics/sellers-ranking", {
+        params: {
+          filter_by: this.search_term || "",
+          current_page: this.current_page || 1,
+          rows_per_page: this.rows_per_page || 10,
+          page_number: this.page_number || 1,
+          order_by: this.order_by || "",
+          filter_value: this.filter_value || "",
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
 }
 
 export default ManageProfit;
