@@ -118,12 +118,22 @@ class ManageOperational {
           id: this.user_id,
         },
       });
+
       if (response.data.error) {
-        throw new Error(response.data.message_id);
+        return {
+          status_code: response.status,
+          message_id: response.data.message_id,
+          error: true,
+        };
       }
+
       return response.data;
     } catch (error) {
-      throw new Error(error.message);
+      throw {
+        status_code: error.response?.status || 500,
+        message_id: error.response?.data?.message_id || "unknown_error",
+        error: true,
+      };
     }
   }
 }

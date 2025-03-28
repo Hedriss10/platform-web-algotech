@@ -4,8 +4,8 @@ import { useUser } from "../../../service/UserContext";
 import { notify } from "../../utils/toastify";
 import ManageOperational from "../Service/MangeOperational";
 import ManageSellers from "../../Sellers/Service/ManageSellers";
-import Icons from "../../utils/Icons";
 import MaskCpf from "../../utils/MaskCpf";
+import CheckSummaryProposal from "../components/CheckSummaryProposal";
 
 const Operacional = () => {
   const { user, token } = useUser();
@@ -14,6 +14,7 @@ const Operacional = () => {
   const [proposal, setProposal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [details, setDetails] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     aguardando_digitacao: false,
     pendente_digitacao: false,
@@ -119,12 +120,20 @@ const Operacional = () => {
           ? Number(formData.number_proposal)
           : null,
       };
+
       const response = await api.postStatusProposal(token, id, newFormData);
+
       notify("Status alterado com sucesso", { type: "success" });
       getDetailsProposal(); // Atualiza os detalhes após o envio
     } catch (error) {
-      console.error(error);
-      notify("Erro ao alterar o status", { type: "error" });
+      if (
+        error.status_code === 409 &&
+        error.message_id === "proposal_summary_and_validated_fields"
+      ) {
+        setIsModalOpen(true); // Só abre a modal
+      } else {
+        notify("Erro ao alterar o status", { type: "error" });
+      }
     }
   };
 
@@ -265,6 +274,9 @@ const Operacional = () => {
         >
           Enviar Status
         </button>
+        {isModalOpen && (
+          <CheckSummaryProposal onClose={() => setIsModalOpen(false)} />
+        )}
       </div>
 
       {/* Relatório de Descrições */}

@@ -118,6 +118,13 @@ const Aside = ({ isOpen }) => {
                   <Icons.FaRegMoneyBillAlt className="text-sm mr-2" />
                   <span>Expectativa de Ganhos</span>
                 </Link>
+                <Link
+                  to="/ranking-sellers"
+                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+                >
+                  <Icons.FaChartLine className="text-sm mr-2" />
+                  <span>Ranking Operação</span>
+                </Link>
               </ul>
             )}
           </li>

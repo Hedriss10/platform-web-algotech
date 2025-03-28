@@ -105,6 +105,14 @@ const Operacional = lazy(
   () => import("../module/Operational/Proposal/Operational"),
 );
 
+const UpdateProposalOperational = lazy(
+  () => import("../module/Operational/Proposal/UpdateOperational"),
+);
+
+const RankingSellers = lazy(
+  () => import("../module/Sellers/RankingSellers/RankingSellers"),
+);
+
 const AppRoutes = () => {
   return (
     <Suspense>
@@ -158,6 +166,7 @@ const AppRoutes = () => {
           <Route path="/import-reports" element={<ImportsReports />} />
           <Route path="/process-payments" element={<ProcessPayments />} />
           <Route path="/sellers" element={<PreviewSellers />} />
+          <Route path="/ranking-sellers" element={<RankingSellers />} />
           <Route path="/proposal" element={<RegisterProposal />} />
           <Route path="/proposal/:id" element={<PreviewProposalById />} />
           <Route path="/proposal/update/:id" element={<UpdateProposalById />} />
@@ -165,6 +174,10 @@ const AppRoutes = () => {
           <Route path="/profit" element={<Profit />} />
           <Route path="/operational" element={<PreviewOperational />} />
           <Route path="/operational/proposal/:id" element={<Operacional />} />
+          <Route
+            path="/operational/proposal/update/:id"
+            element={<UpdateProposalOperational />}
+          />
         </Route>
       </Routes>
     </Suspense>
