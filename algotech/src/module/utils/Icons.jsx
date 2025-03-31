@@ -32,6 +32,7 @@ import {
   FaMoneyBill,
   FaUpload,
   FaRegAddressBook,
+  FaStopCircle
 } from "react-icons/fa";
 import {
   MdPersonAddAlt,
@@ -42,6 +43,7 @@ import {
   MdOutlineManageAccounts,
   MdPayments,
   MdOutlineDashboard,
+  MdOutlinePaid
 } from "react-icons/md";
 import { IoListSharp, IoPersonCircleSharp } from "react-icons/io5";
 import { FaUsersGear, FaChartLine } from "react-icons/fa6";
@@ -97,7 +99,7 @@ const Icons = {
   FaRegAddressBook,
   MdOutlineDashboard,
   CiFilter,
-  FaChartLine
+  FaChartLine,
 };
 
 export default Icons;

@@ -23,7 +23,7 @@ const RankingSellers = () => {
         rowsPerPage,
       );
       const response = await usersApi.getProfitSellers(token);
-      console.log("RETORNO DA API", response)
+      console.log("RETORNO DA API", response);
       setContract(response.data);
       setTotalPages(response.totalPages);
       setLoading(false);
