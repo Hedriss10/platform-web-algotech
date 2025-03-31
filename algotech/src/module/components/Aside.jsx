@@ -33,16 +33,15 @@ const Aside = ({ isOpen }) => {
         {/* Dashboard */}
         {chekPermission(Permission.Administrador) && (
           <li>
-            <a
-              href="#"
+            <Link
+              to="/dashboard"
               className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
             >
               <Icons.BiGrid className="h-5 w-5 mr-2" />
               <span>Dashboard</span>
-            </a>
+            </Link>
           </li>
         )}
-
         {/* Operacional */}
         {(chekPermission(Permission.Operacional) ||
           chekPermission(Permission.Financeiro) ||
@@ -75,7 +74,6 @@ const Aside = ({ isOpen }) => {
             )}
           </li>
         )}
-
         {/* Sellers */}
         {(chekPermission(Permission.Vendedor) ||
           chekPermission(Permission.Financeiro) ||
@@ -129,7 +127,6 @@ const Aside = ({ isOpen }) => {
             )}
           </li>
         )}
-
         {/* Financeiro */}
         {(chekPermission(Permission.Financeiro) ||
           chekPermission(Permission.Administrador)) && (
@@ -182,7 +179,6 @@ const Aside = ({ isOpen }) => {
             )}
           </li>
         )}
-
         {/* Salas */}
         {(chekPermission(Permission.Suporte) ||
           chekPermission(Permission.Administrador)) && (
@@ -216,7 +212,6 @@ const Aside = ({ isOpen }) => {
             )}
           </li>
         )}
-
         {/* Gerenciamento de usuários */}
         {chekPermission(Permission.Administrador) && (
           <li className="nav-item">
@@ -267,12 +262,10 @@ const Aside = ({ isOpen }) => {
             )}
           </li>
         )}
-
         {/* Pages Section */}
         <li className="nav-heading mt-6 mb-2 text-sm font-semibold uppercase text-gray-400">
           <span>Helpers</span>
         </li>
-
         {/* Profile */}
         <li className="nav-item">
           <Link

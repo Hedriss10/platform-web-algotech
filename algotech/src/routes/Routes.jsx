@@ -113,6 +113,10 @@ const RankingSellers = lazy(
   () => import("../module/Sellers/RankingSellers/RankingSellers"),
 );
 
+const PreviewDashBoard = lazy(
+  () => import("../module/Dashboard/PreviewDashboard"),
+);
+
 const AppRoutes = () => {
   return (
     <Suspense>
@@ -178,6 +182,7 @@ const AppRoutes = () => {
             path="/operational/proposal/update/:id"
             element={<UpdateProposalOperational />}
           />
+          <Route path="/dashboard" element={<PreviewDashBoard />} />
         </Route>
       </Routes>
     </Suspense>
