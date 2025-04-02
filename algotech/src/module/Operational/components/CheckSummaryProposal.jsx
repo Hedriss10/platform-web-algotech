@@ -17,11 +17,11 @@ const CheckSummaryProposal = ({ onClose }) => {
         {/* Campos obrigatórios */}
         <label className="font-bold">Campos:</label>
         <ul className="space-y-2">
-          <li className="space-y-2">Número da proposta</li>
-          <li className="space-y-2">Código da proposta</li>
-          <li className="space-y-2">Valor da operação</li>
-          <li className="space-y-2">Prazo início e fim</li>
-          <li className="space-y-2">Tabela e convênio</li>
+          {/* <li className="space-y-2">Número da proposta</li> */}
+          {/* <li className="space-y-2">Código da proposta</li> */}
+          <li className="space-y-2">Valor da Operação</li>
+          <li className="space-y-2">Prazo Início e Fim</li>
+          {/* <li className="space-y-2">Tabela e convênio</li> */}
         </ul>
 
         {/* <div className="space-y-4">
