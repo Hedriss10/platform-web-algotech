@@ -92,7 +92,7 @@ const RegisterProposal = () => {
   // Busca os bancos
   const handleBankers = async () => {
     try {
-      const userApi = new ManageBankers(user?.id);
+      const userApi = new ManageBankers(user?.id, null, 1, 100);
       const response = await userApi.getAllBankers();
       setBankers(response.data);
     } catch (error) {

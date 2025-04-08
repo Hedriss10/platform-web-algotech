@@ -22,12 +22,12 @@ class ManageBankers {
     try {
       const response = await api.get("/bankers", {
         params: {
-          filter_by: this.search_term,
           current_page: this.current_page,
           rows_per_page: this.rows_per_page,
           page_number: this.page_number,
           order_by: this.order_by,
           filter_value: this.filter_value,
+          filter_by: this.search_term,
         },
       });
       if (response.data.error) {
