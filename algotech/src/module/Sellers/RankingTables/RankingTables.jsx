@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import ManageTablesFinance from "../../Finance/Service/ManageTablesFinance";
 import { useUser } from "../../../service/UserContext";
 import { useNavigate, Link } from "react-router-dom";
-import { notify } from "../../utils/toastify";
 import Icons from "../../utils/Icons";
 
 const RankingTables = () => {
@@ -141,10 +140,10 @@ const RankingTables = () => {
                       {tables.table_code}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      {tables.start_term}
+                      {tables.start_rate}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      {tables.end_term}
+                      {tables.end_rate}
                     </td>
                   </tr>
                 ))
