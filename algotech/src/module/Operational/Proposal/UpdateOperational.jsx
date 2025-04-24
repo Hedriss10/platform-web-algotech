@@ -199,7 +199,7 @@ const UppdateOperational = () => {
         prazo_inicio,
         prazo_fim,
         observe,
-      } = proposalData[0];
+      } = proposalData;
 
       setFormData({
         cpf,
