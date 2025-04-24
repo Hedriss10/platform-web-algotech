@@ -184,7 +184,7 @@ const Operacional = () => {
     prazo_inicio,
     prazo_fim,
     observe,
-  } = proposalData[0];
+  } = proposalData;
 
   // Extrai a descrição e os relatórios do details, se disponível
   const description =

@@ -70,7 +70,7 @@ const PreviewProposalById = () => {
     prazo_inicio,
     prazo_fim,
     observe,
-  } = proposalData[0];
+  } = proposalData;
 
   return (
     <div className="flex-1 p-15 w-full bg-gray-100 h-full text-gray-700">
