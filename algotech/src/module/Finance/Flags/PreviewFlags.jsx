@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useUser } from "../../../../service/UserContext";
-import ManageReport from "../Service/ManageReport";
-import Icons from "../../../utils/Icons";
-import { notify } from "../../../utils/toastify";
+import { useUser } from "../../../service/UserContext";
+import ManageReport from "../Report/Service/ManageReport";
+import Icons from "../../utils/Icons";
+import { notify } from "../../utils/toastify";
 
 const PreviewFlags = () => {
   const navigate = useNavigate();
@@ -86,9 +86,6 @@ const PreviewFlags = () => {
           <ol className="flex space-x-2">
             <Link to="/home" className="hover:text-bg-gray-200">
               <strong>Home</strong>
-            </Link>
-            <Link to="/report" className="hover:text-bg-gray-200">
-              <strong>Gerenciar Relatórios</strong>
             </Link>
             <Link to="/newflag" className="hover:text-bg-gray-200">
               <strong>Cadastrar uma flag</strong>

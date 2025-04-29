@@ -100,6 +100,7 @@ const Icons = {
   MdOutlineDashboard,
   CiFilter,
   FaChartLine,
+  MdOutlinePaid
 };
 
 export default Icons;

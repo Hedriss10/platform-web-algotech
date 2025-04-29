@@ -43,12 +43,10 @@ const PreviewReport = lazy(
 const ListPayment = lazy(
   () => import("../module/Finance/Report/Payment/ListPayment"),
 );
-const PreviewFlags = lazy(
-  () => import("../module/Finance/Report/Flags/PreviewFlags"),
-);
+const PreviewFlags = lazy(() => import("../module/Finance/Flags/PreviewFlags"));
 
 const RegisterFlags = lazy(
-  () => import("../module/Finance/Report/Flags/RegisterFlags"),
+  () => import("../module/Finance/Flags/RegisterFlags"),
 );
 
 const ReportManager = lazy(
