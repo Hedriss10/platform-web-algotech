@@ -1,3 +1,4 @@
+// TODO - ajustar o mecanismo do realtorio, verificar se é possivel melhorar o fluxo do pagamento de comissão
 import { useNavigate, Link } from "react-router-dom";
 import Icons from "../../utils/Icons";
 import ManageReport from "./Service/ManageReport";
