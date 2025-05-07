@@ -157,14 +157,9 @@ class ManageReport {
     }
   }
 
-  async getAllReportSellers(checked = false) {
+  async getAllReportProposal() {
     try {
-      if (checked == false) {
-        this.has_report = false;
-      } else {
-        this.has_report = true;
-      }
-      const response = await api.get("/payment/sellers", {
+      const response = await api.get("/payment/proposal", {
         params: {
           current_page: this.current_page,
           rows_per_page: this.rows_per_page,

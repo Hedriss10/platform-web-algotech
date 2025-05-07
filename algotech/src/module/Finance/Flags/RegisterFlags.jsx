@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useUser } from "../../../../service/UserContext";
-import { notify } from "../../../utils/toastify";
-import ManageReport from "../Service/ManageReport";
+import { useUser } from "../../../service/UserContext";
+import { notify } from "../../utils/toastify";
+import ManageReport from "../Report/Service/ManageReport";
 
 const RegisterFlags = () => {
   const { user, token } = useUser();
@@ -40,8 +40,8 @@ const RegisterFlags = () => {
             <Link to="/home" className="hover:text-gray-200">
               <strong>Home</strong>
             </Link>
-            <Link to="/report" className="hover:text-gray-200">
-              <strong>Gestão de Relatórios</strong>
+            <Link to="/flags" className="hover:text-gray-200">
+              <strong>Gestão de Flags</strong>
             </Link>
           </ol>
         </nav>

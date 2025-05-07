@@ -4,28 +4,25 @@ import { notify } from "../../../utils/toastify";
 import { useUser } from "../../../../service/UserContext";
 import ManageReport from "../Service/ManageReport";
 import Icons from "../../../utils/Icons";
-import MaskCpf from "../../../utils/MaskCpf";
 
 const ProcessPayments = () => {
   const navigate = useNavigate();
   const { user, token } = useUser();
-  const [sellers, setSellers] = useState([]);
+  const [proposal, setProposal] = useState([]);
   const [flags, setFlags] = useState([]);
-  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [selectedItems, setSelectedItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [hasReport, setHasReport] = useState(false);
-
-  // Estados para controlar a modal
+  const [payments, setPayments] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFlagId, setSelectedFlagId] = useState(null);
   const [decisionMaker, setDecisionMaker] = useState(false);
 
-  // Função para carregar os vendedores
-  const loadSellers = async () => {
+  // Função para carregar as propostas
+  const loadProposal = async () => {
     setLoading(true);
     try {
       const usersApi = new ManageReport(
@@ -34,17 +31,18 @@ const ProcessPayments = () => {
         currentPage,
         rowsPerPage,
       );
-      const response = await usersApi.getAllReportSellers(hasReport);
+      const response = await usersApi.getAllReportProposal();
       if (response && response.data) {
-        setSellers(response.data);
+        setProposal(response.data);
         setTotalPages(response.metadata?.total_pages || 1);
+        console.log("Estrutura de proposal:", response.data); // Log para depuração
       } else {
-        setSellers([]);
+        setProposal([]);
         setTotalPages(1);
       }
     } catch (error) {
-      console.error("Erro ao carregar vendedores:", error);
-      setSellers([]);
+      console.error("Erro ao carregar propostas:", error);
+      setProposal([]);
       setTotalPages(1);
     } finally {
       setLoading(false);
@@ -52,8 +50,13 @@ const ProcessPayments = () => {
   };
 
   useEffect(() => {
-    loadSellers();
-  }, [currentPage, searchTerm, rowsPerPage, hasReport]);
+    loadProposal();
+  }, [currentPage, searchTerm, rowsPerPage]);
+
+  // Logar estado após atualização
+  useEffect(() => {
+    console.log("Estado atual - Selected Items:", selectedItems);
+  }, [selectedItems]);
 
   // Função para carregar as flags
   const loadFlags = async () => {
@@ -76,22 +79,24 @@ const ProcessPayments = () => {
 
   // Função para processar o pagamento
   const handlePayment = async () => {
-    if (selectedUsers.length === 0) {
-      notify("Selecione pelo menos um usuário.", { type: "warning" });
-      return;
-    }
-    if (!selectedFlagId) {
-      notify("Selecione uma flag.", { type: "warning" });
-      return;
-    }
-
-    const payload = {
-      user_id: selectedUsers, // Array de IDs dos usuários selecionados
-      decision_maker: decisionMaker,
-      flag_id: Number(selectedFlagId),
-    };
-
     try {
+      if (selectedItems.length === 0) {
+        notify("Selecione pelo menos uma proposta.", { type: "warning" });
+        return;
+      }
+      if (!selectedFlagId) {
+        notify("Selecione uma flag.", { type: "warning" });
+        return;
+      }
+
+      const payload = {
+        payments: selectedItems.map((item) => ({
+          user_id: item.user_id,
+          proposal_id: item.proposal_id,
+          flag_id: Number(selectedFlagId),
+        })),
+      };
+
       const usersApi = new ManageReport(
         user?.id,
         searchTerm,
@@ -100,26 +105,54 @@ const ProcessPayments = () => {
       );
       const response = await usersApi.postPayment(payload, token);
       if (response && response.data) {
-        setSellers(response.data);
+        setPayments(response.data);
         setTotalPages(response.metadata?.total_pages || 1);
         notify("Pagamento processado com sucesso!", { type: "success" });
         setIsModalOpen(false);
-        navigate("/preview-payments");
+        setSelectedItems([]);
+        setSelectedFlagId(null);
+        setDecisionMaker(false);
       }
     } catch (error) {
       console.error("Erro ao processar pagamento:", error);
       notify("Erro ao processar pagamento.", { type: "error" });
+      setPayments([]);
     }
   };
 
   // Função para abrir a modal e carregar as flags
   const openModal = async () => {
-    if (selectedUsers.length === 0) {
-      notify("Selecione pelo menos um usuário.", { type: "warning" });
+    if (selectedItems.length === 0) {
+      notify("Selecione pelo menos uma proposta.", { type: "warning" });
       return;
     }
-    await loadFlags(); // Carrega as flags antes de abrir a modal
+    await loadFlags();
     setIsModalOpen(true);
+  };
+
+  // Função para lidar com a seleção da checkbox
+  const handleCheckboxChange = (e, prop) => {
+    const proposalId = prop.proposal_id;
+    const userId = prop.user_id;
+
+    setSelectedItems((prev) => {
+      if (e.target.checked) {
+        if (
+          !prev.some(
+            (item) =>
+              item.proposal_id === proposalId && item.user_id === userId,
+          )
+        ) {
+          return [...prev, { user_id: userId, proposal_id: proposalId }];
+        }
+        return prev;
+      } else {
+        return prev.filter(
+          (item) =>
+            !(item.proposal_id === proposalId && item.user_id === userId),
+        );
+      }
+    });
   };
 
   // Função para mudar a página
@@ -131,12 +164,6 @@ const ProcessPayments = () => {
   const handleRowsPerPageChange = (event) => {
     setRowsPerPage(Number(event.target.value));
     setCurrentPage(1);
-  };
-
-  // Função para lidar com a mudança do checkbox de filtro
-  const handleCheckboxChange = (e) => {
-    setHasReport(e.target.checked);
-    loadSellers(); // Recarrega os vendedores com o novo filtro
   };
 
   // Componente da Modal
@@ -153,8 +180,8 @@ const ProcessPayments = () => {
     if (!isOpen) return null;
 
     return (
-      <div className="flex-1 p-15 w-full bg-gray-100 h-full text-gray-700">
-        <div className="bg-gray-700 p-6 rounded-lg shadow-lg">
+      <div className="fixed inset-0 bg-whitesmoke flex items-center justify-center">
+        <div className="bg-gray-700 p-6 rounded-lg shadow-lg w-full max-w-md">
           <h2 className="text-xl font-semibold text-white">
             Confirmar Pagamento
           </h2>
@@ -164,13 +191,13 @@ const ProcessPayments = () => {
             </label>
             <select
               className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-              value={selectedFlagId}
+              value={selectedFlagId || ""}
               onChange={(e) => setSelectedFlagId(e.target.value)}
             >
               <option value="">Selecione uma flag</option>
               {flags.map((flag) => (
                 <option key={flag.id} value={flag.id}>
-                  {flag.name} {/* flag name */}
+                  {flag.name}
                 </option>
               ))}
             </select>
@@ -183,12 +210,11 @@ const ProcessPayments = () => {
               className="form-checkbox h-5 w-5 text-blue-600"
             />
             <span className="text-sm text-white">Tomada de Decisão</span>
-            <br />
           </label>
           <p className="text-sm text-white mt-2">
             <strong>
-              Observação: Ao marca a tomada de decicão, o vendedor que não está
-              em um relatório de comisssão recebera o pagamento.
+              Observação: Ao marcar a tomada de decisão, o vendedor que não está
+              em um relatório de comissão receberá o pagamento.
             </strong>
           </p>
           <div className="flex justify-end mt-6">
@@ -216,12 +242,17 @@ const ProcessPayments = () => {
         <h1 className="text-2xl font-bold">Processar pagamento de comissão</h1>
         <nav className="text-sm text-gray-400">
           <ol className="flex space-x-2">
-            <Link to="/home" className="hover:text-bg-gray-200">
-              <strong>Home</strong>
-            </Link>
-            <Link to="/report" className="hover:text-bg-gray-200">
-              <strong>Gerenciamento de Relatório</strong>
-            </Link>
+            <li>
+              <Link to="/home" className="hover:text-gray-200">
+                <strong>Home</strong>
+              </Link>
+            </li>
+            <li className="text-gray-400">/</li>
+            <li>
+              <Link to="/report" className="hover:text-gray-200">
+                <strong>Gerenciamento de Relatório</strong>
+              </Link>
+            </li>
           </ol>
         </nav>
       </div>
@@ -229,32 +260,19 @@ const ProcessPayments = () => {
       <div className="bg-gray-700 rounded-lg shadow-lg p-6">
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-white">
-            Lista de vendedores
+            Lista de propostas associadas
           </h2>
           <p className="text-sm text-gray-400 mt-2">
-            Lista de vendedores que contém propostas pagas e associadas nos
-            relatórios importados.
+            Lista de propostas pagas e associadas nos relatórios importados.
           </p>
         </div>
 
-        {/* Checkbox e campo de busca */}
         <div className="flex justify-between items-center mb-6">
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={hasReport}
-              onChange={handleCheckboxChange}
-              className="form-checkbox h-5 w-5 text-blue-600"
-            />
-            <span className="text-sm text-white">
-              Filtrar por vendedores que estão em relatórios
-            </span>
-          </label>
           <div className="flex items-center space-x-2">
             <input
               type="text"
               className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Buscar usuário..."
+              placeholder="Buscar cliente..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -270,7 +288,6 @@ const ProcessPayments = () => {
           </div>
         </div>
 
-        {/* Tabela de usuários */}
         <div className="overflow-x-auto">
           <table className="min-w-full bg-gray-600 rounded-lg overflow-hidden">
             <thead className="bg-gray-500">
@@ -279,20 +296,46 @@ const ProcessPayments = () => {
                   <input
                     type="checkbox"
                     onChange={(e) => {
-                      setSelectedUsers(
-                        e.target.checked ? sellers.map((t) => t.id) : [],
-                      );
+                      if (e.target.checked) {
+                        const newItems = proposal
+                          .filter(
+                            (p) => p.user_id != null && p.proposal_id != null,
+                          )
+                          .map((p) => ({
+                            user_id: p.user_id,
+                            proposal_id: p.proposal_id,
+                          }));
+                        setSelectedItems(newItems);
+                      } else {
+                        setSelectedItems([]);
+                      }
                     }}
+                    checked={
+                      proposal.length > 0 &&
+                      selectedItems.length ===
+                        proposal.filter(
+                          (p) => p.user_id != null && p.proposal_id != null,
+                        ).length
+                    }
                   />
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Nome
+                  Digitador
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  CPF
+                  Nome do Cliente
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Cargo
+                  Tipo de Operação
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
+                  Tabela
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
+                  Flat
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
+                  Valor da Operação
                 </th>
               </tr>
             </thead>
@@ -300,48 +343,55 @@ const ProcessPayments = () => {
               {loading ? (
                 <tr>
                   <td
-                    colSpan="4"
+                    colSpan="7"
                     className="px-6 py-4 text-center text-gray-300"
                   >
                     Carregando...
                   </td>
                 </tr>
-              ) : sellers.length === 0 ? (
+              ) : proposal.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="4"
+                    colSpan="7"
                     className="px-6 py-4 text-center text-gray-300"
                   >
-                    Nenhum relatório disponível.
+                    Nenhuma proposta encontrada.
                   </td>
                 </tr>
               ) : (
-                sellers.map((seller, index) => (
+                proposal.map((prop, index) => (
                   <tr
-                    key={index}
+                    key={`${prop.proposal_id}-${index}`}
                     className="hover:bg-gray-550 transition duration-300"
                   >
                     <td className="px-6 py-4">
                       <input
                         type="checkbox"
-                        checked={selectedUsers.includes(seller.id)}
-                        onChange={(e) => {
-                          setSelectedUsers((prev) =>
-                            e.target.checked
-                              ? [...prev, seller.id]
-                              : prev.filter((id) => id !== seller.id),
-                          );
-                        }}
+                        checked={selectedItems.some(
+                          (item) =>
+                            item.proposal_id === prop.proposal_id &&
+                            item.user_id === prop.user_id,
+                        )}
+                        onChange={(e) => handleCheckboxChange(e, prop)}
                       />
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      {seller.username || "N/A"}
+                      {prop.digitador || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      {MaskCpf(seller.cpf) || "N/A"}
+                      {prop.nome}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      {seller.role || "N/A"}
+                      {prop.operacao}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-200">
+                      {prop.tabela}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-200">
+                      %{prop.rate}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-200">
+                      {prop.valor_operacao}
                     </td>
                   </tr>
                 ))
@@ -349,7 +399,7 @@ const ProcessPayments = () => {
             </tbody>
           </table>
         </div>
-        {/* Paginação */}
+
         <div className="flex justify-between items-center mt-6">
           <div>
             <select
@@ -372,6 +422,7 @@ const ProcessPayments = () => {
                       : "hover:bg-gray-500"
                   } transition duration-300`}
                   onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
                 >
                   Anterior
                 </button>
@@ -398,6 +449,7 @@ const ProcessPayments = () => {
                       : "hover:bg-gray-500"
                   } transition duration-300`}
                   onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
                 >
                   Próxima
                 </button>
@@ -407,7 +459,6 @@ const ProcessPayments = () => {
         </div>
       </div>
 
-      {/* Modal de Pagamento */}
       <PaymentModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

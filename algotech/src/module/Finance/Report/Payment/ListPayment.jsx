@@ -103,7 +103,9 @@ const ListPayment = () => {
   return (
     <div className="flex-1 p-15 w-full bg-gray-100 h-full text-gray-700">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Gerenciamento de Relatórios</h1>
+        <h1 className="text-2xl font-bold">
+          Listagem De Pagamentos Processados
+        </h1>
         <nav className="text-sm text-gray-400">
           <ol className="flex space-x-2">
             <Link to="/home" className="hover:text-bg-gray-200">
@@ -158,7 +160,7 @@ const ListPayment = () => {
                   />
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Vendedor
+                  Usuário
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   CPF
@@ -173,7 +175,7 @@ const ListPayment = () => {
                   Taxa de comissão
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Valor Base
+                  Valor Operação
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   Taxa de Repasse
@@ -183,9 +185,6 @@ const ListPayment = () => {
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   Repasse de comissão
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Valor da Operação
                 </th>
               </tr>
             </thead>
@@ -234,22 +233,19 @@ const ListPayment = () => {
                       {ListPayment.table_code || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      {ListPayment.taxe_comission || "N/A"}
+                      {ListPayment.table_rate || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      {ListPayment.value_base || "N/A"}
+                      {ListPayment.valor_base || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      % {ListPayment.taxe_repasse || "N/A"}
+                      % {ListPayment.taxed || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
                       {ListPayment.table_code || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
-                      R$ {ListPayment.comission || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      R$ {ListPayment.value_operation || "N/A"}
+                      {ListPayment.valor_comissao || "N/A"}
                     </td>
                   </tr>
                 ))

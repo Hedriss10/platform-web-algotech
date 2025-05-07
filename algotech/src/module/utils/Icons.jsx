@@ -44,6 +44,7 @@ import {
   MdPayments,
   MdOutlineDashboard,
   MdOutlinePaid,
+  MdOutlineCommentBank,
 } from "react-icons/md";
 import { IoListSharp, IoPersonCircleSharp } from "react-icons/io5";
 import { FaUsersGear, FaChartLine } from "react-icons/fa6";
@@ -100,6 +101,8 @@ const Icons = {
   MdOutlineDashboard,
   CiFilter,
   FaChartLine,
+  MdOutlinePaid,
+  MdOutlineCommentBank,
 };
 
 export default Icons;

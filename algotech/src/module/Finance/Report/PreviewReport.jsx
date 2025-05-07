@@ -10,12 +10,12 @@ const PreviewReport = () => {
     navigate("/payments-processed");
   };
 
-  const handleGerenciarFlags = () => {
-    navigate("/flags");
+  const handleProcessPayments = () => {
+    navigate("/process-payments");
   };
 
-  const handleImportarRelatorio = () => {
-    navigate("/gerement-reports");
+  const handleImportReports = () => {
+    navigate("/import-reports");
   };
 
   const handleImportsGetAllProposal = async () => {
@@ -76,15 +76,15 @@ const PreviewReport = () => {
           </button>
           <button
             className="w-full flex items-center gap-2 p-2 border rounded-md hover:bg-gray-800"
-            onClick={handleGerenciarFlags}
+            onClick={handleProcessPayments}
           >
-            <Icons.FaCog size={18} /> Gerenciar Cadastro de Flags
+            <Icons.FaRegMoneyBillAlt size={18} /> Processar Pagamentos
           </button>
           <button
             className="w-full flex items-center gap-2 p-2 border rounded-md hover:bg-gray-800"
-            onClick={handleImportarRelatorio}
+            onClick={handleImportReports}
           >
-            <Icons.FaFileAlt size={18} /> Gerenciar Relatório de Comissão
+            <Icons.FaFileAlt size={18} /> Importar Relatório
           </button>
           <button
             className="w-full flex items-center gap-2 p-2 border rounded-md text-green-600 hover:bg-green-100"

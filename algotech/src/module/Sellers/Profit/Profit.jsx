@@ -93,7 +93,7 @@ const Profit = () => {
             <thead className="bg-gray-500">
               <tr>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Vendedor
+                  Usuário
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   Cliente
@@ -105,7 +105,7 @@ const Profit = () => {
                   Valor da Operação
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Ganho Esperado
+                  Expectativa Esperada
                 </th>
               </tr>
             </thead>
