@@ -23,7 +23,6 @@ const RankingSellers = () => {
         rowsPerPage,
       );
       const response = await usersApi.getProfitSellers(token);
-      console.log("RETORNO DA API", response);
       setContract(response.data);
       setTotalPages(response.totalPages);
       setLoading(false);
@@ -33,17 +32,14 @@ const RankingSellers = () => {
     }
   };
 
-  // Efeito para carregar os usuários
   useEffect(() => {
     loadProfit();
   }, [currentPage, searchTerm, rowsPerPage]);
 
-  // Função para mudar a página
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };
 
-  // Função para mudar o número de linhas por página
   const handleRowsPerPageChange = (event) => {
     setRowsPerPage(Number(event.target.value));
     setCurrentPage(1);
@@ -51,7 +47,6 @@ const RankingSellers = () => {
 
   return (
     <div className="flex-1 p-15 w-full bg-gray-100 h-full text-gray-700">
-      {/* Título e Breadcrumb */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Ranking de Vendedores</h1>
         <nav className="text-sm text-gray-400">
@@ -66,9 +61,7 @@ const RankingSellers = () => {
         </nav>
       </div>
 
-      {/* Card da Tabela */}
       <div className="bg-gray-700 rounded-lg shadow-lg p-6">
-        {/* Título e Campo de Busca */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-white">
             Lista de ranking de vendedores
@@ -87,19 +80,18 @@ const RankingSellers = () => {
           </div>
         </div>
 
-        {/* Tabela de Usuários */}
         <div className="overflow-x-auto">
           <table className="min-w-full bg-gray-600 rounded-lg overflow-hidden">
             <thead className="bg-gray-500">
               <tr>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Vendedor
+                  Usuário
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Cargo
+                  Posição
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Valor de Operação
+                  Total
                 </th>
               </tr>
             </thead>
@@ -119,31 +111,42 @@ const RankingSellers = () => {
                     colSpan="5"
                     className="px-6 py-4 text-center text-gray-300"
                   >
-                    Nenhuma contrato encontrado.
+                    Nenhum contrato encontrado.
                   </td>
                 </tr>
               ) : (
-                contract.map((contract) => (
-                  <tr
-                    key={contract.id}
-                    className="hover:bg-gray-550 transition duration-300"
-                  >
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {contract.seller}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {contract.role}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {contract.value_total_operations}
-                    </td>
-                  </tr>
-                ))
+                contract.map((contractItem, index) => {
+                  const isLast = index >= contract.length - 2;
+                  return (
+                    <tr
+                      key={contractItem.id || contractItem.username + index}
+                      className={`hover:bg-gray-550 transition duration-300 ${
+                        isLast ? "bg-red-400" : ""
+                      }`}
+                    >
+                      <td
+                        className={`px-6 py-4 text-sm ${isLast ? "text-red-300" : "text-gray-200"}`}
+                      >
+                        <strong>{contractItem.username}</strong>
+                      </td>
+                      <td
+                        className={`px-6 py-4 text-sm ${isLast ? "text-red-300" : "text-gray-200"}`}
+                      >
+                        <strong>{contractItem.posicao}</strong>
+                      </td>
+                      <td
+                        className={`px-6 py-4 text-sm ${isLast ? "text-red-300" : "text-gray-200"}`}
+                      >
+                        <strong>{contractItem.total_ranking}</strong>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
         </div>
-        {/* Paginação */}
+
         <div className="flex justify-between items-center mt-6">
           <div>
             <select

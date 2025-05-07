@@ -7,6 +7,19 @@ import ManageSellers from "../../Sellers/Service/ManageSellers";
 import MaskCpf from "../../utils/MaskCpf";
 import CheckSummaryProposal from "../components/CheckSummaryProposal";
 
+// Estilo para o PDF (mantido para compatibilidade, caso volte a usar @react-pdf/renderer)
+const styles = {
+  page: {
+    flexDirection: "row",
+    backgroundColor: "#E4E4E4",
+  },
+  section: {
+    margin: 10,
+    padding: 10,
+    flexGrow: 1,
+  },
+};
+
 const Operacional = () => {
   const { user, token } = useUser();
   const { id } = useParams();
@@ -26,6 +39,7 @@ const Operacional = () => {
     description: "",
     number_proposal: "",
   });
+  const [pdfStates, setPdfStates] = useState({}); // { url: { numPages, pageNumber, blob, error, isExpanded } }
 
   // Busca os detalhes da proposta
   const getDetailsProposal = async () => {
@@ -33,11 +47,17 @@ const Operacional = () => {
       const api = new ManageOperational(user?.id);
       const response = await api.getProposalDetails(token, id);
       setDetails(response.data);
-      setLoading(false);
     } catch (error) {
-      console.error(error);
-      notify("Erro ao carregar os detalhes da proposta", { type: "error" });
-      setDetails({ data: [] }); // Define details como vazio em caso de erro
+      console.error("Erro ao buscar detalhes:", error);
+      if (error.response?.status === 404) {
+        setDetails({ data: [], reports: [], description: "" });
+      } else {
+        notify("Erro inesperado ao carregar os detalhes da proposta", {
+          type: "error",
+        });
+        setDetails({ data: [], reports: [], description: "" });
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -48,31 +68,103 @@ const Operacional = () => {
       const api = new ManageSellers(user?.id);
       const response = await api.getProposalById(id, token);
       setProposal(response.data);
-      setLoading(false);
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao buscar proposta:", error);
       notify("Erro ao carregar a proposta", { type: "error" });
+      setProposal(null);
+    } finally {
       setLoading(false);
     }
   };
+
+  // Busca o blob do PDF com autenticação
+  const fetchPdfBlob = async (url) => {
+    try {
+      console.log("Buscando PDF:", url);
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok)
+        throw new Error(
+          `Erro ao carregar PDF: ${response.status} - ${response.statusText}`,
+        );
+      const blob = await response.blob();
+      if (blob.size < 1000) {
+        throw new Error("PDF inválido: tamanho do arquivo muito pequeno");
+      }
+      if (blob.type !== "application/pdf") {
+        throw new Error(
+          `PDF inválido: tipo de arquivo incorreto (${blob.type})`,
+        );
+      }
+      const blobUrl = URL.createObjectURL(blob);
+      console.log("Blob URL criado:", blobUrl);
+      return blobUrl;
+    } catch (error) {
+      console.error("Erro ao buscar PDF:", error.message);
+      notify(`Erro ao carregar PDF: ${error.message}`, { type: "error" });
+      return null;
+    }
+  };
+
+  // Inicializa pdfStates para PDFs
+  useEffect(() => {
+    if (proposal?.image_urls) {
+      const initializePdfs = async () => {
+        const newPdfStates = {};
+        for (const [key, urls] of Object.entries(proposal.image_urls)) {
+          for (const url of urls) {
+            if (url && url.toLowerCase().endsWith(".pdf")) {
+              console.log(`Processando PDF: ${url}`);
+              const blobUrl = await fetchPdfBlob(url);
+              newPdfStates[url] = {
+                numPages: 1,
+                pageNumber: 1,
+                blob: blobUrl,
+                error: blobUrl
+                  ? null
+                  : "Erro ao carregar PDF: arquivo inválido ou não encontrado",
+                isExpanded: false, // Novo estado para expansão
+              };
+            }
+          }
+        }
+        console.log("Estado pdfStates atualizado:", newPdfStates);
+        setPdfStates(newPdfStates);
+      };
+      initializePdfs();
+    }
+    // Cleanup
+    return () => {
+      Object.values(pdfStates).forEach((state) => {
+        if (state.blob) {
+          URL.revokeObjectURL(state.blob);
+        }
+      });
+    };
+  }, [proposal, token]);
 
   // Atualiza o formData com os detalhes da proposta
   useEffect(() => {
     if (details && details.length > 0) {
       const proposalDetails = details[0];
       setFormData({
-        aguardando_digitacao: proposalDetails.aguardando_digitacao,
-        pendente_digitacao: proposalDetails.pendente_digitacao,
-        contrato_em_digitacao: proposalDetails.contrato_em_digitacao,
-        aceite_feito_analise_banco: proposalDetails.aceite_feito_analise_banco,
-        contrato_pendente_banco: proposalDetails.contrato_pendente_banco,
-        aguardando_pagamento: proposalDetails.aguardando_pagamento,
-        contrato_pago: proposalDetails.contrato_pago,
+        aguardando_digitacao: proposalDetails.aguardando_digitacao || false,
+        pendente_digitacao: proposalDetails.pendente_digitacao || false,
+        contrato_em_digitacao: proposalDetails.contrato_em_digitacao || false,
+        aceite_feito_analise_banco:
+          proposalDetails.aceite_feito_analise_banco || false,
+        contrato_pendente_banco:
+          proposalDetails.contrato_pendente_banco || false,
+        aguardando_pagamento: proposalDetails.aguardando_pagamento || false,
+        contrato_pago: proposalDetails.contrato_pago || false,
+        contrato_reprovado: proposalDetails.contrato_reprovado || false,
         description: proposalDetails.description || "",
         number_proposal: proposalDetails.number_proposal || "",
       });
     } else {
-      // Define valores padrão se não houver details
       setFormData({
         aguardando_digitacao: false,
         pendente_digitacao: false,
@@ -81,6 +173,7 @@ const Operacional = () => {
         contrato_pendente_banco: false,
         aguardando_pagamento: false,
         contrato_pago: false,
+        contrato_reprovado: false,
         description: "",
         number_proposal: "",
       });
@@ -104,6 +197,7 @@ const Operacional = () => {
         contrato_pendente_banco: false,
         aguardando_pagamento: false,
         contrato_pago: false,
+        contrato_reprovado: false,
       };
       newFormData[statusKey] = !prevFormData[statusKey];
       return { ...prevFormData, ...newFormData };
@@ -120,27 +214,87 @@ const Operacional = () => {
           ? Number(formData.number_proposal)
           : null,
       };
-
       const response = await api.postStatusProposal(token, id, newFormData);
-
       notify("Status alterado com sucesso", { type: "success" });
-      getDetailsProposal(); // Atualiza os detalhes após o envio
+      getDetailsProposal();
     } catch (error) {
       if (
         error.status_code === 409 &&
         error.message_id === "proposal_summary_and_validated_fields"
       ) {
-        setIsModalOpen(true); // Só abre a modal
+        setIsModalOpen(true);
       } else {
         notify("Erro ao alterar o status", { type: "error" });
       }
     }
   };
 
-  // Formata a data para o formato dd/MM/yyyy, HH:mm
+  // Formata a data
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleString("pt-BR");
+  };
+
+  // Função para lidar com o carregamento do PDF
+  const onDocumentLoadSuccess =
+    (url) =>
+    ({ numPages }) => {
+      setPdfStates((prev) => ({
+        ...prev,
+        [url]: { ...prev[url], numPages, error: null },
+      }));
+    };
+
+  // Função para mudar a página do PDF
+  const changePage = (url, offset) => {
+    setPdfStates((prev) => {
+      const current = prev[url] || { pageNumber: 1, numPages: 1 };
+      const newPageNumber = Math.min(
+        Math.max(current.pageNumber + offset, 1),
+        current.numPages,
+      );
+      return {
+        ...prev,
+        [url]: { ...current, pageNumber: newPageNumber },
+      };
+    });
+  };
+
+  // Função para expandir/recolher o PDF
+  const toggleExpandPdf = (url) => {
+    setPdfStates((prev) => ({
+      ...prev,
+      [url]: {
+        ...prev[url],
+        isExpanded: !prev[url].isExpanded,
+      },
+    }));
+  };
+
+  // Função para baixar o PDF
+  const downloadPdf = async (url, filename) => {
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok)
+        throw new Error(`Erro ao baixar PDF: ${response.status}`);
+      const blob = await response.blob();
+      if (blob.size < 1000 || blob.type !== "application/pdf") {
+        throw new Error("Arquivo inválido para download");
+      }
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename || "documento.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+    } catch (error) {
+      notify(`Erro ao baixar PDF: ${error.message}`, { type: "error" });
+    }
   };
 
   if (loading) {
@@ -186,7 +340,6 @@ const Operacional = () => {
     observe,
   } = proposalData;
 
-  // Extrai a descrição e os relatórios do details, se disponível
   const description =
     details && details.length > 0 ? details[0].description : "";
   const reports = details && details.length > 0 ? details[0].reports : [];
@@ -225,13 +378,14 @@ const Operacional = () => {
             },
             { key: "aguardando_pagamento", label: "Aguardando Pagamento" },
             { key: "contrato_pago", label: "Contrato Pago" },
+            { key: "contrato_reprovado", label: "Contrato Reprovado" },
           ].map((status) => (
             <label key={status.key} className="flex items-center space-x-2">
               <input
                 type="checkbox"
                 checked={formData[status.key]}
                 onChange={() => handleStatusChange(status.key)}
-                className="form-checkbox h-5 w-5 text-blue-600 rounded"
+                className="form-checkbox h-5The w-5 text-blue-600 rounded"
               />
               <span>{status.label}</span>
             </label>
@@ -308,7 +462,7 @@ const Operacional = () => {
                       {report.description}
                     </td>
                     <td className="py-2 px-4 border-b border-gray-200 text-sm text-gray-700">
-                      {report["user_description:"]}{" "}
+                      {report.user_description}
                     </td>
                   </tr>
                 ))}
@@ -332,40 +486,47 @@ const Operacional = () => {
               <strong>CPF:</strong> {MaskCpf(cpf)}
             </p>
             <p>
-              <strong>Data de Nascimento:</strong> {data_nascimento}
+              <strong>Data de Nascimento:</strong>{" "}
+              {data_nascimento || "Não informado"}
             </p>
             <p>
-              <strong>Email:</strong> {email}
+              <strong>Email:</strong> {email || "Não informado"}
             </p>
             <p>
-              <strong>Telefone:</strong> {telefone}
+              <strong>Telefone:</strong> {telefone || "Não informado"}
             </p>
             <p>
-              <strong>Endereço:</strong> {endereco}, {bairro}, {cidade} -{" "}
-              {uf_cidade}
+              <strong>Endereço:</strong>{" "}
+              {endereco
+                ? `${endereco}, ${bairro}, ${cidade} - ${uf_cidade}`
+                : "Não informado"}
             </p>
             <p>
-              <strong>CEP:</strong> {cep}
+              <strong>CEP:</strong> {cep || "Não informado"}
             </p>
           </div>
           <div>
             <p>
-              <strong>Nome da Mãe:</strong> {nome_mae}
+              <strong>Nome da Mãe:</strong> {nome_mae || "Não informado"}
             </p>
             <p>
-              <strong>Nome do Pai:</strong> {nome_pai}
+              <strong>Nome do Pai:</strong> {nome_pai || "Não informado"}
             </p>
             <p>
-              <strong>RG:</strong> {rg_documento}
+              <strong>RG:</strong> {rg_documento || "Não informado"}
             </p>
             <p>
-              <strong>Órgão Emissor:</strong> {orgao_emissor}
+              <strong>Órgão Emissor:</strong> {orgao_emissor || "Não informado"}
             </p>
             <p>
-              <strong>Data de Emissão:</strong> {data_emissao}
+              <strong>Data de Emissão:</strong>{" "}
+              {data_emissao || "Não informado"}
             </p>
             <p>
-              <strong>Naturalidade:</strong> {naturalidade} - {uf_naturalidade}
+              <strong>Naturalidade:</strong>{" "}
+              {naturalidade
+                ? `${naturalidade} - ${uf_naturalidade}`
+                : "Não informado"}
             </p>
           </div>
         </div>
@@ -376,71 +537,129 @@ const Operacional = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <p>
-              <strong>Tipo de Benefício:</strong> {tipo_beneficio}
+              <strong>Tipo de Benefício:</strong>{" "}
+              {tipo_beneficio || "Não informado"}
             </p>
             <p>
-              <strong>Matrícula:</strong> {matricula}
+              <strong>Matrícula:</strong> {matricula || "Não informado"}
             </p>
             <p>
-              <strong>Salário Líquido:</strong> R$ {salario_liquido}
+              <strong>Salário Líquido:</strong>{" "}
+              {salario_liquido ? `R$ ${salario_liquido}` : "Não informado"}
             </p>
             <p>
-              <strong>Valor da Operação:</strong> R$ {valor_operacao}
+              <strong>Valor da Operação:</strong>{" "}
+              {valor_operacao ? `R$ ${valor_operacao}` : "Não informado"}
             </p>
             <p>
-              <strong>Margem:</strong> R$ {margem}
-            </p>
-            <p>
-              <strong>Prazos:</strong> {prazo_inicio} a {prazo_fim}
+              <strong>Margem:</strong>{" "}
+              {margem ? `R$ ${margem}` : "Não informado"}
             </p>
           </div>
           <div>
             <p>
-              <strong>Tipo de Operação:</strong> {tipo_operacao}
+              <strong>Tipo de Operação:</strong>{" "}
+              {tipo_operacao || "Não informado"}
             </p>
             <p>
-              <strong>Tipo de Pagamento:</strong> {tipo_pagamento}
+              <strong>Tipo de Pagamento:</strong>{" "}
+              {tipo_pagamento || "Não informado"}
             </p>
             <p>
-              <strong>Banco:</strong> {banker_name}
+              <strong>Banco:</strong> {banker_name || "Não informado"}
             </p>
             <p>
-              <strong>Agência:</strong> {agencia_banco}
+              <strong>Agência:</strong> {agencia_banco || "Não informado"}
             </p>
             <p>
-              <strong>Número da Conta:</strong> {numero_conta}
+              <strong>Número da Conta:</strong>{" "}
+              {numero_conta || "Não informado"}
             </p>
             <p>
-              <strong>Tabela:</strong> {nome_tabela}
+              <strong>Tabela:</strong> {nome_tabela || "Não informado"}
             </p>
           </div>
         </div>
 
         <h2 className="text-xl font-semibold mt-6 mb-4">Observações:</h2>
-        <p>{description}</p>
+        <p>{description || "Nenhuma observação disponível."}</p>
 
         <h2 className="text-xl font-semibold mt-6 mb-4">
           Documentos Anexados:
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {Object.entries(image_urls).map(
-            ([key, urls]) =>
-              urls.length > 0 && (
-                <div key={key}>
-                  <h3 className="font-semibold">
-                    {key.replace(/_/g, " ").toUpperCase()}
-                  </h3>
-                  {urls.map((url, index) => (
-                    <div key={index} className="mt-2">
-                      <img
-                        src={url}
-                        alt={`${key}_${index}`}
-                        className="w-full h-auto rounded-lg shadow-sm"
-                      />
+          {Object.entries(image_urls).map(([key, urls]) =>
+            urls.length > 0 ? (
+              <div key={key}>
+                <h3 className="font-semibold">
+                  {key.replace(/_/g, " ").toUpperCase()}
+                </h3>
+                {urls.map((url, index) => {
+                  const isPdf = url && url.toLowerCase().endsWith(".pdf");
+                  const filename = url
+                    ? url.split("/").pop() || `${key}.pdf`
+                    : `${key}.pdf`;
+                  return (
+                    <div key={`${key}-${index}`} className="mt-2">
+                      {isPdf ? (
+                        <div className="border rounded-lg p-4 bg-gray-50">
+                          {!pdfStates[url] ? (
+                            <div>Carregando PDF...</div>
+                          ) : pdfStates[url].error ? (
+                            <p className="text-red-600">
+                              {pdfStates[url].error}
+                            </p>
+                          ) : (
+                            <div>
+                              <div
+                                onClick={() => toggleExpandPdf(url)}
+                                className="cursor-pointer"
+                              >
+                                <iframe
+                                  src={pdfStates[url].blob}
+                                  className={`w-full transition-all duration-300 ${
+                                    pdfStates[url].isExpanded
+                                      ? "h-[80vh] max-h-[800px]"
+                                      : "h-[400px]"
+                                  }`}
+                                  title={`${key}_${index}`}
+                                  style={{ border: "none" }}
+                                />
+                              </div>
+                              <div className="flex justify-between mt-2">
+                                <button
+                                  onClick={() => toggleExpandPdf(url)}
+                                  className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
+                                >
+                                  {pdfStates[url].isExpanded
+                                    ? "Reduzir"
+                                    : "Expandir"}
+                                </button>
+                                <button
+                                  onClick={() => downloadPdf(url, filename)}
+                                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
+                                >
+                                  Baixar PDF
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <img
+                          src={url}
+                          alt={`${key}_${index}`}
+                          className="w-full h-auto rounded-lg shadow-sm"
+                          onError={() =>
+                            console.error(`Erro ao carregar imagem: ${url}`)
+                          }
+                        />
+                      )}
                     </div>
-                  ))}
-                </div>
-              ),
+                  );
+                })}
+              </div>
+            ) : null,
           )}
         </div>
       </div>

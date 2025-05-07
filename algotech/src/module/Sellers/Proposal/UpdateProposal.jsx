@@ -7,6 +7,19 @@ import ManageFinance from "../../Finance/Service/ManageFinance";
 import ManageTablesFinance from "../../Finance/Service/ManageTablesFinance";
 import ManageBankers from "../../Finance/Service/ManageBankers";
 
+// Estilo para o PDF (mantido para compatibilidade, caso volte a usar @react-pdf/renderer)
+const styles = {
+  page: {
+    flexDirection: "row",
+    backgroundColor: "#E4E4E4",
+  },
+  section: {
+    margin: 10,
+    padding: 10,
+    flexGrow: 1,
+  },
+};
+
 const UpdateProposal = () => {
   const navigate = useNavigate();
   const { id } = useParams(); // Obtém o ID da proposta da URL
@@ -20,52 +33,83 @@ const UpdateProposal = () => {
   const [benefits, setBenefits] = useState([]);
   const [bank_id, setbank_id] = useState(null);
   const [formData, setFormData] = useState({
-    cpf: null,
-    nome: null,
-    data_nascimento: null,
-    genero: null,
-    email: null,
-    naturalidade: null,
-    cidade_naturalidade: null,
-    uf_naturalidade: null,
-    cep: null,
-    data_emissao: null,
-    uf_cidade: null,
-    rg_documento: null,
-    orgao_emissor: null,
-    uf_emissor: null,
-    nome_mae: null,
-    nome_pai: null,
-    bairro: null,
-    endereco: null,
-    numero_endereco: null,
-    complemento_endereco: null,
-    cidade: null,
-    valor_salario: null,
-    salario_liquido: null,
-    telefone: null,
-    telefone_residencial: null,
-    telefone_comercial: null,
-    observe: null,
-    tipo_pagamento: null,
-    agencia_banco: null,
-    pix_chave: null,
-    numero_conta: null,
-    agencia_dv: null,
-    agencia_op: null,
-    tipo_conta: null,
-    senha_servidor: null,
-    matricula: null,
-    data_dispacho: null,
-    margem: null,
-    prazo_inicio: null,
-    prazo_fim: null,
-    valor_operacao: null,
-    loan_operation_id: null,
-    tables_finance_id: null,
-    financial_agreements_id: null,
-    benefit_id: null,
+    cpf: "",
+    nome: "",
+    data_nascimento: "",
+    genero: "",
+    email: "",
+    naturalidade: "",
+    cidade_naturalidade: "",
+    uf_naturalidade: "",
+    cep: "",
+    data_emissao: "",
+    uf_cidade: "",
+    rg_documento: "",
+    orgao_emissor: "",
+    uf_emissor: "",
+    nome_mae: "",
+    nome_pai: "",
+    bairro: "",
+    endereco: "",
+    numero_endereco: "",
+    complemento_endereco: "",
+    cidade: "",
+    valor_salario: "",
+    salario_liquido: "",
+    telefone: "",
+    telefone_residencial: "",
+    telefone_comercial: "",
+    observe: "",
+    tipo_pagamento: "",
+    agencia_banco: "",
+    pix_chave: "",
+    numero_conta: "",
+    agencia_dv: "",
+    agencia_op: "",
+    tipo_conta: "",
+    senha_servidor: "",
+    matricula: "",
+    data_dispacho: "",
+    margem: "",
+    prazo_inicio: "",
+    prazo_fim: "",
+    valor_operacao: "",
+    loan_operation_id: "",
+    tables_finance_id: "",
+    financial_agreements_id: "",
+    benefit_id: "",
   });
+
+  const [pdfStates, setPdfStates] = useState({});
+
+  const fetchPdfBlob = async (url) => {
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok)
+        throw new Error(
+          `Erro ao carregar PDF: ${response.status} - ${response.statusText}`,
+        );
+      const blob = await response.blob();
+      if (blob.size < 1000) {
+        throw new Error("PDF inválido: tamanho do arquivo muito pequeno");
+      }
+      if (blob.type !== "application/pdf") {
+        throw new Error(
+          `PDF inválido: tipo de arquivo incorreto (${blob.type})`,
+        );
+      }
+      const blobUrl = URL.createObjectURL(blob);
+      return blobUrl;
+    } catch (error) {
+      console.error("Erro ao buscar PDF:", error.message);
+      notify(`Erro ao carregar PDF: ${error.message}`, { type: "error" });
+      return null;
+    }
+  };
 
   // files
   const [files, setFiles] = useState({
@@ -153,6 +197,41 @@ const UpdateProposal = () => {
         ...formData,
         [name]: value.trim() === "" ? null : value,
       });
+    }
+  };
+
+  const togglePdfExpand = (url) => {
+    setPdfStates((prevStates) => ({
+      ...prevStates,
+      [url]: {
+        ...prevStates[url],
+        isExpanded: !prevStates[url].isExpanded,
+      },
+    }));
+  };
+
+  const downloadPdf = async (url, filename) => {
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok)
+        throw new Error(`Erro ao baixar PDF: ${response.status}`);
+      const blob = await response.blob();
+      if (blob.size < 1000 || blob.type !== "application/pdf") {
+        throw new Error("Arquivo inválido para download");
+      }
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename || "documento.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+    } catch (error) {
+      notify(`Erro ao baixar PDF: ${error.message}`, { type: "error" });
     }
   };
 
@@ -244,6 +323,43 @@ const UpdateProposal = () => {
     }
   }, [proposal]);
 
+  const image_urls = proposal?.image_urls || [];
+
+  // Inicializa pdfStates para PDFs
+  useEffect(() => {
+    if (image_urls) {
+      const initializePdfs = async () => {
+        const newPdfStates = {};
+        for (const [key, urls] of Object.entries(image_urls)) {
+          for (const url of urls) {
+            if (url && url.toLowerCase().endsWith(".pdf")) {
+              const blobUrl = await fetchPdfBlob(url);
+              newPdfStates[url] = {
+                numPages: 1,
+                pageNumber: 1,
+                blob: blobUrl,
+                error: blobUrl
+                  ? null
+                  : "Erro ao carregar PDF: arquivo inválido ou não encontrado",
+                isExpanded: false, // Novo estado para expansão
+              };
+            }
+          }
+        }
+        setPdfStates(newPdfStates);
+      };
+      initializePdfs();
+    }
+    // Cleanup
+    return () => {
+      Object.values(pdfStates).forEach((state) => {
+        if (state.blob) {
+          URL.revokeObjectURL(state.blob);
+        }
+      });
+    };
+  }, [proposal, token]);
+
   // financialAgreements
   const handleFinancialAgreements = async (bankId) => {
     try {
@@ -290,7 +406,6 @@ const UpdateProposal = () => {
 
   useEffect(() => {
     if (bank_id) {
-      console.log("Carregando convênios para bank_id:", bank_id);
       handleFinancialAgreements(bank_id);
     }
   }, [bank_id]);
@@ -346,7 +461,7 @@ const UpdateProposal = () => {
     }
   };
 
-  const registerProposal = async () => {
+  const updateProposal = async () => {
     try {
       const formDataToSend = new FormData();
 
@@ -366,7 +481,7 @@ const UpdateProposal = () => {
 
       // Notifica sucesso e redireciona
       notify("Proposta Editada com sucesso!", { type: "success" });
-      navigate("/sellers");
+      navigate("/operational");
     } catch (error) {
       // Notifica erro
       notify("Erro ao editar a proposta", { type: "error" });
@@ -374,20 +489,6 @@ const UpdateProposal = () => {
     }
   };
 
-  const handleFileChange = (e) => {
-    const { name, files: selectedFiles } = e.target;
-    setFiles((prevFiles) => ({
-      ...prevFiles,
-      [name]: selectedFiles[0],
-    }));
-  };
-
-  /**
-   * Função que renderiza os campos adicionais de acordo com o tipo de pagamento
-   * escolhido.
-   *
-   * @returns {ReactElement} Componente com os campos adicionais
-   */
   const renderAdditionalFields = () => {
     const tipoPagamento = formData.tipo_pagamento
       ? formData.tipo_pagamento.toLowerCase()
@@ -1164,27 +1265,78 @@ const UpdateProposal = () => {
             Documentos Anexados:
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {Object.entries(proposal.image_urls).map(
-              ([key, urls]) =>
-                urls.length > 0 && (
-                  <div key={key}>
-                    <h3 className="font-semibold">
-                      {key.replace(/_/g, " ").toUpperCase()}
-                    </h3>
-                    {urls.map((url, index) => (
-                      <div key={index} className="mt-2">
-                        <img
-                          src={url}
-                          alt={`${key}_${index}`}
-                          className="w-full h-auto rounded-lg shadow-sm"
-                        />
-                        <button onClick={() => handleRemoveImage(key, index)}>
-                          Remover
-                        </button>
+            {Object.entries(image_urls).map(([key, urls]) =>
+              urls.length > 0 ? (
+                <div key={key}>
+                  <h3 className="font-semibold">
+                    {key.replace(/_/g, " ").toUpperCase()}
+                  </h3>
+                  {urls.map((url, index) => {
+                    const isPdf = url && url.toLowerCase().endsWith(".pdf");
+                    const filename = url
+                      ? url.split("/").pop() || `${key}.pdf`
+                      : `${key}.pdf`;
+                    return (
+                      <div key={`${key}-${index}`} className="mt-2">
+                        {isPdf ? (
+                          <div className="border rounded-lg p-4 bg-gray-50">
+                            {!pdfStates[url] ? (
+                              <div>Carregando PDF...</div>
+                            ) : pdfStates[url].error ? (
+                              <p className="text-red-600">
+                                {pdfStates[url].error}
+                              </p>
+                            ) : (
+                              <div>
+                                <div
+                                  onClick={() => toggleExpandPdf(url)}
+                                  className="cursor-pointer"
+                                >
+                                  <iframe
+                                    src={pdfStates[url].blob}
+                                    className={`w-full transition-all duration-300 ${
+                                      pdfStates[url].isExpanded
+                                        ? "h-[80vh] max-h-[800px]"
+                                        : "h-[400px]"
+                                    }`}
+                                    title={`${key}_${index}`}
+                                    style={{ border: "none" }}
+                                  />
+                                </div>
+                                <div className="flex justify-between mt-2">
+                                  <button
+                                    onClick={() => toggleExpandPdf(url)}
+                                    className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
+                                  >
+                                    {pdfStates[url].isExpanded
+                                      ? "Reduzir"
+                                      : "Expandir"}
+                                  </button>
+                                  <button
+                                    onClick={() => downloadPdf(url, filename)}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
+                                  >
+                                    Baixar PDF
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <img
+                            src={url}
+                            alt={`${key}_${index}`}
+                            className="w-full h-auto rounded-lg shadow-sm"
+                            onError={() =>
+                              console.error(`Erro ao carregar imagem: ${url}`)
+                            }
+                          />
+                        )}
                       </div>
-                    ))}
-                  </div>
-                ),
+                    );
+                  })}
+                </div>
+              ) : null,
             )}
           </div>
           <br />
@@ -1210,7 +1362,7 @@ const UpdateProposal = () => {
           {/* Botão de Envio */}
           <div className="mt-6">
             <button
-              onClick={registerProposal}
+              onClick={updateProposal}
               className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
             >
               Editar Proposta

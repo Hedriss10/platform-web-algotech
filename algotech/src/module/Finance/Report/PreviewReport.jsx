@@ -1,4 +1,3 @@
-// TODO - ajustar o mecanismo do realtorio, verificar se é possivel melhorar o fluxo do pagamento de comissão
 import { useNavigate, Link } from "react-router-dom";
 import Icons from "../../utils/Icons";
 import ManageReport from "./Service/ManageReport";
@@ -17,14 +16,6 @@ const PreviewReport = () => {
 
   const handleImportReports = () => {
     navigate("/import-reports");
-  }
-
-  const handleGerenciarFlags = () => {
-    navigate("/flags");
-  };
-
-  const handleImportarRelatorio = () => {
-    navigate("/gerement-reports");
   };
 
   const handleImportsGetAllProposal = async () => {
@@ -82,12 +73,6 @@ const PreviewReport = () => {
             onClick={handlePagamentosProcessados}
           >
             <Icons.FaCreditCard size={18} /> Pagamentos Processados
-          </button>
-          <button
-            className="w-full flex items-center gap-2 p-2 border rounded-md hover:bg-gray-800"
-            onClick={handleImportarRelatorio}
-          >
-            <Icons.FaFileAlt size={18} /> Gerenciar Relatório de Comissão
           </button>
           <button
             className="w-full flex items-center gap-2 p-2 border rounded-md hover:bg-gray-800"

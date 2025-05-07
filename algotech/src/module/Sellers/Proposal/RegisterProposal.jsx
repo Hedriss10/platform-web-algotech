@@ -38,7 +38,6 @@ const RegisterProposal = () => {
     telefone: null,
     telefone_residencial: null,
     telefone_comercial: null,
-    observe: null,
     tipo_pagamento: null,
     agencia_banco: null,
     pix_chave: null,
@@ -57,6 +56,7 @@ const RegisterProposal = () => {
     tables_finance_id: null,
     financial_agreements_id: null,
     benefit_id: null,
+    observe: null,
   });
 
   // Estados para os arquivos
@@ -883,7 +883,7 @@ const RegisterProposal = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label>
-              <strong>Margem:</strong>
+              <strong>Valor da parcela:</strong>
             </label>
             <input
               type="text"
@@ -891,32 +891,6 @@ const RegisterProposal = () => {
               id="margem"
               value={formData.margem}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-          <div>
-            <label>
-              <strong>Prazo Início:</strong>
-            </label>
-            <input
-              type="text"
-              name="prazo_inicio"
-              id="prazo_inicio"
-              onChange={handleChange}
-              value={formData.prazo_inicio}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-          <div>
-            <label>
-              <strong>Prazo Fim:</strong>
-            </label>
-            <input
-              type="text"
-              name="prazo_fim"
-              id="prazo_fim"
-              onChange={handleChange}
-              value={formData.prazo_fim}
               className="w-full p-2 border rounded"
             />
           </div>
@@ -1034,7 +1008,24 @@ const RegisterProposal = () => {
             </div>
           ))}
         </div>
-
+        {/* Observação */}
+        <h2 className="text-xl font-semibold mt-6 mb-4">
+          <strong>Observação:</strong>
+        </h2>
+        <div className="mt-6">
+          <label className="block text-sm font-medium text-gray-700">
+            Descrição:
+          </label>
+          <textarea
+            name="observe"
+            id="observe"
+            value={formData.observe}
+            onChange={handleChange}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            rows="4"
+            placeholder="Digite uma descrição..."
+          />
+        </div>
         {/* Botão de Envio */}
         <div className="mt-6">
           <button

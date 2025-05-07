@@ -156,7 +156,6 @@ const PreviewOperational = () => {
                   className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Selecione o Status</option>
-                  <option value="Contrato Pago">Contrato Pago</option>
                   <option value="Aguardando Digitação">
                     Aguardando Digitação
                   </option>
@@ -213,11 +212,14 @@ const PreviewOperational = () => {
                   Status
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
+                  Banco
+                </th>
+                {/* <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   Data de Criação
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   Data da Digitação
-                </th>
+                </th> */}
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   Vendedor
                 </th>
@@ -270,11 +272,14 @@ const PreviewOperational = () => {
                       {proposal.current_status || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
+                      {proposal.banco || "N/A"}
+                    </td>
+                    {/* <td className="px-6 py-4 text-sm text-gray-200">
                       {proposal.data_criacao || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-200">
                       {proposal.digitado_as || "N/A"}
-                    </td>
+                    </td> */}
                     <td className="px-6 py-4 text-sm text-gray-200">
                       {proposal.nome_digitador || "N/A"}
                     </td>
