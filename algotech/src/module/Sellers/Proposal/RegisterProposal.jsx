@@ -160,6 +160,12 @@ const RegisterProposal = () => {
         ...formData,
         [name]: value,
       });
+    } else if (name === "margem") {
+      const normalized = value.replace(",", ".").replace(/[^\d.]/g, "");
+      setFormData({
+        ...formData,
+        [name]: normalized,
+      });
     } else {
       setFormData({
         ...formData,
