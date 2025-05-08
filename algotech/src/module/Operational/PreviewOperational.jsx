@@ -174,6 +174,8 @@ const PreviewOperational = () => {
                   <option value="Contrato Pendente - Banco">
                     Contrato Pendente - Banco
                   </option>
+                  <option value="Contrato Pago">Contrato Pago</option>
+                  <option value="Contrato Reprovado">Contrato Reprovado</option>
                 </select>
               </div>
               <div className="flex justify-end space-x-2 mt-4">
