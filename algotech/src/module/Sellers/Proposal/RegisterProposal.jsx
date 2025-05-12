@@ -6,6 +6,7 @@ import ManageSellers from "../Service/ManageSellers";
 import ManageFinance from "../../Finance/Service/ManageFinance";
 import ManageTablesFinance from "../../Finance/Service/ManageTablesFinance";
 import ManageBankers from "../../Finance/Service/ManageBankers";
+import { NumericFormat } from "react-number-format";
 
 const RegisterProposal = () => {
   const { user, token } = useUser();
@@ -172,6 +173,16 @@ const RegisterProposal = () => {
         [name]: value.trim() === "" ? null : value,
       });
     }
+  };
+
+  // handle number format change for valor operação
+  const handleNumberFormatChange = (values, sourceInfo) => {
+    const { floatValue } = values;
+    const { name } = sourceInfo.event.target;
+    setFormData({
+      ...formData,
+      [name]: floatValue || null,
+    });
   };
 
   // Atualiza os arquivos
@@ -904,13 +915,19 @@ const RegisterProposal = () => {
             <label>
               <strong>Valor da Operação:</strong>
             </label>
-            <input
-              type="number"
+            <NumericFormat
               name="valor_operacao"
               id="valor_operacao"
-              onChange={handleChange}
               value={formData.valor_operacao}
+              onValueChange={handleNumberFormatChange}
               className="w-full p-2 border rounded"
+              thousandSeparator="."
+              decimalSeparator=","
+              prefix="R$ "
+              decimalScale={2}
+              fixedDecimalScale
+              allowNegative={false}
+              placeholder="R$ 0,00"
             />
           </div>
           <div>
