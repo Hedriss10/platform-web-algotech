@@ -52,6 +52,7 @@ import { GoGear } from "react-icons/go";
 import { CiBoxList, CiFilter } from "react-icons/ci";
 import { RiFileExcel2Line } from "react-icons/ri";
 import { HiOutlineDocumentReport } from "react-icons/hi";
+import { BsPersonWorkspace } from "react-icons/bs";
 
 const Icons = {
   BiGrid,
@@ -103,6 +104,7 @@ const Icons = {
   FaChartLine,
   MdOutlinePaid,
   MdOutlineCommentBank,
+  BsPersonWorkspace,
 };
 
 export default Icons;

@@ -230,6 +230,62 @@ class ManageReport {
       throw new Error(error.message);
     }
   }
+
+  async getPaymentsProposal() {
+    try {
+      const response = await api.get("/payment/service-provided", {
+        params: {
+          current_page: this.current_page,
+          rows_per_page: this.rows_per_page,
+          filter_by: this.search_term,
+          page_number: this.page_number,
+          order_by: this.order_by,
+          filter_value: this.filter_value,
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async postPaymentsProvided() {
+    try {
+      const response = await api.post("/payment/service-provided", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async deletePaymentsProvide(){
+    try {
+      const response = await api.delete("/payment/service-provided", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
 }
 
 export default ManageReport;

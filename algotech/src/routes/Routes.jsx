@@ -117,6 +117,10 @@ const PreviewDashBoard = lazy(
   () => import("../module/Dashboard/PreviewDashboard"),
 );
 
+const PaymentsProvided = lazy(
+  () => import("../module/Finance/ServiceProvided/ServiceProvided"),
+);
+
 const AppRoutes = () => {
   return (
     <Suspense>
@@ -156,6 +160,7 @@ const AppRoutes = () => {
             path="/financialagreements"
             element={<RegisterFinanciaAgreements />}
           />
+          <Route path="/paymentsprovided" element={<PaymentsProvided />} />
           <Route
             path="/manageoperationfinance"
             element={<ManageOperationFinance />}
