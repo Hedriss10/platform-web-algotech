@@ -252,9 +252,9 @@ class ManageReport {
     }
   }
 
-  async postPaymentsProvided() {
+  async postPaymentsProvided(data, token) {
     try {
-      const response = await api.post("/payment/service-provided", {
+      const response = await api.post("/payment/service-provided", data, {
         headers: {
           Authorization: `Bearer ${token}`,
           id: this.user_id,
@@ -269,7 +269,7 @@ class ManageReport {
     }
   }
 
-  async deletePaymentsProvide(){
+  async deletePaymentsProvide() {
     try {
       const response = await api.delete("/payment/service-provided", {
         headers: {
@@ -285,7 +285,6 @@ class ManageReport {
       throw new Error(error.message);
     }
   }
-
 }
 
 export default ManageReport;

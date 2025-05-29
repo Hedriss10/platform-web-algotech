@@ -1,11 +1,82 @@
-// TODO - verificar o service provided, desenvolver ele por completo
-import { use, useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback, memo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../../service/UserContext";
 import { notify } from "../../utils/toastify";
 import ManageReport from "../Report/Service/ManageReport";
 import Icons from "../../utils/Icons";
 import MaskCpf from "../../utils/MaskCpf";
+import { NumericFormat } from "react-number-format";
+
+// Função utilitária para converter string monetária em número
+const parseCurrency = (value) => {
+  if (value == null) return 0;
+  if (typeof value !== "string") return Number(value) || 0;
+  const cleanValue = value.replace(/[^\d,]/g, "").replace(",", ".");
+  return Number(cleanValue) || 0;
+};
+
+// Função de debounce
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
+
+// Componente isolado para o input de cada proposta
+const ProposalInput = ({ proposalId, onValueChange }) => {
+  const [localValue, setLocalValue] = useState("");
+  const inputRef = useRef(null);
+
+  const handleChange = useCallback(
+    (values) => {
+      console.log("handleChange chamado:", { proposalId, values });
+      const { floatValue } = values;
+      setLocalValue(floatValue ?? "");
+      onValueChange(proposalId, floatValue ?? "");
+    },
+    [proposalId, onValueChange],
+  );
+
+  const handleFocus = useCallback(() => {
+    console.log("Input recebeu foco:", { proposalId });
+  }, [proposalId]);
+
+  const handleBlur = useCallback(() => {
+    console.log("Input perdeu foco:", { proposalId });
+  }, [proposalId]);
+
+  // Manter foco após rerenderizações
+  useEffect(() => {
+    if (document.activeElement === inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [localValue]);
+
+  return (
+    <div className="mt-2">
+      <NumericFormat
+        getInputRef={inputRef}
+        value={localValue}
+        onValueChange={handleChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        thousandSeparator="."
+        decimalSeparator=","
+        prefix="R$ "
+        decimalScale={2}
+        allowNegative={false}
+        allowLeadingZeros
+        placeholder="R$ 0,00"
+        className="ml-2 px-2 py-1 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+  );
+};
+
+// Memoizar o componente
+const MemoizedProposalInput = memo(ProposalInput);
 
 const ServiceProvided = () => {
   const { user, token } = useUser();
@@ -14,72 +85,129 @@ const ServiceProvided = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
   const [proposal, setProposal] = useState([]);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
-  const [selectedIds, setSelectedIds] = useState([]); // Estado para armazenar IDs selecionados
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [operationValues, setOperationValues] = useState({});
 
   const handleListProposalPayments = async () => {
+    if (!user?.id) {
+      console.warn("Usuário não autenticado. ID do usuário não disponível.");
+      notify("Usuário não autenticado.", { type: "error" });
+      setProposal([]);
+      setLoading(false);
+      return;
+    }
+
     try {
+      setLoading(true);
       const usersApi = new ManageReport(
-        user?.id,
+        user.id,
         searchTerm,
         currentPage,
         rowsPerPage,
       );
+      console.log("Parâmetros enviados para API:", {
+        userId: user.id,
+        searchTerm,
+        currentPage,
+        rowsPerPage,
+      });
       const response = await usersApi.getPaymentsProposal();
+      console.log("Resposta da API:", response);
       if (response && response.data) {
-        setProposal(response.data);
+        const validProposals = response.data.filter(
+          (item) => item.proposal_id != null && item.proposal_id !== "",
+        );
+        console.log("Propostas recebidas:", validProposals);
+        const ids = validProposals.map((item) => item.proposal_id);
+        const uniqueIds = new Set(ids);
+        if (ids.length !== uniqueIds.size) {
+          console.warn("Atenção: IDs duplicados encontrados!", ids);
+        }
+        setProposal(validProposals);
         setTotalPages(response.metadata?.total_pages || 1);
+      } else {
+        console.warn("Nenhum dado retornado pela API.");
+        setProposal([]);
       }
     } catch (error) {
       console.error("Erro ao carregar tabelas financeiras:", error);
+      notify("Erro ao carregar propostas.", { type: "error" });
+      setProposal([]);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     handleListProposalPayments();
-  }, [currentPage, searchTerm, rowsPerPage]);
+  }, [currentPage, searchTerm, rowsPerPage, user?.id]);
 
-  const handlePage = (newPage) => {
-    setCurrentPage(newPage);
-  };
-
-  // Função para mudar o número de linhas por página
   const handleRowsPerPageChange = (event) => {
     setRowsPerPage(Number(event.target.value));
     setCurrentPage(1);
   };
 
-  // Função para selecionar/deselecionar IDs
   const handleSelectId = (id) => {
-    if (selectedIds.includes(id)) {
-      setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id)); // Remove o ID se já estiver selecionado
-    } else {
-      setSelectedIds([...selectedIds, id]); // Adiciona o ID se não estiver selecionado
-    }
+    if (id == null) return;
+    setSelectedIds((prev) =>
+      prev.includes(id)
+        ? prev.filter((selectedId) => selectedId !== id)
+        : [...prev, id],
+    );
   };
 
-  // Função para selecionar/deselecionar todos os IDs da página atual
   const handleSelectAll = () => {
-    const allIdsOnPage = reportsSellers.map((payment) => payment.id); // Pega todos os IDs da página atual
-
-    if (selectedIds.length === allIdsOnPage.length) {
-      // Se todos já estiverem selecionados, limpa a seleção
-      setSelectedIds([]);
-    } else {
-      // Caso contrário, seleciona todos
-      setSelectedIds(allIdsOnPage);
-    }
+    const allIdsOnPage = proposal.map((payment) => payment.proposal_id);
+    setSelectedIds(
+      selectedIds.length === allIdsOnPage.length ? [] : allIdsOnPage,
+    );
   };
 
-  // Função para mudar a página
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
+  const handlePayment = async () => {
+    try {
+      if (selectedIds.length === 0) {
+        notify("Selecione pelo menos uma proposta.", { type: "warning" });
+        return;
+      }
+
+      const values = selectedIds.map((id) => operationValues[id]);
+      if (values.some((val) => val == null || val <= 0)) {
+        notify("Preencha todos os valores de operação com números válidos.", {
+          type: "warning",
+        });
+        return;
+      }
+
+      const payload = {
+        proposal_id: selectedIds,
+        user_id: [user?.id],
+        valor_operacao: selectedIds.map((id) => Number(operationValues[id])),
+      };
+
+      console.log("Payload enviado:", payload);
+
+      const usersApi = new ManageReport(user?.id);
+      const response = await usersApi.postPaymentsProvided(payload, token);
+
+      if (response && response.data) {
+        notify("Pagamento processado com sucesso!", { type: "success" });
+        setIsModalOpen(false);
+        setSelectedIds([]);
+        setOperationValues({});
+        handleListProposalPayments();
+      }
+    } catch (error) {
+      console.error("Erro ao processar pagamento:", error);
+      notify("Erro ao processar pagamento.", { type: "error" });
+    }
   };
 
   const handleDeletePayment = async () => {
     try {
       if (selectedIds.length === 0) {
-        notify("Nenhum pagamento selecionado", { type: "warning" });
+        notify("Nenhum pagamento selecionado.", { type: "warning" });
         return;
       }
       const usersApi = new ManageReport(user?.id);
@@ -88,14 +216,113 @@ const ServiceProvided = () => {
 
       if (response) {
         notify("Pagamentos deletados com sucesso!", { type: "success" });
-        loadPaymentsUsers(); // Recarrega a lista após a exclusão
-        setSelectedIds([]); // Limpa os IDs selecionados
+        handleListProposalPayments();
+        setSelectedIds([]);
       }
     } catch (error) {
       console.error("Erro ao deletar pagamentos:", error);
-      notify("Erro ao deletar pagamentos", { type: "error" });
+      notify("Erro ao deletar pagamentos.", { type: "error" });
     }
   };
+
+  const openModal = () => {
+    if (selectedIds.length === 0) {
+      notify("Selecione pelo menos uma proposta.", { type: "warning" });
+      return;
+    }
+    const initialValues = selectedIds.reduce((acc, id) => {
+      acc[id] = "";
+      return acc;
+    }, {});
+    setOperationValues(initialValues);
+    setIsModalOpen(true);
+  };
+
+  const PaymentModal = ({ isOpen, onClose, onConfirm }) => {
+    if (!isOpen) return null;
+
+    const selectedProposals = useMemo(
+      () => proposal.filter((p) => selectedIds.includes(p.proposal_id)),
+      [proposal, selectedIds],
+    );
+
+    const handleValueChange = useCallback(
+      debounce((proposalId, value) => {
+        console.log("handleValueChange chamado:", { proposalId, value });
+        setOperationValues((prev) => ({
+          ...prev,
+          [proposalId]: value,
+        }));
+      }, 300),
+      [],
+    );
+
+    return (
+      <div className="fixed inset-0 bg-whitesmoke bg-opacity-50 flex items-center justify-center">
+        <div className="bg-gray-700 p-6 rounded-lg shadow-lg w-full max-w-md">
+          <h2 className="text-xl font-semibold text-white">
+            Confirmar Pagamento
+          </h2>
+          <p className="text-gray-200 mt-2">
+            Você selecionou {selectedIds.length} proposta(s) para pagamento.
+          </p>
+          {selectedProposals.length > 0 ? (
+            <ul className="mt-4 max-h-40 overflow-y-auto">
+              {selectedProposals.map((proposal) => (
+                <li key={proposal.proposal_id} className="text-gray-300 mb-4">
+                  <div>
+                    Proposta #{proposal.number_proposal || "N/A"} -{" "}
+                    {proposal.proposal_name}
+                  </div>
+                  <div className="text-gray-200">
+                    Valor Base:{" "}
+                    {proposal.valor_base != null ? (
+                      <NumericFormat
+                        value={parseCurrency(proposal.valor_base)}
+                        displayType="text"
+                        thousandSeparator="."
+                        decimalSeparator=","
+                        prefix="R$ "
+                        decimalScale={2}
+                        fixedDecimalScale
+                      />
+                    ) : (
+                      "N/A"
+                    )}
+                  </div>
+                  <MemoizedProposalInput
+                    proposalId={proposal.proposal_id}
+                    onValueChange={handleValueChange}
+                  />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-300 mt-4">
+              Nenhuma proposta válida selecionada.
+            </p>
+          )}
+          <div className="flex justify-end mt-6">
+            <button
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition duration-300"
+              onClick={onClose}
+            >
+              Cancelar
+            </button>
+            <button
+              className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-400 transition duration-300"
+              onClick={onConfirm}
+            >
+              Confirmar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Memoizar o PaymentModal
+  const MemoizedPaymentModal = memo(PaymentModal);
 
   return (
     <div className="flex-1 p-15 w-full bg-gray-100 h-full text-gray-700">
@@ -109,7 +336,6 @@ const ServiceProvided = () => {
           </ol>
         </nav>
         <div className="bg-gray-700 rounded-lg shadow-lg p-6">
-          {/* Cabeçalho com título e botão de importar */}
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold text-white">
               Lista de Pagamentos
@@ -131,9 +357,14 @@ const ServiceProvided = () => {
               >
                 <Icons.FaTrash className="text-white" />
               </button>
+              <button
+                className="p-2 bg-green-600 rounded-lg hover:bg-green-500 transition duration-300"
+                onClick={openModal}
+              >
+                <Icons.MdPayments className="text-white" />
+              </button>
             </div>
           </div>
-          {/* Tabela de convênios */}
           <div className="overflow-x-auto">
             <table className="min-w-full bg-gray-600 rounded-lg overflow-hidden">
               <thead className="bg-gray-500">
@@ -167,7 +398,7 @@ const ServiceProvided = () => {
               </thead>
               <tbody className="divide-y divide-gray-500">
                 {loading ? (
-                  <tr>
+                  <tr key="loading">
                     <td
                       colSpan="12"
                       className="px-6 py-4 text-center text-gray-300"
@@ -176,7 +407,7 @@ const ServiceProvided = () => {
                     </td>
                   </tr>
                 ) : proposal.length === 0 ? (
-                  <tr>
+                  <tr key="empty">
                     <td
                       colSpan="12"
                       className="px-6 py-4 text-center text-gray-300"
@@ -185,16 +416,20 @@ const ServiceProvided = () => {
                     </td>
                   </tr>
                 ) : (
-                  proposal.map((ListPayment, index) => (
+                  proposal.map((ListPayment) => (
                     <tr
-                      key={index}
+                      key={ListPayment.proposal_id}
                       className="hover:bg-gray-550 transition duration-300"
                     >
                       <td className="px-6 py-4 text-sm text-gray-200">
                         <input
                           type="checkbox"
-                          checked={selectedIds.includes(ListPayment.id)}
-                          onChange={() => handleSelectId(ListPayment.id)}
+                          checked={selectedIds.includes(
+                            ListPayment.proposal_id,
+                          )}
+                          onChange={() =>
+                            handleSelectId(ListPayment.proposal_id)
+                          }
                         />
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-200">
@@ -218,7 +453,6 @@ const ServiceProvided = () => {
               </tbody>
             </table>
           </div>
-          {/* Paginação */}
           <div className="flex justify-between items-center mt-6">
             <div>
               <select
@@ -233,40 +467,42 @@ const ServiceProvided = () => {
             </div>
             <nav>
               <ul className="flex space-x-2">
-                <li>
+                <li key="prev">
                   <button
                     className={`px-4 py-2 bg-gray-600 text-white rounded-lg ${
                       currentPage === 1
                         ? "opacity-50 cursor-not-allowed"
                         : "hover:bg-gray-500"
                     } transition duration-300`}
-                    onClick={() => handlePageChange(currentPage - 1)}
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                    disabled={currentPage === 1}
                   >
                     Anterior
                   </button>
                 </li>
                 {Array.from({ length: totalPages }, (_, i) => (
-                  <li key={i + 1}>
+                  <li key={`page-${i + 1}`}>
                     <button
                       className={`px-4 py-2 ${
                         currentPage === i + 1
                           ? "bg-blue-500 text-white"
                           : "bg-gray-600 text-white hover:bg-gray-500"
                       } rounded-lg transition duration-300`}
-                      onClick={() => handlePageChange(i + 1)}
+                      onClick={() => setCurrentPage(i + 1)}
                     >
                       {i + 1}
                     </button>
                   </li>
                 ))}
-                <li>
+                <li key="next">
                   <button
                     className={`px-4 py-2 bg-gray-600 text-white rounded-lg ${
                       currentPage === totalPages
                         ? "opacity-50 cursor-not-allowed"
                         : "hover:bg-gray-500"
                     } transition duration-300`}
-                    onClick={() => handlePageChange(currentPage + 1)}
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
                   >
                     Próxima
                   </button>
@@ -276,6 +512,11 @@ const ServiceProvided = () => {
           </div>
         </div>
       </div>
+      <MemoizedPaymentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handlePayment}
+      />
     </div>
   );
 };
