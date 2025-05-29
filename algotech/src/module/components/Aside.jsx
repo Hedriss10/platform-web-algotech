@@ -220,6 +220,13 @@ const Aside = ({ isOpen, setIsOpen }) => {
                   <Icons.MdOutlineCommentBank className="text-sm flex-shrink-0" />
                   <span className="ml-2">Convênios</span>
                 </Link>
+                <Link
+                  to="/paymentsprovided"
+                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+                >
+                  <Icons.BsPersonWorkspace className="text-sm flex-shrink-0" />
+                  <span className="ml-2">Serviços Prestados</span>
+                </Link>
               </ul>
             )}
           </li>
