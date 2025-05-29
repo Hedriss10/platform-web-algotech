@@ -4,7 +4,7 @@ import { notify } from "../utils/toastify";
 import { useUser } from "../../service/UserContext";
 import MaskCpf from "../utils/MaskCpf";
 import Roles from "./Service/Roles";
-import manageRegisterUsers from "./Service/ManageuserApi";
+import ManagerServiceUsers from  "../../service/user/Usermangeservice"
 
 const RegisterUser = ({ onClose }) => {
   const { user, token } = useUser();
@@ -47,8 +47,8 @@ const RegisterUser = ({ onClose }) => {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
-      const usersApi = new manageRegisterUsers(user?.id);
-      const response = await usersApi.registerUser(formData, token);
+      const usersApi = new ManagerServiceUsers(user?.id);
+      const response = await usersApi.addUser(formData, token);
       notify("Usuário cadastrado com sucesso", { type: "success" });
     } catch (error) {
       notify("Erro ao cadastrar usuário", { type: "error" });
