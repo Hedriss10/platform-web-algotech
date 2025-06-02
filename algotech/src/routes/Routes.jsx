@@ -4,12 +4,12 @@ import { ProtectedRoute } from "./ProtectRoutes";
 
 const Home = lazy(() => import("../module/components/Home"));
 const Login = lazy(() => import("../module/Login/Login"));
-const ManageUsers = lazy(() => import("../module/User/Users"));
-const RegisterUser = lazy(() => import("../module/User/RegisterUser"));
-const UpdateUsers = lazy(() => import("../module/User/UpdateUsers"));
+const ManageUsers = lazy(() => import("../module/user/Users"));
+const RegisterUser = lazy(() => import("../module/user/RegisterUser"));
+const UpdateUsers = lazy(() => import("../module/user/UpdateUsers"));
 const Profile = lazy(() => import("../module/profile/Profile"));
-const RoleUsers = lazy(() => import("../module/User/RoleUsers"));
-const RolersRegister = lazy(() => import("../module/User/RegisterRoles"));
+const RoleUsers = lazy(() => import("../module/user/RoleUsers"));
+const RolersRegister = lazy(() => import("../module/user/RegisterRoles"));
 const Rooms = lazy(() => import("../module/Rooms/Rooms"));
 const RegisterRooms = lazy(() => import("../module/Rooms/RegisterRooms"));
 const PreviewRooms = lazy(() => import("../module/Rooms/PreviewRooms"));

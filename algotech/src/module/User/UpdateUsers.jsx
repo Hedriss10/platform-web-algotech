@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { notify } from "../utils/toastify";
 import { useUser } from "../../service/UserContext";
-import ManageUser from "../User/Service/UsersApi";
+import ManageUser from "./Service/UsersApi";
 import MaskCpf from "../utils/MaskCpf";
 import Roles from "./Service/Roles";
 
