@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import ManageUser from "../user/Service/UsersApi";
+import ManageUser from "../user/Service/ManageServiceUser";
 import ManageRooms from "../Rooms/Service/ManageRooms";
 import { notify } from "../utils/toastify";
 import { useUser } from "../../service/UserContext";

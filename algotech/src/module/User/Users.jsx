@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import ManageUser from "./Service/UsersApi";
+import ManageUser from "./Service/ManageServiceUser";
 import { notify } from "../utils/toastify";
 import { useUser } from "../../service/UserContext";
 import Icons from "../utils/Icons";

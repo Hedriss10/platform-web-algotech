@@ -1,6 +1,6 @@
 import api from "../../Hooks/ApiConfig";
 
-class ManageUser {
+class ManageServiceUsers {
   constructor(
     user_id = null,
     search_term = null,
@@ -17,6 +17,24 @@ class ManageUser {
     this.page_number = page_number;
     this.order_by = order_by;
     this.filter_value = filter_value;
+  }
+
+
+  async postUsers(data, token){
+    try {
+      const response = await api.post("/user", data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          id: this.user_id,
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.message_id);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   async getAllUsers() {
@@ -119,4 +137,4 @@ class ManageUser {
   }
 }
 
-export default ManageUser;
+export default ManageServiceUsers;

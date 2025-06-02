@@ -1,4 +1,7 @@
 // src/module/user/ui/forms/FormsUpdateUser.jsx
+import { Link } from "react-router-dom";
+import MaskCpf from "../../../utils/MaskCpf";
+import Button from "../../../ui/Button/Button";
 
 const FormsAddUser = ({
   formData,
@@ -6,6 +9,7 @@ const FormsAddUser = ({
   handleFormSubmit,
   roles,
   setFormData,
+  loading,
 }) => {
   return (
     <form onSubmit={handleFormSubmit} className="space-y-4 text-white">
@@ -225,14 +229,23 @@ const FormsAddUser = ({
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
-      <div className="flex justify-end">
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          Cadastrar
-        </button>
-      </div>
+			<div className="flex justify-end space-x-2">
+				<Button 
+					type="submit" 
+					loading={loading}
+					className="px-3 py-2 rounded-lg text-white font-semibold transition-all duration-200 bg-green-600 hover:bg-green-600-500"
+				>
+					Cadastrar
+				</Button>
+
+				<Link to="/users">
+					<Button 
+						className="px-3 py-2 rounded-lg text-white font-semibold transition-all duration-200 bg-red-600 hover:bg-red-500"
+					>
+						Fechar
+					</Button>
+				</Link>
+			</div>
     </form>
   );
 };
