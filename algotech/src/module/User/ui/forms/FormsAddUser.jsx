@@ -229,23 +229,21 @@ const FormsAddUser = ({
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
-			<div className="flex justify-end space-x-2">
-				<Button 
-					type="submit" 
-					loading={loading}
-					className="px-3 py-2 rounded-lg text-white font-semibold transition-all duration-200 bg-green-600 hover:bg-green-600-500"
-				>
-					Cadastrar
-				</Button>
+      <div className="flex justify-end space-x-2">
+        <Button
+          type="submit"
+          loading={loading}
+          className="px-3 py-2 rounded-lg text-white font-semibold transition-all duration-200 bg-green-600 hover:bg-green-600-500"
+        >
+          Cadastrar
+        </Button>
 
-				<Link to="/users">
-					<Button 
-						className="px-3 py-2 rounded-lg text-white font-semibold transition-all duration-200 bg-red-600 hover:bg-red-500"
-					>
-						Fechar
-					</Button>
-				</Link>
-			</div>
+        <Link to="/users">
+          <Button className="px-3 py-2 rounded-lg text-white font-semibold transition-all duration-200 bg-red-600 hover:bg-red-500">
+            Fechar
+          </Button>
+        </Link>
+      </div>
     </form>
   );
 };

@@ -19,8 +19,7 @@ class ManageServiceUsers {
     this.filter_value = filter_value;
   }
 
-
-  async postUsers(data, token){
+  async postUsers(data, token) {
     try {
       const response = await api.post("/user", data, {
         headers: {
