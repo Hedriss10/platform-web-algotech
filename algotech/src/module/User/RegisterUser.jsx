@@ -5,6 +5,7 @@ import { useUser } from "../../service/UserContext";
 import MaskCpf from "../utils/MaskCpf";
 import Roles from "./Service/Roles";
 import ManagerServiceUsers from "./Service/ManageServiceUsers";
+import FormsAddUser from "./ui/forms/FormsAddUser";
 
 const RegisterUser = ({ onClose }) => {
   const { user, token } = useUser();
@@ -79,7 +80,14 @@ const RegisterUser = ({ onClose }) => {
             </button>
           </Link>
         </div>
-        <form onSubmit={handleFormSubmit} className="space-y-4 text-white">
+        <FormsAddUser
+          formData={formData}
+          handleChange={handleChange}
+          handleFormSubmit={handleFormSubmit}
+          roles={roles}
+          setFormData={setFormData}
+        />
+        {/* <form onSubmit={handleFormSubmit} className="space-y-4 text-white">
           <div>
             <label
               htmlFor="username"
@@ -313,7 +321,7 @@ const RegisterUser = ({ onClose }) => {
               Cadastrar
             </button>
           </div>
-        </form>
+        </form> */}
       </div>
     </div>
   );
