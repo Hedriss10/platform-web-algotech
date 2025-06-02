@@ -4,7 +4,7 @@ import { notify } from "../utils/toastify";
 import { useUser } from "../../service/UserContext";
 import MaskCpf from "../utils/MaskCpf";
 import Roles from "./Service/Roles";
-import ManagerServiceUsers from  "../../service/user/Usermangeservice"
+import ManagerServiceUsers from "./Service/ManageServiceUsers";
 
 const RegisterUser = ({ onClose }) => {
   const { user, token } = useUser();

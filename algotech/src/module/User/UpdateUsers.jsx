@@ -5,6 +5,7 @@ import { useUser } from "../../service/UserContext";
 import ManageUser from "./Service/UsersApi";
 import MaskCpf from "../utils/MaskCpf";
 import Roles from "./Service/Roles";
+import FormsUsers from "./ui/forms/FormsUpdateUser";
 
 const UpdateUsers = ({ onClose }) => {
   const { id } = useParams();
@@ -105,7 +106,14 @@ const UpdateUsers = ({ onClose }) => {
       </div>
 
       <div className="bg-gray-700 rounded-lg shadow-lg p-6">
-        <form onSubmit={handleFormSubmit} className="space-y-4 text-white">
+        <FormsUsers
+          formData={formData}
+          handleChange={handleChange}
+          handleFormSubmit={handleFormSubmit}
+          loading={loading}
+          roles={roles}
+        />
+        {/* <form onSubmit={handleFormSubmit} className="space-y-4 text-white">
           <div>
             <label htmlFor="username">Nome de Usuário:</label>
             <input
@@ -248,7 +256,7 @@ const UpdateUsers = ({ onClose }) => {
               <Link to="/users">Fechar</Link>
             </button>
           </div>
-        </form>
+        </form> */}
       </div>
     </div>
   );
