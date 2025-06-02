@@ -5,6 +5,7 @@ const UserContext = createContext();
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true); // Novo estado de carregamento
 
   useEffect(() => {
     const storedUser = localStorage.getItem("userData");
@@ -14,6 +15,7 @@ export const UserProvider = ({ children }) => {
       setUser(JSON.parse(storedUser));
       setToken(storedToken);
     }
+    setLoading(false); // Finaliza o carregamento após verificar o localStorage
   }, []);
 
   const login = (userData, accessToken) => {
@@ -31,7 +33,7 @@ export const UserProvider = ({ children }) => {
   };
 
   return (
-    <UserContext.Provider value={{ user, token, login, logout }}>
+    <UserContext.Provider value={{ user, token, login, logout, loading }}>
       {children}
     </UserContext.Provider>
   );
