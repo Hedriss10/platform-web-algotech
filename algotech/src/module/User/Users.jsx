@@ -88,7 +88,7 @@ const ManageUsers = () => {
     try {
       const usersApi = new ManageUser(user?.id);
       const payload = { id: userId };
-      const response = await usersApi.resetPassword(payload, token);
+      await usersApi.resetPassword(payload, token);
       notify("Senha resetada com sucesso", { type: "success" });
       loadUsers();
     } catch (error) {
