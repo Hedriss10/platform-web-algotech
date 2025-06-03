@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useParams } from "react-router-dom";
 import { notify } from "../utils/toastify";
 import { useUser } from "../../service/UserContext";
-import ManageRoosms from "../Rooms/Service/ManageRooms";
+import ManageServiceRooms from "./service/ManageServiceRooms";
 
 const UpdateRooms = () => {
   const { id } = useParams();
@@ -17,7 +17,7 @@ const UpdateRooms = () => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        const usersApi = new ManageRoosms();
+        const usersApi = new ManageServiceRooms();
         const response = await usersApi.getRoomsById(id, token);
         if (response) {
           setFormData({
@@ -48,7 +48,7 @@ const UpdateRooms = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const usersApi = new ManageRoosms();
+      const usersApi = new ManageServiceRooms();
       await usersApi.updateRooms(id, formData, token);
       notify("Sala editada com sucesso", { type: "success" });
       navigate("/rooms");

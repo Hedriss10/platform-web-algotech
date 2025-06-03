@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import Icons from "../utils/Icons";
 import { useUser } from "../../service/UserContext";
 import { notify } from "../utils/toastify";
-import Roles from "./Service/Roles";
+import Roles from "./service/Roles";
 
 const RoleUsers = () => {
   const [role, setRole] = useState("");

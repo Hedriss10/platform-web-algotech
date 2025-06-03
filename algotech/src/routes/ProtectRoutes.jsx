@@ -1,6 +1,6 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useUser } from '../service/UserContext';
+import React from "react";
+import { Navigate } from "react-router-dom";
+import { useUser } from "../service/UserContext";
 
 export const ProtectedRoute = ({ children }) => {
   const { user, loading } = useUser();

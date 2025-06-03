@@ -1,6 +1,6 @@
 import api from "../../Hooks/ApiConfig";
 
-class ManageRooms {
+class ManageServiceRooms {
   constructor(
     user_id = null,
     search_term = null,
@@ -164,4 +164,4 @@ class ManageRooms {
   }
 }
 
-export default ManageRooms;
+export default ManageServiceRooms;

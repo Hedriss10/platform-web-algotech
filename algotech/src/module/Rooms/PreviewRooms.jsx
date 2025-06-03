@@ -3,7 +3,7 @@ import { useNavigate, Link, useParams } from "react-router-dom";
 import { notify } from "../utils/toastify";
 import { useUser } from "../../service/UserContext";
 import Icons from "../utils/Icons";
-import ManageRooms from "../Rooms/Service/ManageRooms";
+import ManageServiceRooms from "./service/ManageServiceRooms";
 
 const PreviewRooms = () => {
   const { id } = useParams(); // Captura o id da sala da URL

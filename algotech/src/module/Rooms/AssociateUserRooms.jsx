@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import ManageUser from "../user/Service/ManageServiceUser";
-import ManageRooms from "../Rooms/Service/ManageRooms";
+import ManageUser from "../user/service/ManageServiceUser";
+import ManageServiceRooms from "./service/ManageServiceRooms";
 import { notify } from "../utils/toastify";
 import { useUser } from "../../service/UserContext";
 
@@ -50,7 +50,7 @@ const UsersRooms = () => {
 
   const loadRooms = async () => {
     try {
-      const roomsApi = new ManageRooms(user?.id);
+      const roomsApi = new ManageServiceRooms(user?.id);
       const response = await roomsApi.getAllRooms();
       setRooms(response.data || []);
     } catch (error) {
@@ -82,7 +82,7 @@ const UsersRooms = () => {
     }
 
     try {
-      const roomsApi = new ManageRooms(user?.id);
+      const roomsApi = new ManageServiceRooms(user?.id);
       const newRooms = {
         rooms_id: [selectedRoom].map((item) => parseInt(item, 10)),
       };

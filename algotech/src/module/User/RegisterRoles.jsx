@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../../service/UserContext";
 import { notify } from "../utils/toastify";
-import Roles from "./Service/Roles";
+import Roles from "./service/Roles";
 
 const RegisterRoles = () => {
   const { user, token } = useUser();

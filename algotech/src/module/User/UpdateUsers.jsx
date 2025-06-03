@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { notify } from "../utils/toastify";
 import { useUser } from "../../service/UserContext";
-import ManageUser from "./Service/ManageServiceUser";
+import ManageUser from "./service/ManageServiceUser";
 import MaskCpf from "../utils/MaskCpf";
-import Roles from "./Service/Roles";
+import Roles from "./service/Roles";
 import FormsUsers from "./ui/forms/FormsUpdateUser";
 
 const UpdateUsers = ({ onClose }) => {
