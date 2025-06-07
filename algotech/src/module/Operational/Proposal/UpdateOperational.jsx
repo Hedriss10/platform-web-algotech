@@ -1,31 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { notify } from "../../utils/toastify";
 import { useUser } from "../../../service/UserContext";
-import ManageSellers from "../../Sellers/Service/ManageSellers";
-import ManageFinance from "../../Finance/Service/ManageFinance";
-import ManageTablesFinance from "../../Finance/Service/ManageTablesFinance";
-import ManageBankers from "../../Finance/Service/ManageBankers";
-
-// Estilo para o PDF (mantido para compatibilidade, caso volte a usar @react-pdf/renderer)
-const styles = {
-  page: {
-    flexDirection: "row",
-    backgroundColor: "#E4E4E4",
-  },
-  section: {
-    margin: 10,
-    padding: 10,
-    flexGrow: 1,
-  },
-};
+import { notify } from "@module/utils/toastify";
+import { notify } from "@module/utils/toastify";
+import ManageSellers from "@module/Sellers/Service/ManageSellers";
+import ManageFinance from "@module/Finance/Service/ManageFinance";
+import ManageTablesFinance from "@module/Finance/Service/ManageTablesFinance";
+import ManageBankers from "@module/Finance/Service/ManageBankers";
 
 const UpdateOperational = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); // Obtém o ID da proposta da URL
-  const { user, token } = useUser(); // Obtém o usuário e o token do contexto
-  const [proposal, setProposal] = useState(null); // Estado para armazenar os dados da proposta
-  const [loading, setLoading] = useState(true); // Estado para controlar o carregamento
+  const { id } = useParams(); 
+  const { user, token } = useUser(); 
+  const [proposal, setProposal] = useState(null); 
+  const [loading, setLoading] = useState(true); 
   const [loanOperations, setLoanOperations] = useState([]);
   const [bankers, setBankers] = useState([]);
   const [financialAgreements, setFinancialAgreements] = useState([]);

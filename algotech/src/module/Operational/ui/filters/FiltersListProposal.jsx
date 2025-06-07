@@ -1,9 +1,9 @@
-
+// src/module/Operational/ui/filters/FiltersListProposal.jsx
 const FiltersListPrposal = ({
-    filterValues,
-    setFilterValues,
-    setIsFilterModalOpen,
-    applyFilter
+  filterValues,
+  setFilterValues,
+  setIsFilterModalOpen,
+  applyFilter,
 }) => {
   return (
     <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">

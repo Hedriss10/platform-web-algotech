@@ -1,25 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../service/UserContext";
-import { notify } from "../utils/toastify";
-import ManageOperational from "./Service/MangeOperational";
+import { notify } from "@module/utils/toastify";
+import {
+  formatDateToBackend,
+  mockFilterProposal,
+} from "@module/utils/FormatDataToBackend";
+import ManageOperational from "@module/Operational/Service/MangeOperational";
 import ListTablesOperational from "@module/Operational/ui/tables/ListTablesOperational";
 import Icons from "@module/utils/Icons";
-import FiltersListPrposal from "./ui/filters/FiltersListProposal";
-import Pagination from "../ui/Pagination/Pagination";
-
-// Função para formatar data para DD-MM-YYYY
-const formatDateToBackend = (date) => {
-  if (!date) return "";
-  const [year, month, day] = date.split("-");
-  return `${day}-${month}-${year}`;
-};
-
-const mockFilterProposal = {
-  current_status: "",
-  start_date: "",
-  end_date: "",
-};
+import FiltersListPrposal from "@module/Operational/ui/filters/FiltersListProposal";
+import Pagination from "@module/ui/Pagination/Pagination";
 
 const PreviewOperational = () => {
   const { user, token } = useUser();
