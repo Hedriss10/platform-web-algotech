@@ -3,9 +3,9 @@ import { useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../service/UserContext";
 import { notify } from "../utils/toastify";
 import ManageOperational from "./Service/MangeOperational";
-// import Icons from "../utils/Icons";
+import ListTablesOperational from "@module/Operational/ui/tables/ListTablesOperational";
 import Icons from "@module/utils/Icons";
-import MaskCpf from "../utils/MaskCpf";
+import FiltersListPrposal from "./ui/filters/FiltersListProposal";
 import Pagination from "../ui/Pagination/Pagination";
 
 // Função para formatar data para DD-MM-YYYY
@@ -170,207 +170,21 @@ const PreviewOperational = () => {
 
         {/* Modal de Filtro */}
         {isFilterModalOpen && (
-          <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-              <h2 className="text-xl font-semibold mb-4">Filtrar Propostas</h2>
-              <div className="space-y-4">
-                <select
-                  name="current_status"
-                  value={filterValues.current_status}
-                  onChange={(e) =>
-                    setFilterValues({
-                      ...filterValues,
-                      current_status: e.target.value,
-                    })
-                  }
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Selecione o Status</option>
-                  <option value="Aguardando Digitação">
-                    Aguardando Digitação
-                  </option>
-                  <option value="Pendente de Digitação">
-                    Pendente de Digitação
-                  </option>
-                  <option value="Contrato em Digitação">
-                    Contrato em Digitação
-                  </option>
-                  <option value="Aguardando Pagamento">
-                    Aguardando Pagamento
-                  </option>
-                  <option value="Aceite Feito - Análise Banco">
-                    Aceite Feito - Análise Banco
-                  </option>
-                  <option value="Contrato Pendente - Banco">
-                    Contrato Pendente - Banco
-                  </option>
-                  <option value="Contrato Pago">Contrato Pago</option>
-                  <option value="Contrato Reprovado">Contrato Reprovado</option>
-                </select>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Data Inicial
-                  </label>
-                  <input
-                    type="date"
-                    value={filterValues.start_date}
-                    onChange={(e) =>
-                      setFilterValues({
-                        ...filterValues,
-                        start_date: e.target.value,
-                      })
-                    }
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Data Final
-                  </label>
-                  <input
-                    type="date"
-                    value={filterValues.end_date}
-                    onChange={(e) =>
-                      setFilterValues({
-                        ...filterValues,
-                        end_date: e.target.value,
-                      })
-                    }
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end space-x-2 mt-4">
-                <button
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
-                  onClick={() => setIsFilterModalOpen(false)}
-                >
-                  Cancelar
-                </button>
-                <button
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-                  onClick={applyFilter}
-                >
-                  Aplicar
-                </button>
-              </div>
-            </div>
-          </div>
+          <FiltersListPrposal
+            filterValues={filterValues}
+            setFilterValues={setFilterValues}
+            setIsFilterModalOpen={setIsFilterModalOpen}
+            applyFilter={applyFilter}
+          />
         )}
 
         {/* Tabela de Usuários */}
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-gray-600 rounded-lg overflow-hidden">
-            <thead className="bg-gray-500">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Nome do Cliente
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  CPF
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Operação
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Banco
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Vendedor
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Digitador
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Visualizar
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Editar
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-500">
-              {loading ? (
-                <tr>
-                  <td
-                    colSpan="9"
-                    className="px-6 py-4 text-center text-gray-300"
-                  >
-                    Carregando...
-                  </td>
-                </tr>
-              ) : proposal.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan="9"
-                    className="px-6 py-4 text-center text-gray-300"
-                  >
-                    Nenhuma proposta encontrada.
-                  </td>
-                </tr>
-              ) : (
-                proposal.map((proposal) => (
-                  <tr
-                    key={proposal.id}
-                    className="hover:bg-gray-550 transition duration-300"
-                  >
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {proposal.nome_cliente || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {MaskCpf(proposal.cpf_cliente) || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {proposal.tipo_operacao || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {proposal.current_status || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {proposal.banco || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {proposal.nome_digitador || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {proposal.digitador_por || "N/A"}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex space-x-2">
-                        <button
-                          className="p-2 bg-blue-600 rounded-lg hover:bg-blue-500 transition duration-300"
-                          onClick={() => handlePreviewProposal(proposal.id)}
-                        >
-                          <Icons.MdOutlinePreview className="text-white" />
-                        </button>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <button
-                        className={`p-2 rounded-lg transition duration-300 ${
-                          proposal.current_status === "Contrato Pago"
-                            ? "bg-gray-400 cursor-not-allowed"
-                            : "bg-orange-600 hover:bg-orange-500"
-                        }`}
-                        onClick={() => {
-                          if (proposal.current_status !== "Contrato Pago") {
-                            handleUpdateProposal(proposal.id);
-                          }
-                        }}
-                        disabled={proposal.current_status === "Contrato Pago"}
-                      >
-                        <Icons.FaEdit className="text-white" />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <ListTablesOperational
+          proposal={proposal}
+          loading={loading}
+          handlePreviewProposal={handlePreviewProposal}
+          handleUpdateProposal={handleUpdateProposal}
+        />
 
         {/* Paginação */}
         <Pagination

@@ -1,11 +1,11 @@
 import Icons from "@module/utils/Icons";
-// import Icons from "../../../utils/Icons"
+import MaskCpf from "@module/utils/MaskCpf";
 
-export const ListTablesOperationa = ({ 
-    proposal, 
-    loading,
-    handlePreviewProposal,
-    handleUpdateProposal,
+const ListTablesOperational = ({
+  proposal,
+  loading,
+  handlePreviewProposal,
+  handleUpdateProposal,
 }) => {
   return (
     <div className="overflow-x-auto">
@@ -116,3 +116,5 @@ export const ListTablesOperationa = ({
     </div>
   );
 };
+
+export default ListTablesOperational;
