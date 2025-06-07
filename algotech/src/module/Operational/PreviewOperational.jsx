@@ -1,13 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link, useParams } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../service/UserContext";
 import { notify } from "../utils/toastify";
 import ManageOperational from "./Service/MangeOperational";
-import Icons from "../utils/Icons";
+// import Icons from "../utils/Icons";
+import Icons from "@module/utils/Icons";
 import MaskCpf from "../utils/MaskCpf";
+import Pagination from "../ui/Pagination/Pagination";
+
+// Função para formatar data para DD-MM-YYYY
+const formatDateToBackend = (date) => {
+  if (!date) return "";
+  const [year, month, day] = date.split("-");
+  return `${day}-${month}-${year}`;
+};
 
 const mockFilterProposal = {
   current_status: "",
+  start_date: "",
+  end_date: "",
 };
 
 const PreviewOperational = () => {
@@ -27,6 +38,16 @@ const PreviewOperational = () => {
   };
 
   const applyFilter = () => {
+    if (filterValues.start_date && filterValues.end_date) {
+      const start = new Date(filterValues.start_date);
+      const end = new Date(filterValues.end_date);
+      if (start > end) {
+        notify("A data inicial não pode ser posterior à data final", {
+          type: "error",
+        });
+        return;
+      }
+    }
     setSearchTerm(filterValues.current_status);
     setCurrentPage(1);
     setIsFilterModalOpen(false);
@@ -42,6 +63,8 @@ const PreviewOperational = () => {
         searchTerm,
         currentPage,
         rowsPerPage,
+        formatDateToBackend(filterValues.start_date),
+        formatDateToBackend(filterValues.end_date),
       );
 
       const response = await usersApi.getListProposalOperational(token);
@@ -56,15 +79,22 @@ const PreviewOperational = () => {
       }
     } catch (error) {
       console.error("Erro ao carregar propostas:", error);
+      notify("Erro ao carregar propostas", { type: "error" });
     } finally {
       setLoading(false);
     }
   };
 
-  // Efeito para carregar os usuários
+  // Efeito para carregar os dados
   useEffect(() => {
     loadOperational();
-  }, [currentPage, searchTerm, rowsPerPage]);
+  }, [
+    currentPage,
+    searchTerm,
+    rowsPerPage,
+    filterValues.start_date,
+    filterValues.end_date,
+  ]);
 
   // Função para redirecionar a visualização da proposta
   const handlePreviewProposal = (id) => {
@@ -87,13 +117,13 @@ const PreviewOperational = () => {
     setCurrentPage(1);
   };
 
-  // função para redirecionar para o update do proposal e verificando se ela está paga
+  // Função para redirecionar para o update do proposal
   const handleUpdateProposal = (id) => {
     try {
       navigate(`/operational/proposal/update/${id}`);
     } catch (error) {
       console.log(error);
-      notify("Error ao editar Proposta", { type: "error" });
+      notify("Erro ao editar Proposta", { type: "error" });
     }
   };
 
@@ -177,6 +207,38 @@ const PreviewOperational = () => {
                   <option value="Contrato Pago">Contrato Pago</option>
                   <option value="Contrato Reprovado">Contrato Reprovado</option>
                 </select>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Data Inicial
+                  </label>
+                  <input
+                    type="date"
+                    value={filterValues.start_date}
+                    onChange={(e) =>
+                      setFilterValues({
+                        ...filterValues,
+                        start_date: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Data Final
+                  </label>
+                  <input
+                    type="date"
+                    value={filterValues.end_date}
+                    onChange={(e) =>
+                      setFilterValues({
+                        ...filterValues,
+                        end_date: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
               </div>
               <div className="flex justify-end space-x-2 mt-4">
                 <button
@@ -216,12 +278,6 @@ const PreviewOperational = () => {
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   Banco
                 </th>
-                {/* <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Data de Criação
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Data da Digitação
-                </th> */}
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">
                   Vendedor
                 </th>
@@ -240,7 +296,7 @@ const PreviewOperational = () => {
               {loading ? (
                 <tr>
                   <td
-                    colSpan="5"
+                    colSpan="9"
                     className="px-6 py-4 text-center text-gray-300"
                   >
                     Carregando...
@@ -249,7 +305,7 @@ const PreviewOperational = () => {
               ) : proposal.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="5"
+                    colSpan="9"
                     className="px-6 py-4 text-center text-gray-300"
                   >
                     Nenhuma proposta encontrada.
@@ -276,12 +332,6 @@ const PreviewOperational = () => {
                     <td className="px-6 py-4 text-sm text-gray-200">
                       {proposal.banco || "N/A"}
                     </td>
-                    {/* <td className="px-6 py-4 text-sm text-gray-200">
-                      {proposal.data_criacao || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {proposal.digitado_as || "N/A"}
-                    </td> */}
                     <td className="px-6 py-4 text-sm text-gray-200">
                       {proposal.nome_digitador || "N/A"}
                     </td>
@@ -321,64 +371,15 @@ const PreviewOperational = () => {
             </tbody>
           </table>
         </div>
+
         {/* Paginação */}
-        <div className="flex justify-between items-center mt-6">
-          <div>
-            <select
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={rowsPerPage}
-              onChange={handleRowsPerPageChange}
-            >
-              <option value={10}>10 por página</option>
-              <option value={20}>20 por página</option>
-              <option value={50}>50 por página</option>
-            </select>
-          </div>
-          <nav>
-            <ul className="flex space-x-2">
-              <li>
-                <button
-                  className={`px-4 py-2 bg-gray-600 text-white rounded-lg ${
-                    currentPage === 1
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-gray-500"
-                  } transition duration-300`}
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                >
-                  Anterior
-                </button>
-              </li>
-              {Array.from({ length: totalPages }, (_, i) => (
-                <li key={i + 1}>
-                  <button
-                    className={`px-4 py-2 ${
-                      currentPage === i + 1
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-600 text-white hover:bg-gray-500"
-                    } rounded-lg transition duration-300`}
-                    onClick={() => handlePageChange(i + 1)}
-                  >
-                    {i + 1}
-                  </button>
-                </li>
-              ))}
-              <li>
-                <button
-                  className={`px-4 py-2 bg-gray-600 text-white rounded-lg ${
-                    currentPage === totalPages
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-gray-500"
-                  } transition duration-300`}
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                >
-                  Próxima
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </div>
+        <Pagination
+          rowsPerPage={rowsPerPage}
+          handlePageChange={handlePageChange}
+          handleRowsPerPageChange={handleRowsPerPageChange}
+          currentPage={currentPage}
+          totalPages={totalPages}
+        />
       </div>
     </div>
   );

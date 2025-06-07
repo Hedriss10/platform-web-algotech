@@ -9,6 +9,8 @@ class ManageOperational {
     page_number = null,
     order_by = null,
     filter_value = null,
+    start_date = null,
+    end_date = null,
   ) {
     this.user_id = user_id;
     this.search_term = search_term;
@@ -17,6 +19,8 @@ class ManageOperational {
     this.page_number = page_number;
     this.order_by = order_by;
     this.filter_value = filter_value;
+    this.start_date = start_date;
+    this.end_date = end_date;
   }
 
   async getCountProposal(token) {
@@ -54,6 +58,8 @@ class ManageOperational {
           page_number: this.page_number || 1,
           order_by: this.order_by || "",
           filter_value: this.filter_value || "",
+          start_date: this.start_date || "",
+          end_date: this.end_date || "",
         },
         headers: {
           Authorization: `Bearer ${token}`,
