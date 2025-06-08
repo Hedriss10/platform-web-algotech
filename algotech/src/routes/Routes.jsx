@@ -82,13 +82,13 @@ const RankingTables = lazy(
 );
 const Profit = lazy(() => import("../module/Sellers/Profit/Profit"));
 const PreviewOperational = lazy(
-  () => import("../module/Operational/PreviewOperational"),
+  () => import("../module/operational/PreviewOperational"),
 );
 const Operacional = lazy(
-  () => import("../module/Operational/Proposal/Operational"),
+  () => import("../module/operational/proposal/Operational"),
 );
 const UpdateProposalOperational = lazy(
-  () => import("../module/Operational/Proposal/UpdateOperational"),
+  () => import("../module/operational/proposal/UpdateOperational"),
 );
 const RankingSellers = lazy(
   () => import("../module/Sellers/RankingSellers/RankingSellers"),

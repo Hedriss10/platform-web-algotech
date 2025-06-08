@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useParams } from "react-router-dom";
 import { useUser } from "../../../service/UserContext";
 import { notify } from "@module/utils/toastify";
-import ManageOperational from "@module/Operational/Service/MangeOperational";
+import ManageOperational from "@module/operational/service/MangeOperational";
 import ManageSellers from "@module/Sellers/Service/ManageSellers";
-import DetaisProposal from "@module/Operational/ui/proposal/Details";
-import HistoryProposal from "@module/Operational/ui/proposal/HistoryProposal";
-import StatusProposal from "@module/Operational/ui/proposal/StatusProposal";
+import DetaisProposal from "@module/operational/ui/proposal/Details";
+import HistoryProposal from "@module/operational/ui/proposal/HistoryProposal";
+import StatusProposal from "@module/operational/ui/proposal/StatusProposal";
 import formatDate from "@module/utils/FormatData";
 
 const Operacional = () => {

@@ -6,10 +6,10 @@ import {
   formatDateToBackend,
   mockFilterProposal,
 } from "@module/utils/FormatDataToBackend";
-import ManageOperational from "@module/Operational/Service/MangeOperational";
-import ListTablesOperational from "@module/Operational/ui/tables/ListTablesOperational";
+import ManageOperational from "@module/operational/service/MangeOperational";
+import ListTablesOperational from "@module/operational/ui/tables/ListTablesOperational";
 import Icons from "@module/utils/Icons";
-import FiltersListPrposal from "@module/Operational/ui/filters/FiltersListProposal";
+import FiltersListPrposal from "@module/operational/ui/filters/FiltersListProposal";
 import Pagination from "@module/ui/Pagination/Pagination";
 
 const PreviewOperational = () => {
