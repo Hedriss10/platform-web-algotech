@@ -1,4 +1,4 @@
-const renderAdditionalFields = () => {
+const renderAdditionalFields = ({ formData, handleChange }) => {
   const tipoPagamento = formData.tipo_pagamento
     ? formData.tipo_pagamento.toLowerCase()
     : "";
@@ -227,7 +227,9 @@ const ProposalFinance = ({ formData, handleChange }) => {
           </option>
         </select>
       </div>
-      <div className="mt-4">{renderAdditionalFields()}</div>
+      <div className="mt-4">
+        {renderAdditionalFields({ formData, handleChange })}
+      </div>
     </div>
   );
 };

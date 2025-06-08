@@ -1,9 +1,4 @@
-const DocumentProposal = ({
-  formData,
-  handleChange,
-  handleAddImage,
-  files,
-}) => {
+const DocumentProposal = ({ formData, handleChange }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
@@ -115,3 +110,5 @@ const DocumentProposal = ({
     </div>
   );
 };
+
+export default DocumentProposal;

@@ -8,7 +8,13 @@ import ManageTablesFinance from "@module/Finance/Service/ManageTablesFinance";
 import ManageBankers from "@module/Finance/Service/ManageBankers";
 import UploadFilesProposal from "@module/Operational/ui/forms/UplaodFilesProposal";
 import DataOperationProposal from "@module/Operational/ui/forms/DataOpertationProposal";
-import DataUsers from "../ui/forms/DataUsers";
+import AddressProposal from "@module/Operational/ui/forms/AddreessProposal";
+import DataUsers from "@module/Operational/ui/forms/DataUsers";
+import DocumentProposal from "@module/Operational/ui/forms/DocumentProposal";
+import ProposalFinance from "@module/Operational/ui/forms/FinanceProposal";
+import UploadProposalDocument from "@module/Operational/ui/forms/UploadProposalDocument";
+import MaskCpf from "@module/utils/MaskCpf";
+
 
 const UpdateOperational = () => {
   const navigate = useNavigate();
@@ -135,15 +141,6 @@ const UpdateOperational = () => {
     } catch (error) {
       notify("Carregue o benefício", { type: "warning" });
     }
-  };
-
-  const MaskCpf = (cpf) => {
-    if (!cpf) return ""; // Se for null, retorna vazio
-    return cpf
-      .replace(/\D/g, "") // Remove tudo que não é dígito
-      .replace(/(\d{3})(\d)/, "$1.$2") // Coloca um ponto após os 3 primeiros dígitos
-      .replace(/(\d{3})(\d)/, "$1.$2") // Coloca um ponto após os 6 primeiros dígitos
-      .replace(/(\d{3})(\d{1,2})$/, "$1-$2"); // Coloca um hífen antes dos últimos 2 dígitos
   };
 
   const handleBankers = async () => {
@@ -501,13 +498,11 @@ const UpdateOperational = () => {
             formData={formData}
             handleChange={handleChange}
           />
-          <hr />
           {/* Endereço */}
           <h2 className="text-xl font-semibold mt-6 mb-4">
             <strong>Endereço:</strong>
           </h2>
           <AddressProposal formData={formData} handleChange={handleChange} />
-          <hr />
           {/* Documentação */}
           <h2 className="text-xl font-semibold mt-6 mb-4">
             <strong>Documentação:</strong>
@@ -515,15 +510,13 @@ const UpdateOperational = () => {
           <DocumentProposal
             formData={formData}
             handleChange={handleChange}
-            files={files}
           />
-          <hr />
+
           {/* Dados Financeiros  */}
           <h2 className="text-xl font-semibold mt-6 mb-4">
             <strong>Dados de Finaceiro:</strong>
           </h2>
           <ProposalFinance formData={formData} handleChange={handleChange} />
-          <hr />
           {/* Dados da Operação  */}
           <h2 className="text-xl font-semibold mt-6 mb-4">
             <strong>Dados da Operação:</strong>
@@ -534,8 +527,9 @@ const UpdateOperational = () => {
             tablesFinance={tablesFinance}
             financialAgreements={financialAgreements}
             loanOperations={loanOperations}
+            bank_id={bank_id}
+            bankers={bankers}
           />
-          <hr />
           {/* Dados de Documentos  */}
           <h2 className="text-xl font-semibold mt-6 mb-4">Observações:</h2>
           <p>{formData.observe}</p>
@@ -548,7 +542,6 @@ const UpdateOperational = () => {
             toggleExpandPdf={togglePdfExpand}
             downloadPdf={downloadPdf}
           />
-          <hr />
           {/* Seção de Upload de Arquivos */}
           <h2 className="text-xl font-semibold mt-6 mb-4">
             <strong>Editar Documentos</strong>

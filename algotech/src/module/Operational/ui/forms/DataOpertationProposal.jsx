@@ -3,8 +3,9 @@ const DataOperationProposal = ({
   handleChange,
   tablesFinance,
   financialAgreements,
-  handleChange,
   loanOperations,
+  bank_id,
+  bankers,
 }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
