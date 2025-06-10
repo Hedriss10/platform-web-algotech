@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BrowserRouter as Router, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import AppRoutes from "./routes/Routes";
 import Aside from "./module/components/Aside";
@@ -20,10 +20,11 @@ function App() {
   return (
     <UserProvider>
       {!isLoginPage && <Header toggleAside={toggleAside} />}
-
       <div className="flex flex-col min-h-screen">
         <div className="flex flex-2">
-          {!isLoginPage && <Aside isOpen={isAsideOpen} />}
+          {!isLoginPage && (
+            <Aside isOpen={isAsideOpen} setIsOpen={setIsAsideOpen} />
+          )}
           <main
             className={`flex-12 p-4 transition-margin duration-300 ease-in-out ${
               isAsideOpen ? "ml-64" : "ml-0"

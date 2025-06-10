@@ -1,24 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useParams } from "react-router-dom";
 import { useUser } from "../../../service/UserContext";
-import { notify } from "../../utils/toastify";
-import ManageOperational from "../Service/MangeOperational";
-import ManageSellers from "../../Sellers/Service/ManageSellers";
-import MaskCpf from "../../utils/MaskCpf";
-import CheckSummaryProposal from "../components/CheckSummaryProposal";
-
-// Estilo para o PDF (mantido para compatibilidade, caso volte a usar @react-pdf/renderer)
-const styles = {
-  page: {
-    flexDirection: "row",
-    backgroundColor: "#E4E4E4",
-  },
-  section: {
-    margin: 10,
-    padding: 10,
-    flexGrow: 1,
-  },
-};
+import { notify } from "@module/utils/toastify";
+import ManageOperational from "@module/operational/service/MangeOperational";
+import ManageSellers from "@module/Sellers/Service/ManageSellers";
+import DetaisProposal from "@module/operational/ui/proposal/Details";
+import HistoryProposal from "@module/operational/ui/proposal/HistoryProposal";
+import StatusProposal from "@module/operational/ui/proposal/StatusProposal";
+import formatDate from "@module/utils/FormatData";
 
 const Operacional = () => {
   const { user, token } = useUser();
@@ -39,7 +28,7 @@ const Operacional = () => {
     description: "",
     number_proposal: "",
   });
-  const [pdfStates, setPdfStates] = useState({}); // { url: { numPages, pageNumber, blob, error, isExpanded } }
+  const [pdfStates, setPdfStates] = useState({});
 
   // Busca os detalhes da proposta
   const getDetailsProposal = async () => {
@@ -80,7 +69,6 @@ const Operacional = () => {
   // Busca o blob do PDF com autenticação
   const fetchPdfBlob = async (url) => {
     try {
-      console.log("Buscando PDF:", url);
       const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -100,10 +88,8 @@ const Operacional = () => {
         );
       }
       const blobUrl = URL.createObjectURL(blob);
-      console.log("Blob URL criado:", blobUrl);
       return blobUrl;
     } catch (error) {
-      console.error("Erro ao buscar PDF:", error.message);
       notify(`Erro ao carregar PDF: ${error.message}`, { type: "error" });
       return null;
     }
@@ -117,7 +103,6 @@ const Operacional = () => {
         for (const [key, urls] of Object.entries(proposal.image_urls)) {
           for (const url of urls) {
             if (url && url.toLowerCase().endsWith(".pdf")) {
-              console.log(`Processando PDF: ${url}`);
               const blobUrl = await fetchPdfBlob(url);
               newPdfStates[url] = {
                 numPages: 1,
@@ -131,7 +116,6 @@ const Operacional = () => {
             }
           }
         }
-        console.log("Estado pdfStates atualizado:", newPdfStates);
         setPdfStates(newPdfStates);
       };
       initializePdfs();
@@ -227,37 +211,6 @@ const Operacional = () => {
         notify("Erro ao alterar o status", { type: "error" });
       }
     }
-  };
-
-  // Formata a data
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleString("pt-BR");
-  };
-
-  // Função para lidar com o carregamento do PDF
-  const onDocumentLoadSuccess =
-    (url) =>
-    ({ numPages }) => {
-      setPdfStates((prev) => ({
-        ...prev,
-        [url]: { ...prev[url], numPages, error: null },
-      }));
-    };
-
-  // Função para mudar a página do PDF
-  const changePage = (url, offset) => {
-    setPdfStates((prev) => {
-      const current = prev[url] || { pageNumber: 1, numPages: 1 };
-      const newPageNumber = Math.min(
-        Math.max(current.pageNumber + offset, 1),
-        current.numPages,
-      );
-      return {
-        ...prev,
-        [url]: { ...current, pageNumber: newPageNumber },
-      };
-    });
   };
 
   // Função para expandir/recolher o PDF
@@ -361,308 +314,51 @@ const Operacional = () => {
       </div>
 
       {/* Status da Proposta */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Status da Proposta:</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[
-            { key: "aguardando_digitacao", label: "Aguardando Digitação" },
-            { key: "pendente_digitacao", label: "Pendente Digitação" },
-            { key: "contrato_em_digitacao", label: "Contrato em Digitação" },
-            {
-              key: "aceite_feito_analise_banco",
-              label: "Aceite Feito (Análise Banco)",
-            },
-            {
-              key: "contrato_pendente_banco",
-              label: "Contrato Pendente Banco",
-            },
-            { key: "aguardando_pagamento", label: "Aguardando Pagamento" },
-            { key: "contrato_pago", label: "Contrato Pago" },
-            { key: "contrato_reprovado", label: "Contrato Reprovado" },
-          ].map((status) => (
-            <label key={status.key} className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={formData[status.key]}
-                onChange={() => handleStatusChange(status.key)}
-                className="form-checkbox h-5The w-5 text-blue-600 rounded"
-              />
-              <span>{status.label}</span>
-            </label>
-          ))}
-        </div>
-
-        <div className="mt-6">
-          <label className="block text-sm font-medium text-gray-700">
-            Descrição:
-          </label>
-          <textarea
-            value={formData.description}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            rows="4"
-            placeholder="Digite uma descrição..."
-          />
-        </div>
-
-        <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Número da Proposta:
-          </label>
-          <input
-            type="number"
-            value={formData.number_proposal}
-            onChange={(e) =>
-              setFormData({ ...formData, number_proposal: e.target.value })
-            }
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Digite o número da proposta"
-          />
-        </div>
-
-        <button
-          onClick={postStatusProposal}
-          className="mt-6 p-2 bg-blue-600 rounded-lg hover:bg-blue-500 transition duration-300 text-white w-full"
-        >
-          Enviar Status
-        </button>
-        {isModalOpen && (
-          <CheckSummaryProposal onClose={() => setIsModalOpen(false)} />
-        )}
-      </div>
-
+      <StatusProposal
+        formData={formData}
+        setFormsData={setFormData}
+        handleStatusChange={handleStatusChange}
+        setFormData={setFormData}
+        setIsModalOpen={setIsModalOpen}
+        isModalOpen={isModalOpen}
+        postStatusProposal={postStatusProposal}
+      />
       {/* Relatório de Descrições */}
-      <div className="bg-white p-6 rounded-lg shadow-md mt-6">
-        <h2 className="text-xl font-semibold mb-4">Histórico de Status</h2>
-        {reports.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white">
-              <thead>
-                <tr>
-                  <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-600">
-                    Data
-                  </th>
-                  <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-600">
-                    Descrição
-                  </th>
-                  <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-600">
-                    Usuário
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {reports.map((report, index) => (
-                  <tr key={index} className="hover:bg-gray-50">
-                    <td className="py-2 px-4 border-b border-gray-200 text-sm text-gray-700">
-                      {formatDate(report.created_at)}
-                    </td>
-                    <td className="py-2 px-4 border-b border-gray-200 text-sm text-gray-700">
-                      {report.description}
-                    </td>
-                    <td className="py-2 px-4 border-b border-gray-200 text-sm text-gray-700">
-                      {report.user_description}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <p className="text-gray-700">Nenhum histórico disponível.</p>
-        )}
-      </div>
+      <HistoryProposal reports={reports} formatDate={formatDate} />
 
       {/* Dados da Proposta */}
-      <div className="bg-white p-6 rounded-lg shadow-md mt-6">
-        <h2 className="text-xl font-semibold mb-4">Dados do Cliente:</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <p>
-              <strong>Nome:</strong> {nome}
-            </p>
-            <p>
-              <strong>CPF:</strong> {MaskCpf(cpf)}
-            </p>
-            <p>
-              <strong>Data de Nascimento:</strong>{" "}
-              {data_nascimento || "Não informado"}
-            </p>
-            <p>
-              <strong>Email:</strong> {email || "Não informado"}
-            </p>
-            <p>
-              <strong>Telefone:</strong> {telefone || "Não informado"}
-            </p>
-            <p>
-              <strong>Endereço:</strong>{" "}
-              {endereco
-                ? `${endereco}, ${bairro}, ${cidade} - ${uf_cidade}`
-                : "Não informado"}
-            </p>
-            <p>
-              <strong>CEP:</strong> {cep || "Não informado"}
-            </p>
-          </div>
-          <div>
-            <p>
-              <strong>Nome da Mãe:</strong> {nome_mae || "Não informado"}
-            </p>
-            <p>
-              <strong>Nome do Pai:</strong> {nome_pai || "Não informado"}
-            </p>
-            <p>
-              <strong>RG:</strong> {rg_documento || "Não informado"}
-            </p>
-            <p>
-              <strong>Órgão Emissor:</strong> {orgao_emissor || "Não informado"}
-            </p>
-            <p>
-              <strong>Data de Emissão:</strong>{" "}
-              {data_emissao || "Não informado"}
-            </p>
-            <p>
-              <strong>Naturalidade:</strong>{" "}
-              {naturalidade
-                ? `${naturalidade} - ${uf_naturalidade}`
-                : "Não informado"}
-            </p>
-          </div>
-        </div>
-
-        <h2 className="text-xl font-semibold mt-6 mb-4">
-          Detalhes da Proposta:
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <p>
-              <strong>Tipo de Benefício:</strong>{" "}
-              {tipo_beneficio || "Não informado"}
-            </p>
-            <p>
-              <strong>Matrícula:</strong> {matricula || "Não informado"}
-            </p>
-            <p>
-              <strong>Salário Líquido:</strong>{" "}
-              {salario_liquido ? `R$ ${salario_liquido}` : "Não informado"}
-            </p>
-            <p>
-              <strong>Valor da Operação:</strong>{" "}
-              {valor_operacao ? `R$ ${valor_operacao}` : "Não informado"}
-            </p>
-            <p>
-              <strong>Margem:</strong>{" "}
-              {margem ? `R$ ${margem}` : "Não informado"}
-            </p>
-          </div>
-          <div>
-            <p>
-              <strong>Tipo de Operação:</strong>{" "}
-              {tipo_operacao || "Não informado"}
-            </p>
-            <p>
-              <strong>Tipo de Pagamento:</strong>{" "}
-              {tipo_pagamento || "Não informado"}
-            </p>
-            <p>
-              <strong>Banco:</strong> {banker_name || "Não informado"}
-            </p>
-            <p>
-              <strong>Agência:</strong> {agencia_banco || "Não informado"}
-            </p>
-            <p>
-              <strong>Número da Conta:</strong>{" "}
-              {numero_conta || "Não informado"}
-            </p>
-            <p>
-              <strong>Tabela:</strong> {nome_tabela || "Não informado"}
-            </p>
-          </div>
-        </div>
-
-        <h2 className="text-xl font-semibold mt-6 mb-4">Observações:</h2>
-        <p>{description || "Nenhuma observação disponível."}</p>
-
-        <h2 className="text-xl font-semibold mt-6 mb-4">
-          Documentos Anexados:
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {Object.entries(image_urls).map(([key, urls]) =>
-            urls.length > 0 ? (
-              <div key={key}>
-                <h3 className="font-semibold">
-                  {key.replace(/_/g, " ").toUpperCase()}
-                </h3>
-                {urls.map((url, index) => {
-                  const isPdf = url && url.toLowerCase().endsWith(".pdf");
-                  const filename = url
-                    ? url.split("/").pop() || `${key}.pdf`
-                    : `${key}.pdf`;
-                  return (
-                    <div key={`${key}-${index}`} className="mt-2">
-                      {isPdf ? (
-                        <div className="border rounded-lg p-4 bg-gray-50">
-                          {!pdfStates[url] ? (
-                            <div>Carregando PDF...</div>
-                          ) : pdfStates[url].error ? (
-                            <p className="text-red-600">
-                              {pdfStates[url].error}
-                            </p>
-                          ) : (
-                            <div>
-                              <div
-                                onClick={() => toggleExpandPdf(url)}
-                                className="cursor-pointer"
-                              >
-                                <iframe
-                                  src={pdfStates[url].blob}
-                                  className={`w-full transition-all duration-300 ${
-                                    pdfStates[url].isExpanded
-                                      ? "h-[80vh] max-h-[800px]"
-                                      : "h-[400px]"
-                                  }`}
-                                  title={`${key}_${index}`}
-                                  style={{ border: "none" }}
-                                />
-                              </div>
-                              <div className="flex justify-between mt-2">
-                                <button
-                                  onClick={() => toggleExpandPdf(url)}
-                                  className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
-                                >
-                                  {pdfStates[url].isExpanded
-                                    ? "Reduzir"
-                                    : "Expandir"}
-                                </button>
-                                <button
-                                  onClick={() => downloadPdf(url, filename)}
-                                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
-                                >
-                                  Baixar PDF
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <img
-                          src={url}
-                          alt={`${key}_${index}`}
-                          className="w-full h-auto rounded-lg shadow-sm"
-                          onError={() =>
-                            console.error(`Erro ao carregar imagem: ${url}`)
-                          }
-                        />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ) : null,
-          )}
-        </div>
-      </div>
+      <DetaisProposal
+        nome={nome}
+        cpf={cpf}
+        data_nascimento={data_nascimento}
+        email={email}
+        telefone={telefone}
+        endereco={endereco}
+        bairro={bairro}
+        cidade={cidade}
+        uf_cidade={uf_cidade}
+        cep={cep}
+        data_emissao={data_emissao}
+        nome_mae={nome_mae}
+        nome_pai={nome_pai}
+        orgao_emissor={orgao_emissor}
+        rg_documento={rg_documento}
+        naturalidade={naturalidade}
+        uf_naturalidade={uf_naturalidade}
+        image_urls={image_urls}
+        toggleExpandPdf={toggleExpandPdf}
+        downloadPdf={downloadPdf}
+        salario_liquido={salario_liquido}
+        valor_operacao={valor_operacao}
+        margem={margem}
+        banker_name={banker_name}
+        agencia_banco={agencia_banco}
+        numero_conta={numero_conta}
+        nome_tabela={nome_tabela}
+        tipo_operacao={tipo_operacao}
+        tipo_pagamento={tipo_pagamento}
+        description={description}
+      />
     </div>
   );
 };

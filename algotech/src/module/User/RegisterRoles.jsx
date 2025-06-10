@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../../service/UserContext";
-import { notify } from "../utils/toastify";
-import Roles from "./Service/Roles";
+import { notify } from "@module/utils/toastify";
+import Roles from "@module/user/service/Roles";
+import Button from "@module/ui/Button/Button";
 
 const RegisterRoles = () => {
   const { user, token } = useUser();
@@ -70,12 +71,7 @@ const RegisterRoles = () => {
             />
           </div>
           <div className="flex justify-end">
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Cadastrar
-            </button>
+            <Button type="submit">Cadastrar</Button>
           </div>
         </form>
       </div>

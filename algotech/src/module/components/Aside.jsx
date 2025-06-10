@@ -1,53 +1,157 @@
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import Icons from "../utils/Icons";
 import Permission from "../utils/Permissions";
 import { useUser } from "../../service/UserContext";
 
+const menuItems = [
+  {
+    id: "dashboard",
+    title: "Dashboard",
+    icon: Icons.BiGrid,
+    to: "/dashboard",
+    permission: Permission.Administrador,
+  },
+  {
+    id: "components",
+    title: "Operacional",
+    icon: Icons.BiMenu,
+    permission: [
+      Permission.Operacional,
+      Permission.Financeiro,
+      Permission.Administrador,
+    ],
+    subItems: [
+      {
+        title: "Gerenciamento",
+        to: "/operational",
+        icon: Icons.FaRegAddressBook,
+      },
+    ],
+  },
+  {
+    id: "forms",
+    title: "Área Comercial",
+    icon: Icons.BiLayout,
+    permission: [
+      Permission.Vendedor,
+      Permission.Financeiro,
+      Permission.Administrador,
+    ],
+    subItems: [
+      { title: "Proposta", to: "/sellers", icon: Icons.FaRegAddressBook },
+      {
+        title: "Ranking Tabelas",
+        to: "/rankingtables",
+        icon: Icons.MdOutlineDashboard,
+      },
+      {
+        title: "Expectativa de Ganhos",
+        to: "/profit",
+        icon: Icons.FaRegMoneyBillAlt,
+      },
+      {
+        title: "Ranking Operação",
+        to: "/ranking-sellers",
+        icon: Icons.FaChartLine,
+      },
+    ],
+  },
+  {
+    id: "tables",
+    title: "Financeiro",
+    icon: Icons.FaRegMoneyBillAlt,
+    permission: [Permission.Financeiro, Permission.Administrador],
+    subItems: [
+      {
+        title: "Gestão Bancária",
+        to: "/finance",
+        icon: Icons.MdOutlineManageAccounts,
+      },
+      {
+        title: "Relatório",
+        to: "/report",
+        icon: Icons.HiOutlineDocumentReport,
+      },
+      {
+        title: "Operações Financeiras",
+        to: "/manageoperationfinance",
+        icon: Icons.FaRegMoneyBillAlt,
+      },
+      { title: "Flags", to: "/flags", icon: Icons.MdOutlinePaid },
+      {
+        title: "Convênios",
+        to: "/financialagreements",
+        icon: Icons.MdOutlineCommentBank,
+      },
+      {
+        title: "Serviços Prestados",
+        to: "/paymentsprovided",
+        icon: Icons.BsPersonWorkspace,
+      },
+    ],
+  },
+  {
+    id: "charts",
+    title: "Salas",
+    icon: Icons.BiBarChart,
+    permission: [Permission.Suporte, Permission.Administrador],
+    subItems: [
+      { title: "Gerenciamento", to: "/rooms", icon: Icons.FaHouseUser },
+    ],
+  },
+  {
+    id: "icons",
+    title: "Usuários",
+    icon: Icons.FaRegUser,
+    permission: Permission.Administrador,
+    subItems: [
+      { title: "Gerenciamento", to: "/users", icon: Icons.FaHouseUser },
+      { title: "Cadastrar", to: "/register", icon: Icons.FaUsersGear },
+      { title: "Cargos", to: "/roles", icon: Icons.MdOutlineWork },
+    ],
+  },
+  {
+    id: "profile",
+    title: "Profile",
+    icon: Icons.MdPersonAddAlt,
+    to: "/profile",
+    permission: null, // Accessible to all users
+  },
+];
+
 const Aside = ({ isOpen, setIsOpen }) => {
   const { user } = useUser();
-  const [openMenus, setOpenMenus] = useState({
-    components: false,
-    forms: false,
-    tables: false,
-    charts: false,
-    icons: false,
-  });
+  const [openMenus, setOpenMenus] = useState({});
 
-  const toggleMenu = (menu) => {
-    setOpenMenus((prev) => ({
-      ...prev,
-      [menu]: !prev[menu],
-    }));
-  };
-
-  const chekPermission = (permission) => {
+  const checkPermission = (permission) => {
+    if (!permission) return true; // No permission required
+    if (Array.isArray(permission)) {
+      return permission.some((perm) => user?.role === perm);
+    }
     return user?.role === permission;
   };
 
-  const handleMenuClick = (menu) => {
-    if (!isOpen) {
-      setIsOpen(true); // Abre o aside
-      setOpenMenus((prev) => ({
-        ...prev,
-        [menu]: true, // Abre o submenu correspondente
-      }));
+  const toggleMenu = (menuId) => {
+    setOpenMenus((prev) => ({
+      ...prev,
+      [menuId]: !prev[menuId],
+    }));
+  };
+
+  const handleMenuClick = (menuId) => {
+    if (!isOpen && typeof setIsOpen === "function") {
+      setIsOpen(true);
+      setOpenMenus((prev) => ({ ...prev, [menuId]: true }));
     } else {
-      toggleMenu(menu); // Alterna o submenu se o aside já estiver aberto
+      toggleMenu(menuId);
     }
   };
 
-  // Sincroniza os submenus quando o aside é aberto
   useEffect(() => {
     if (!isOpen) {
-      // Fecha todos os submenus quando o aside é fechado
-      setOpenMenus({
-        components: false,
-        forms: false,
-        tables: false,
-        charts: false,
-        icons: false,
-      });
+      setOpenMenus({});
     }
   }, [isOpen]);
 
@@ -58,280 +162,79 @@ const Aside = ({ isOpen, setIsOpen }) => {
       }`}
     >
       <ul className="p-4 space-y-2">
-        {/* Dashboard */}
-        {chekPermission(Permission.Administrador) && (
-          <li>
-            <Link
-              to="/dashboard"
-              className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-              title={isOpen ? "" : "Dashboard"}
-            >
-              <Icons.BiGrid className="h-5 w-5 flex-shrink-0" />
-              {isOpen && <span className="ml-2">Dashboard</span>}
-            </Link>
-          </li>
-        )}
-        {/* Operacional */}
-        {(chekPermission(Permission.Operacional) ||
-          chekPermission(Permission.Financeiro) ||
-          chekPermission(Permission.Administrador)) && (
-          <li>
-            <button
-              onClick={() => handleMenuClick("components")}
-              className="w-full flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"
-              title={isOpen ? "" : "Operacional"}
-            >
-              <div className="flex items-center">
-                <Icons.BiMenu className="h-5 w-5 flex-shrink-0" />
-                {isOpen && <span className="ml-2">Operacional</span>}
-              </div>
-              {isOpen && (
-                <Icons.BiChevronDown
-                  className={`h-5 w-5 transition-transform duration-300 ${
-                    openMenus.components ? "rotate-180" : ""
-                  }`}
-                />
+        {menuItems.map((item) => {
+          if (!checkPermission(item.permission)) return null;
+
+          const Icon = item.icon;
+          const hasSubItems = item.subItems?.length > 0;
+
+          return (
+            <li key={item.id}>
+              {hasSubItems ? (
+                <>
+                  <button
+                    onClick={() => handleMenuClick(item.id)}
+                    className="w-full flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"
+                    title={isOpen ? "" : item.title}
+                  >
+                    <div className="flex items-center">
+                      <Icon className="h-5 w-5 flex-shrink-0" />
+                      {isOpen && <span className="ml-2">{item.title}</span>}
+                    </div>
+                    {isOpen && (
+                      <Icons.BiChevronDown
+                        className={`h-5 w-5 transition-transform duration-300 ${
+                          openMenus[item.id] ? "rotate-180" : ""
+                        }`}
+                      />
+                    )}
+                  </button>
+                  {openMenus[item.id] && isOpen && (
+                    <ul className="pl-6 mt-2 space-y-2">
+                      {item.subItems.map((subItem) => (
+                        <li key={subItem.to}>
+                          <Link
+                            to={subItem.to}
+                            className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+                          >
+                            <subItem.icon className="text-sm flex-shrink-0" />
+                            <span className="ml-2">{subItem.title}</span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </>
+              ) : (
+                <Link
+                  to={item.to}
+                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
+                  title={isOpen ? "" : item.title}
+                >
+                  <Icon className="h-5 w-5 flex-shrink-0" />
+                  {isOpen && <span className="ml-2">{item.title}</span>}
+                </Link>
               )}
-            </button>
-            {openMenus.components && isOpen && (
-              <ul className="pl-6 mt-2 space-y-2">
-                <Link
-                  to="/operational"
-                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-                >
-                  <Icons.FaRegAddressBook className="text-sm flex-shrink-0" />
-                  <span className="ml-2">Gerenciamento</span>
-                </Link>
-              </ul>
-            )}
-          </li>
-        )}
-        {/* Sellers */}
-        {(chekPermission(Permission.Vendedor) ||
-          chekPermission(Permission.Financeiro) ||
-          chekPermission(Permission.Administrador)) && (
-          <li>
-            <button
-              onClick={() => handleMenuClick("forms")}
-              className="w-full flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"
-              title={isOpen ? "" : "Área Comercial"}
-            >
-              <div className="flex items-center">
-                <Icons.BiLayout className="h-5 w-5 flex-shrink-0" />
-                {isOpen && <span className="ml-2">Área Comercial</span>}
-              </div>
-              {isOpen && (
-                <Icons.BiChevronDown
-                  className={`h-5 w-5 transition-transform duration-300 ${
-                    openMenus.forms ? "rotate-180" : ""
-                  }`}
-                />
-              )}
-            </button>
-            {openMenus.forms && isOpen && (
-              <ul className="pl-6 mt-2 space-y-2">
-                <Link
-                  to="/sellers"
-                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-                >
-                  <Icons.FaRegAddressBook className="text-sm flex-shrink-0" />
-                  <span className="ml-2">Proposta</span>
-                </Link>
-                <Link
-                  to="/rankingtables"
-                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-                >
-                  <Icons.MdOutlineDashboard className="text-sm flex-shrink-0" />
-                  <span className="ml-2">Ranking Tabelas</span>
-                </Link>
-                <Link
-                  to="/profit"
-                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-                >
-                  <Icons.FaRegMoneyBillAlt className="text-sm flex-shrink-0" />
-                  <span className="ml-2">Expectativa de Ganhos</span>
-                </Link>
-                <Link
-                  to="/ranking-sellers"
-                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-                >
-                  <Icons.FaChartLine className="text-sm flex-shrink-0" />
-                  <span className="ml-2">Ranking Operação</span>
-                </Link>
-              </ul>
-            )}
-          </li>
-        )}
-        {/* Financeiro */}
-        {(chekPermission(Permission.Financeiro) ||
-          chekPermission(Permission.Administrador)) && (
-          <li>
-            <button
-              onClick={() => handleMenuClick("tables")}
-              className="w-full flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"
-              title={isOpen ? "" : "Financeiro"}
-            >
-              <div className="flex items-center">
-                <Icons.FaRegMoneyBillAlt className="text-xl flex-shrink-0" />
-                {isOpen && <span className="ml-2">Financeiro</span>}
-              </div>
-              {isOpen && (
-                <Icons.BiChevronDown
-                  className={`text-xl transition-transform duration-300 ${
-                    openMenus.tables ? "rotate-180" : ""
-                  }`}
-                />
-              )}
-            </button>
-            {openMenus.tables && isOpen && (
-              <ul className="pl-6 mt-2 space-y-2">
-                <Link
-                  to="/finance"
-                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-                >
-                  <Icons.MdOutlineManageAccounts className="text-sm flex-shrink-0" />
-                  <span className="ml-2">Gestão Bancária</span>
-                </Link>
-                <Link
-                  to="/report"
-                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-                >
-                  <Icons.HiOutlineDocumentReport className="text-sm flex-shrink-0" />
-                  <span className="ml-2">Relatório</span>
-                </Link>
-                <Link
-                  to="/manageoperationfinance"
-                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-                >
-                  <Icons.FaRegMoneyBillAlt className="text-sm flex-shrink-0" />
-                  <span className="ml-2">Operações Financeiras</span>
-                </Link>
-                <Link
-                  to="/flags"
-                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-                >
-                  <Icons.MdOutlinePaid className="text-sm flex-shrink-0" />
-                  <span className="ml-2">Flags</span>
-                </Link>
-                <Link
-                  to="/financialagreements"
-                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-                >
-                  <Icons.MdOutlineCommentBank className="text-sm flex-shrink-0" />
-                  <span className="ml-2">Convênios</span>
-                </Link>
-                <Link
-                  to="/paymentsprovided"
-                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-                >
-                  <Icons.BsPersonWorkspace className="text-sm flex-shrink-0" />
-                  <span className="ml-2">Serviços Prestados</span>
-                </Link>
-              </ul>
-            )}
-          </li>
-        )}
-        {/* Salas */}
-        {(chekPermission(Permission.Suporte) ||
-          chekPermission(Permission.Administrador)) && (
-          <li>
-            <button
-              onClick={() => handleMenuClick("charts")}
-              className="w-full flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"
-              title={isOpen ? "" : "Salas"}
-            >
-              <div className="flex items-center">
-                <Icons.BiBarChart className="text-xl flex-shrink-0" />
-                {isOpen && <span className="ml-2">Salas</span>}
-              </div>
-              {isOpen && (
-                <Icons.BiChevronDown
-                  className={`text-xl transition-transform duration-300 ${
-                    openMenus.charts ? "rotate-180" : ""
-                  }`}
-                />
-              )}
-            </button>
-            {openMenus.charts && isOpen && (
-              <ul className="pl-6 mt-2 space-y-2">
-                <Link
-                  to="/rooms"
-                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-                >
-                  <Icons.FaHouseUser className="text-sm flex-shrink-0" />
-                  <span className="ml-2">Gerenciamento</span>
-                </Link>
-              </ul>
-            )}
-          </li>
-        )}
-        {/* Gerenciamento de usuários */}
-        {chekPermission(Permission.Administrador) && (
-          <li>
-            <button
-              onClick={() => handleMenuClick("icons")}
-              className="w-full flex items-center justify-between p-2 hover:bg-gray-700 rounded transition duration-300"
-              title={isOpen ? "" : "Usuários"}
-            >
-              <div className="flex items-center">
-                <Icons.FaRegUser className="text-xl flex-shrink-0" />
-                {isOpen && <span className="ml-2">Usuários</span>}
-              </div>
-              {isOpen && (
-                <Icons.BiChevronDown
-                  className={`text-xl transition-transform duration-300 ${
-                    openMenus.icons ? "rotate-180" : ""
-                  }`}
-                />
-              )}
-            </button>
-            {openMenus.icons && isOpen && (
-              <ul className="pl-6 mt-2 space-y-2">
-                <Link
-                  to="/users"
-                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-                >
-                  <Icons.FaHouseUser className="text-sm flex-shrink-0" />
-                  <span className="ml-2">Gerenciamento</span>
-                </Link>
-                <Link
-                  to="/register"
-                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-                >
-                  <Icons.FaUsersGear className="text-sm flex-shrink-0" />
-                  <span className="ml-2">Cadastrar</span>
-                </Link>
-                <Link
-                  to="/roles"
-                  className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-                >
-                  <Icons.MdOutlineWork className="text-sm flex-shrink-0" />
-                  <span className="ml-2">Cargos</span>
-                </Link>
-              </ul>
-            )}
-          </li>
-        )}
-        {/* Pages Section */}
+            </li>
+          );
+        })}
         {isOpen && (
           <li className="nav-heading mt-6 mb-2 text-sm font-semibold uppercase text-gray-400">
             <span>Helpers</span>
           </li>
         )}
-        {/* Profile */}
-        <li>
-          <Link
-            to="/profile"
-            className="flex items-center p-2 hover:bg-gray-700 rounded transition duration-300"
-            title={isOpen ? "" : "Profile"}
-          >
-            <Icons.MdPersonAddAlt className="text-xl flex-shrink-0" />
-            {isOpen && <span className="ml-2">Profile</span>}
-          </Link>
-        </li>
       </ul>
     </aside>
   );
+};
+
+Aside.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  setIsOpen: PropTypes.func,
+};
+
+Aside.defaultProps = {
+  setIsOpen: () => console.warn("setIsOpen is not provided"),
 };
 
 export default Aside;
