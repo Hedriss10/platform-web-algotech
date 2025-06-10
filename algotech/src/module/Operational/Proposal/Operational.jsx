@@ -358,6 +358,7 @@ const Operacional = () => {
         tipo_operacao={tipo_operacao}
         tipo_pagamento={tipo_pagamento}
         description={description}
+        pdfStates={pdfStates}
       />
     </div>
   );

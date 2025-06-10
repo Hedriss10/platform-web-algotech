@@ -33,6 +33,7 @@ const DetaisProposal = ({
   tipo_operacao,
   tipo_pagamento,
   description,
+  pdfStates,
 }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md mt-6">
