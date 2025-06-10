@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useUser } from "../../service/UserContext";
 import { notify } from "@module/utils/toastify";
-import ManageServiceUsers from "@module/User/service/ManageServiceUser";
+import ManageServiceUsers from "@module/User/Service/ManageServiceUsers";
 
 const UserProfile = () => {
   const { user, token } = useUser();
