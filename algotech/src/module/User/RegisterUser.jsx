@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { notify } from "../utils/toastify";
+import { notify } from "@module/utils/toastify";
 import { useUser } from "../../service/UserContext";
-import Roles from "./service/Roles";
-import FormsAddUser from "./ui/forms/FormsAddUser";
-import ManageServiceUser from "./service/ManageServiceUser";
+import Roles from "@module/user/service/Roles";
+import FormsAddUser from "@module/user/ui/forms/FormsAddUser";
+import ManageServiceUser from "@module/user/service/ManageServiceUser";
 
 const RegisterUser = ({ onClose }) => {
   const { user, token } = useUser();
@@ -25,12 +25,18 @@ const RegisterUser = ({ onClose }) => {
   });
 
   const [roles, setRoles] = useState([]);
+
   useEffect(() => {
     const fetchRoles = async () => {
-      const rolesService = new Roles(user?.id);
-      const response = await rolesService.getAllRoles();
-      if (response?.data) {
-        setRoles(response.data);
+      try {
+        const rolesService = new Roles(user?.id);
+        const response = await rolesService.getAllRoles();
+        if (response?.data) {
+          setRoles(response.data);
+        }
+      } catch (error) {
+        notify("Erro ao carregar funções", { type: "error" });
+        console.error("Erro ao buscar roles:", error);
       }
     };
 
@@ -47,12 +53,40 @@ const RegisterUser = ({ onClose }) => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     try {
       const api = new ManageServiceUser(user?.id);
       const response = await api.postUsers(formData, token);
       notify("Usuário cadastrado com sucesso", { type: "success" });
+      
+      setFormData({
+        username: "",
+        lastname: "",
+        email: "",
+        cpf: "",
+        password: "",
+        typecontract: "",
+        role: "",
+        matricula: "",
+        numero_pis: "",
+        empresa: "",
+        situacao_cadastro: "",
+        carga_horaria_semanal: "",
+      });
+
+      // Fechar o formulário se onClose estiver disponível
+      if (onClose) {
+        onClose();
+      }
     } catch (error) {
-      notify("Erro ao cadastrar usuário", { type: "error" });
+      if (error.message === "cpf_with_email_already_exists") {
+        notify("CPF ou e-mail já cadastrado", { type: "warning" });
+      } else {
+        notify("CPF ou e-mail ou matricula ou PIS já cadastrado", { type: "warning" });
+      }
+    } finally {
+      setLoading(false);
     }
   };
 

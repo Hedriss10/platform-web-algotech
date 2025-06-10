@@ -1,7 +1,7 @@
 // src/module/user/ui/forms/FormsUpdateUser.jsx
 import { Link } from "react-router-dom";
-import MaskCpf from "../../../utils/MaskCpf";
-import Button from "../../../ui/Button/Button";
+import MaskCpf from "@module/utils/MaskCpf";
+import Button from "@module/ui/Button/Button";
 
 const FormsAddUser = ({
   formData,

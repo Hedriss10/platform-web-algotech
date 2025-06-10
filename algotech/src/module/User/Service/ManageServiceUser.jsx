@@ -32,7 +32,7 @@ class ManageServiceUsers {
       }
       return response.data;
     } catch (error) {
-      throw new Error(error.message);
+      throw error;
     }
   }
 

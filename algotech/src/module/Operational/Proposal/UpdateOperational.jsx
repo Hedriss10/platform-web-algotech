@@ -15,7 +15,6 @@ import ProposalFinance from "@module/operational/ui/forms/FinanceProposal";
 import UploadProposalDocument from "@module/operational/ui/forms/UploadProposalDocument";
 import MaskCpf from "@module/utils/MaskCpf";
 
-
 const UpdateOperational = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -494,10 +493,7 @@ const UpdateOperational = () => {
           <h2 className="text-xl font-semibold mb-4">
             <strong>Dados Pessoais:</strong>
           </h2>
-          <DataUsers
-            formData={formData}
-            handleChange={handleChange}
-          />
+          <DataUsers formData={formData} handleChange={handleChange} />
           {/* Endereço */}
           <h2 className="text-xl font-semibold mt-6 mb-4">
             <strong>Endereço:</strong>
@@ -507,10 +503,7 @@ const UpdateOperational = () => {
           <h2 className="text-xl font-semibold mt-6 mb-4">
             <strong>Documentação:</strong>
           </h2>
-          <DocumentProposal
-            formData={formData}
-            handleChange={handleChange}
-          />
+          <DocumentProposal formData={formData} handleChange={handleChange} />
 
           {/* Dados Financeiros  */}
           <h2 className="text-xl font-semibold mt-6 mb-4">
