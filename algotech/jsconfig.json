@@ -8,7 +8,7 @@
       "@service/*": ["Service/*"],
       "@assets/*": ["assets/*"],
       "@test/*": ["test/*"]
-    }
+    },
   },
   "include": ["src"]
 }

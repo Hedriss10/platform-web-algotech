@@ -2,7 +2,7 @@
 
 import { NumericFormat } from "react-number-format";
 import MaskCpf from "@module/utils/MaskCpf";
-import renderAdditionalFields from "@module/Sellers/ui/forms/renderAdditionalFields";
+import renderAdditionalFields from "@module/Sellers/ui/forms/RenderAdditionalFields";
 
 const ManageProposal = ({
   formData,

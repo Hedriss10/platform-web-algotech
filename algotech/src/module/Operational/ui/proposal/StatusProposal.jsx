@@ -1,4 +1,4 @@
-import CheckSummaryProposal from "@module/operational/components/CheckSummaryProposal";
+import CheckSummaryProposal from "@module/Operational/components/CheckSummaryProposal";
 
 const StatusProposal = ({
   formData,
