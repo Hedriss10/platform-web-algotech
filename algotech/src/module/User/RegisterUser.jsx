@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { notify } from "@module/utils/toastify";
 import { useUser } from "../../service/UserContext";
-import Roles from "@module/user/service/Roles";
-import FormsAddUser from "@module/user/ui/forms/FormsAddUser";
-import ManageServiceUser from "@module/user/service/ManageServiceUser";
+import Roles from "@module/User/service/Roles";
+import FormsAddUser from "@module/User/ui/forms/FormsAddUser";
+import ManageServiceUser from "@module/User/service/ManageServiceUser";
 
 const RegisterUser = ({ onClose }) => {
   const { user, token } = useUser();
