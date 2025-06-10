@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useParams } from "react-router-dom";
 import { useUser } from "../../../service/UserContext";
 import { notify } from "@module/utils/toastify";
-import ManageOperational from "@module/Operational/service/MangeOperational";
+import ManageOperational from "@module/Operational/Service/MangeOperational";
 import ManageSellers from "@module/Sellers/Service/ManageSellers";
 import DetaisProposal from "@module/Operational/ui/proposal/Details";
 import HistoryProposal from "@module/Operational/ui/proposal/HistoryProposal";
