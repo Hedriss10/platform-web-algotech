@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import ManageProfit from "../../Profit/Service/ManageProfit";
 import { useUser } from "../../../service/UserContext";
-import Icons from "../../utils/Icons";
+import ManageProfit from "@module/Profit/Service/ManageProfit";
+import Icons from "@module/utils/Icons";
+import Pagination from "@module/ui/Pagination/Pagination";
+import TablesRankingSellers from "@module/Sellers/ui/tables/TablesRankingSellers";
 
 const RankingSellers = () => {
   const { user, token } = useUser();
@@ -80,130 +82,17 @@ const RankingSellers = () => {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-gray-600 rounded-lg overflow-hidden">
-            <thead className="bg-gray-500">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Usuário
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Posição
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Total
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-500">
-              {loading ? (
-                <tr>
-                  <td
-                    colSpan="5"
-                    className="px-6 py-4 text-center text-gray-300"
-                  >
-                    Carregando...
-                  </td>
-                </tr>
-              ) : contract.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan="5"
-                    className="px-6 py-4 text-center text-gray-300"
-                  >
-                    Nenhum contrato encontrado.
-                  </td>
-                </tr>
-              ) : (
-                contract.map((contractItem, index) => {
-                  const isLast = index >= contract.length - 2;
-                  return (
-                    <tr
-                      key={contractItem.id || contractItem.username + index}
-                      className={`hover:bg-gray-550 transition duration-300 ${
-                        isLast ? "bg-red-400" : ""
-                      }`}
-                    >
-                      <td
-                        className={`px-6 py-4 text-sm ${isLast ? "text-red-300" : "text-gray-200"}`}
-                      >
-                        <strong>{contractItem.username}</strong>
-                      </td>
-                      <td
-                        className={`px-6 py-4 text-sm ${isLast ? "text-red-300" : "text-gray-200"}`}
-                      >
-                        <strong>{contractItem.posicao}</strong>
-                      </td>
-                      <td
-                        className={`px-6 py-4 text-sm ${isLast ? "text-red-300" : "text-gray-200"}`}
-                      >
-                        <strong>{contractItem.total_ranking}</strong>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+        {/* Lista de raking de sellers */}
+        <TablesRankingSellers contract={contract} loading={loading} />
 
-        <div className="flex justify-between items-center mt-6">
-          <div>
-            <select
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={rowsPerPage}
-              onChange={handleRowsPerPageChange}
-            >
-              <option value={10}>10 por página</option>
-              <option value={20}>20 por página</option>
-              <option value={50}>50 por página</option>
-            </select>
-          </div>
-          <nav>
-            <ul className="flex space-x-2">
-              <li>
-                <button
-                  className={`px-4 py-2 bg-gray-600 text-white rounded-lg ${
-                    currentPage === 1
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-gray-500"
-                  } transition duration-300`}
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                >
-                  Anterior
-                </button>
-              </li>
-              {Array.from({ length: totalPages }, (_, i) => (
-                <li key={i + 1}>
-                  <button
-                    className={`px-4 py-2 ${
-                      currentPage === i + 1
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-600 text-white hover:bg-gray-500"
-                    } rounded-lg transition duration-300`}
-                    onClick={() => handlePageChange(i + 1)}
-                  >
-                    {i + 1}
-                  </button>
-                </li>
-              ))}
-              <li>
-                <button
-                  className={`px-4 py-2 bg-gray-600 text-white rounded-lg ${
-                    currentPage === totalPages
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-gray-500"
-                  } transition duration-300`}
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                >
-                  Próxima
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </div>
+        {/* Paginação */}
+        <Pagination
+          rowsPerPage={rowsPerPage}
+          handlePageChange={handlePageChange}
+          handleRowsPerPageChange={handleRowsPerPageChange}
+          currentPage={currentPage}
+          totalPages={totalPages}
+        />
       </div>
     </div>
   );

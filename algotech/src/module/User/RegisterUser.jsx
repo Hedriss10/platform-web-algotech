@@ -59,7 +59,7 @@ const RegisterUser = ({ onClose }) => {
       const api = new ManageServiceUser(user?.id);
       const response = await api.postUsers(formData, token);
       notify("Usuário cadastrado com sucesso", { type: "success" });
-      
+
       setFormData({
         username: "",
         lastname: "",
@@ -83,7 +83,9 @@ const RegisterUser = ({ onClose }) => {
       if (error.message === "cpf_with_email_already_exists") {
         notify("CPF ou e-mail já cadastrado", { type: "warning" });
       } else {
-        notify("CPF ou e-mail ou matricula ou PIS já cadastrado", { type: "warning" });
+        notify("CPF ou e-mail ou matricula ou PIS já cadastrado", {
+          type: "warning",
+        });
       }
     } finally {
       setLoading(false);

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import ManageProfit from "../../Profit/Service/ManageProfit";
 import { useUser } from "../../../service/UserContext";
 import { useNavigate, Link } from "react-router-dom";
-import { notify } from "../../utils/toastify";
 import Icons from "../../utils/Icons";
-import MaskCpf from "../../utils/MaskCpf";
+import Pagination from "@module/ui/Pagination/Pagination";
+import TablesProfit from "@module/Sellers/ui/tables/TablesProfit";
 
 const Profit = () => {
   const { user, token } = useUser();
@@ -87,132 +87,17 @@ const Profit = () => {
           </div>
         </div>
 
-        {/* Tabela de Usuários */}
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-gray-600 rounded-lg overflow-hidden">
-            <thead className="bg-gray-500">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Usuário
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Cliente
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  CPF
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Valor da Operação
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">
-                  Expectativa Esperada
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-500">
-              {loading ? (
-                <tr>
-                  <td
-                    colSpan="5"
-                    className="px-6 py-4 text-center text-gray-300"
-                  >
-                    Carregando...
-                  </td>
-                </tr>
-              ) : contract.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan="5"
-                    className="px-6 py-4 text-center text-gray-300"
-                  >
-                    Nenhuma contrato encontrado.
-                  </td>
-                </tr>
-              ) : (
-                contract.map((contract) => (
-                  <tr
-                    key={contract.id}
-                    className="hover:bg-gray-550 transition duration-300"
-                  >
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {contract.name_seller}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {contract.nome_proposal}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      {MaskCpf(contract.cpf_proposal)}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      R$ {contract.valor_operacao}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-200">
-                      R$ {contract.ganho_esperado}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        {/* Tabela de Profit */}
+        <TablesProfit contract={contract} loading={loading} />
+
         {/* Paginação */}
-        <div className="flex justify-between items-center mt-6">
-          <div>
-            <select
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={rowsPerPage}
-              onChange={handleRowsPerPageChange}
-            >
-              <option value={10}>10 por página</option>
-              <option value={20}>20 por página</option>
-              <option value={50}>50 por página</option>
-            </select>
-          </div>
-          <nav>
-            <ul className="flex space-x-2">
-              <li>
-                <button
-                  className={`px-4 py-2 bg-gray-600 text-white rounded-lg ${
-                    currentPage === 1
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-gray-500"
-                  } transition duration-300`}
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                >
-                  Anterior
-                </button>
-              </li>
-              {Array.from({ length: totalPages }, (_, i) => (
-                <li key={i + 1}>
-                  <button
-                    className={`px-4 py-2 ${
-                      currentPage === i + 1
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-600 text-white hover:bg-gray-500"
-                    } rounded-lg transition duration-300`}
-                    onClick={() => handlePageChange(i + 1)}
-                  >
-                    {i + 1}
-                  </button>
-                </li>
-              ))}
-              <li>
-                <button
-                  className={`px-4 py-2 bg-gray-600 text-white rounded-lg ${
-                    currentPage === totalPages
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-gray-500"
-                  } transition duration-300`}
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                >
-                  Próxima
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleRowsPerPageChange}
+        />
       </div>
     </div>
   );

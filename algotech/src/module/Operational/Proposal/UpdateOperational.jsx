@@ -6,13 +6,13 @@ import ManageSellers from "@module/Sellers/Service/ManageSellers";
 import ManageFinance from "@module/Finance/Service/ManageFinance";
 import ManageTablesFinance from "@module/Finance/Service/ManageTablesFinance";
 import ManageBankers from "@module/Finance/Service/ManageBankers";
-import UploadFilesProposal from "@module/operational/ui/forms/UplaodFilesProposal";
-import DataOperationProposal from "@module/operational/ui/forms/DataOpertationProposal";
-import AddressProposal from "@module/operational/ui/forms/AddreessProposal";
-import DataUsers from "@module/operational/ui/forms/DataUsers";
-import DocumentProposal from "@module/operational/ui/forms/DocumentProposal";
-import ProposalFinance from "@module/operational/ui/forms/FinanceProposal";
-import UploadProposalDocument from "@module/operational/ui/forms/UploadProposalDocument";
+import UploadFilesProposal from "@module/Operational/ui/forms/UplaodFilesProposal";
+import DataOperationProposal from "@module/Operational/ui/forms/DataOpertationProposal";
+import AddressProposal from "@module/Operational/ui/forms/AddreessProposal";
+import DataUsers from "@module/Operational/ui/forms/DataUsers";
+import DocumentProposal from "@module/Operational/ui/forms/DocumentProposal";
+import ProposalFinance from "@module/Operational/ui/forms/FinanceProposal";
+import UploadProposalDocument from "@module/Operational/ui/forms/UploadProposalDocument";
 import MaskCpf from "@module/utils/MaskCpf";
 
 const UpdateOperational = () => {
