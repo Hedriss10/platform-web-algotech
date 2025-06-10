@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import Icons from "../utils/Icons";
+import Icons from "@module/utils/Icons";
 import { useUser } from "../../service/UserContext";
-import { notify } from "../utils/toastify";
-import Roles from "./service/Roles";
+import { notify } from "@module/utils/toastify";
+import Roles from "@module/User/Service/Roles";
 import Pagination from "@module/ui/Pagination/Pagination";
 
 const RoleUsers = () => {

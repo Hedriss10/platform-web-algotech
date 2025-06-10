@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import ManageUser from "./service/ManageServiceUser";
-import { notify } from "../utils/toastify";
+import ManageServiceUsers from "@module/User/Service/ManageServiceUser";
+import { notify } from "@module/utils/toastify";
 import { useUser } from "../../service/UserContext";
-import Icons from "../utils/Icons";
-import TablesUsers from "./ui/tables/TablesUsers";
-import Pagination from "../ui/Pagination/Pagination";
+import Icons from "@module/utils/Icons";
+import TablesUsers from "@module/User/ui/tables/TablesUsers";
+import Pagination from "@module/ui/Pagination/Pagination";
 
 const ManageUsers = () => {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ const ManageUsers = () => {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      const usersApi = new ManageUser(
+      const usersApi = new ManageServiceUsers(
         user?.id,
         searchTerm,
         currentPage,
@@ -50,7 +50,7 @@ const ManageUsers = () => {
   // Função para deletar um usuário
   const handleDeleteUser = async (id) => {
     try {
-      const usersApi = new ManageUser();
+      const usersApi = new ManageServiceUsers();
       await usersApi.deleteUser(id, token); // Passa o token
       notify("Usuário deletado com sucesso", { type: "success" });
       loadUsers();
@@ -62,7 +62,7 @@ const ManageUsers = () => {
   // Função para bloquear um usuário
   const handleBlockUser = async (id) => {
     try {
-      const usersApi = new ManageUser();
+      const usersApi = new ManageServiceUsers();
       await usersApi.updateUser(id, { is_block: true }, token); // Passa o token
       notify("Usuário bloqueado com sucesso", { type: "success" });
       loadUsers();
@@ -86,7 +86,7 @@ const ManageUsers = () => {
     e.preventDefault();
 
     try {
-      const usersApi = new ManageUser(user?.id);
+      const usersApi = new ManageServiceUsers(user?.id);
       const payload = { id: userId };
       await usersApi.resetPassword(payload, token);
       notify("Senha resetada com sucesso", { type: "success" });

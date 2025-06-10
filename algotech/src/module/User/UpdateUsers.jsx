@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { notify } from "../utils/toastify";
 import { useUser } from "../../service/UserContext";
-import ManageUser from "./service/ManageServiceUser";
-import MaskCpf from "../utils/MaskCpf";
-import Roles from "./service/Roles";
-import FormsUsers from "./ui/forms/FormsUpdateUser";
+import ManageServiceUsers from "@module/User/Service/ManageServiceUser";
+import MaskCpf from "@module/utils/MaskCpf";
+import Roles from "@module/User/Service/Roles";
+import FormsUpdateUsers from "@module/User/ui/forms/FormsUpdateUser";
 
 const UpdateUsers = ({ onClose }) => {
   const { id } = useParams();
@@ -35,7 +35,7 @@ const UpdateUsers = ({ onClose }) => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        const usersApi = new ManageUser();
+        const usersApi = new ManageServiceUsers();
         const response = await usersApi.getUserById(id, token);
         if (response) {
           setFormData({
@@ -106,7 +106,7 @@ const UpdateUsers = ({ onClose }) => {
       </div>
 
       <div className="bg-gray-700 rounded-lg shadow-lg p-6">
-        <FormsUsers
+        <FormsUpdateUsers
           formData={formData}
           handleChange={handleChange}
           handleFormSubmit={handleFormSubmit}
