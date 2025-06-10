@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useUser } from "../../service/UserContext";
-import { notify } from "../utils/toastify";
-import ManageUser from "../User/service/ManageServiceUser";
+import { notify } from "@module/utils/toastify";
+import ManageServiceUsers from "@module/User/service/ManageServiceUser";
 
 const UserProfile = () => {
   const { user, token } = useUser();
@@ -16,7 +16,7 @@ const UserProfile = () => {
     e.preventDefault();
     if (formData.newPassword === formData.confirmPassword) {
       const passowrd = { password: formData.newPassword };
-      const usersApi = new ManageUser(user?.id);
+      const usersApi = new ManageServiceUsers(user?.id);
       const response = await usersApi.updateUser(user?.id, passowrd, token);
       notify("Senha resetada com sucesso", { type: "success" });
     } else {
