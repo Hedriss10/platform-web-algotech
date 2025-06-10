@@ -6,7 +6,7 @@ import {
   formatDateToBackend,
   mockFilterProposal,
 } from "@module/utils/FormatDataToBackend";
-import ManageOperational from "@module/operational/service/MangeOperational";
+import ManageOperational from "@module/Operational/Service/MangeOperational";
 import ListTablesOperational from "@module/operational/ui/tables/ListTablesOperational";
 import Icons from "@module/utils/Icons";
 import FiltersListPrposal from "@module/operational/ui/filters/FiltersListProposal";
