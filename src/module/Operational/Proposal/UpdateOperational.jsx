@@ -26,7 +26,7 @@ const UpdateOperational = () => {
   const [financialAgreements, setFinancialAgreements] = useState([]);
   const [tablesFinance, setTablesFinance] = useState([]);
   const [benefits, setBenefits] = useState([]);
-  const [bank_id, setbank_id] = useState(null);
+  const [bank_id, setBankId] = useState("");
   const [formData, setFormData] = useState({
     cpf: "",
     nome: "",
@@ -73,40 +73,12 @@ const UpdateOperational = () => {
     tables_finance_id: "",
     financial_agreements_id: "",
     benefit_id: "",
+    banker_name: "",
+    tipo_beneficio: "",
+    tipo_operacao: "",
+    nome_tabela: "",
   });
-
   const [pdfStates, setPdfStates] = useState({});
-
-  const fetchPdfBlob = async (url) => {
-    try {
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok)
-        throw new Error(
-          `Erro ao carregar PDF: ${response.status} - ${response.statusText}`,
-        );
-      const blob = await response.blob();
-      if (blob.size < 1000) {
-        throw new Error("PDF inválido: tamanho do arquivo muito pequeno");
-      }
-      if (blob.type !== "application/pdf") {
-        throw new Error(
-          `PDF inválido: tipo de arquivo incorreto (${blob.type})`,
-        );
-      }
-      const blobUrl = URL.createObjectURL(blob);
-      return blobUrl;
-    } catch (error) {
-      console.error("Erro ao buscar PDF:", error.message);
-      notify(`Erro ao carregar PDF: ${error.message}`, { type: "error" });
-      return null;
-    }
-  };
-
-  // files
   const [files, setFiles] = useState({
     extrato_consignacoes: null,
     contracheque: null,
@@ -118,90 +90,120 @@ const UpdateOperational = () => {
     detalhamento_inss: null,
   });
 
-  // Função para buscar os dados da proposta pelo ID
-  const getProposal = async () => {
+  // Funções de Busca de Dados
+  const fetchProposal = async () => {
     try {
       const api = new ManageSellers(user?.id);
       const response = await api.getProposalById(id, token);
-      setProposal(response.data); // Armazena os dados da proposta no estado
-      setLoading(false); // Finaliza o loading
+      setProposal(response.data);
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao carregar proposta:", error);
       notify("Erro ao carregar a proposta", { type: "error" });
-      setLoading(false); // Finaliza o loading mesmo em caso de erro
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleBenefit = async () => {
+  const fetchBankers = async () => {
     try {
-      const usersApi = new ManageFinance(user?.id);
-      const response = await usersApi.getAllBenefits(token);
-      setBenefits(response.data);
-    } catch (error) {
-      notify("Carregue o benefício", { type: "warning" });
-    }
-  };
-
-  const handleBankers = async () => {
-    try {
-      const userApi = new ManageBankers(user?.id);
-      const response = await userApi.getAllBankers();
+      const api = new ManageBankers(user?.id);
+      const response = await api.getAllBankers();
       setBankers(response.data);
     } catch (error) {
-      notify("Erro ao procurar o banco", { type: "warning" });
+      notify("Erro ao carregar bancos", { type: "warning" });
     }
   };
 
-  // Busca as operações de empréstimo
-  const handleLoanOperation = async () => {
+  const fetchBenefits = async () => {
     try {
-      const usersApi = new ManageFinance(user?.id);
-      const response = await usersApi.getAllLoanOperation(token);
+      const api = new ManageFinance(user?.id);
+      const response = await api.getAllBenefits(token);
+      setBenefits(response.data);
+    } catch (error) {
+      notify("Erro ao carregar benefícios", { type: "warning" });
+    }
+  };
+
+  const fetchLoanOperations = async () => {
+    try {
+      const api = new ManageFinance(user?.id);
+      const response = await api.getAllLoanOperation(token);
       setLoanOperations(response.data);
     } catch (error) {
-      notify("Carregue a operação", { type: "warning" });
+      notify("Erro ao carregar operações de empréstimo", { type: "warning" });
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    if (name === "cpf") {
-      const maskedValue = MaskCpf(value);
-      setFormData({
-        ...formData,
-        [name]: maskedValue.replace(/\D/g, ""),
-      });
-    } else if (name === "bank_id") {
-      setbank_id(value);
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value.trim() === "" ? null : value,
-      });
+  const fetchFinancialAgreements = async (bankId) => {
+    try {
+      const api = new ManageBankers(user?.id);
+      const response = await api.getBankersById(bankId);
+      setFinancialAgreements(response.data[0]?.financial_agreements || []);
+    } catch (error) {
+      notify("Erro ao carregar convênios", { type: "warning" });
     }
+  };
+
+  const fetchTablesFinance = async (financialAgreementId) => {
+    try {
+      const api = new ManageTablesFinance(user?.id);
+      const response = await api.getAllTablesFinance(financialAgreementId);
+      setTablesFinance(response.data);
+    } catch (error) {
+      notify("Erro ao carregar tabelas financeiras", { type: "warning" });
+    }
+  };
+
+  // Funções de Manipulação de PDF
+  const fetchPdfBlob = async (url) => {
+    try {
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok)
+        throw new Error(`Erro ao carregar PDF: ${response.status}`);
+      const blob = await response.blob();
+      if (blob.size < 1000 || blob.type !== "application/pdf") {
+        throw new Error("PDF inválido");
+      }
+      return URL.createObjectURL(blob);
+    } catch (error) {
+      notify(`Erro ao carregar PDF: ${error.message}`, { type: "error" });
+      return null;
+    }
+  };
+
+  const initializePdfs = async () => {
+    const image_urls = proposal?.image_urls || {};
+    const newPdfStates = {};
+    for (const [key, urls] of Object.entries(image_urls)) {
+      for (const url of urls) {
+        if (url?.toLowerCase().endsWith(".pdf")) {
+          const blobUrl = await fetchPdfBlob(url);
+          newPdfStates[url] = {
+            numPages: 1,
+            pageNumber: 1,
+            blob: blobUrl,
+            error: blobUrl ? null : "Erro ao carregar PDF",
+            isExpanded: false,
+          };
+        }
+      }
+    }
+    setPdfStates(newPdfStates);
   };
 
   const togglePdfExpand = (url) => {
-    setPdfStates((prevStates) => ({
-      ...prevStates,
-      [url]: {
-        ...prevStates[url],
-        isExpanded: !prevStates[url].isExpanded,
-      },
+    setPdfStates((prev) => ({
+      ...prev,
+      [url]: { ...prev[url], isExpanded: !prev[url]?.isExpanded },
     }));
   };
 
   const downloadPdf = async (url, filename) => {
     try {
       const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok)
         throw new Error(`Erro ao baixar PDF: ${response.status}`);
@@ -221,259 +223,149 @@ const UpdateOperational = () => {
     }
   };
 
-  // Preenche o formData com os dados da proposta quando ela é carregada
-  useEffect(() => {
-    if (proposal) {
-      const { proposal: proposalData } = proposal;
-      const {
-        nome,
-        cpf,
-        data_nascimento,
-        email,
-        telefone,
-        genero,
-        endereco,
-        bairro,
-        cidade,
-        uf_cidade,
-        cep,
-        nome_mae,
-        nome_pai,
-        numero_endereco,
-        rg_documento,
-        orgao_emissor,
-        data_emissao,
-        telefone_comercial,
-        complemento_endereco,
-        valor_salario,
-        cidade_naturalidade,
-        naturalidade,
-        uf_naturalidade,
-        tipo_beneficio,
-        matricula,
-        salario_liquido,
-        valor_operacao,
-        margem,
-        tipo_operacao,
-        tipo_pagamento,
-        data_dispacho,
-        banker_name,
-        agencia_banco,
-        numero_conta,
-        nome_tabela,
-        prazo_inicio,
-        prazo_fim,
-        observe,
-      } = proposalData;
-
-      setFormData({
-        cpf,
-        nome,
-        data_nascimento,
-        email,
-        genero,
-        endereco,
-        bairro,
-        cidade,
-        uf_cidade,
-        cep,
-        nome_mae,
-        nome_pai,
-        rg_documento,
-        orgao_emissor,
-        data_emissao,
-        numero_endereco,
-        complemento_endereco,
-        telefone,
-        telefone_comercial,
-        naturalidade,
-        valor_salario,
-        uf_naturalidade,
-        cidade_naturalidade,
-        tipo_beneficio,
-        data_dispacho,
-        matricula,
-        salario_liquido,
-        valor_operacao,
-        margem,
-        tipo_operacao,
-        tipo_pagamento,
-        banker_name,
-        agencia_banco,
-        numero_conta,
-        nome_tabela,
-        prazo_inicio,
-        prazo_fim,
-        observe,
-      });
-    }
-  }, [proposal]);
-
-  const image_urls = proposal?.image_urls || [];
-
-  // Inicializa pdfStates para PDFs
-  useEffect(() => {
-    if (image_urls) {
-      const initializePdfs = async () => {
-        const newPdfStates = {};
-        for (const [key, urls] of Object.entries(image_urls)) {
-          for (const url of urls) {
-            if (url && url.toLowerCase().endsWith(".pdf")) {
-              const blobUrl = await fetchPdfBlob(url);
-              newPdfStates[url] = {
-                numPages: 1,
-                pageNumber: 1,
-                blob: blobUrl,
-                error: blobUrl
-                  ? null
-                  : "Erro ao carregar PDF: arquivo inválido ou não encontrado",
-                isExpanded: false, // Novo estado para expansão
-              };
-            }
-          }
-        }
-        setPdfStates(newPdfStates);
-      };
-      initializePdfs();
-    }
-    // Cleanup
-    return () => {
-      Object.values(pdfStates).forEach((state) => {
-        if (state.blob) {
-          URL.revokeObjectURL(state.blob);
-        }
-      });
-    };
-  }, [proposal, token]);
-
-  // financialAgreements
-  const handleFinancialAgreements = async (bankId) => {
-    try {
-      const userApi = new ManageBankers(user?.id);
-      const response = await userApi.getBankersById(bankId);
-      setFinancialAgreements(response.data[0].financial_agreements);
-    } catch (error) {
-      notify("Carregue o convênio", { type: "warning" });
-    }
-  };
-
-  // Busca as tabelas financeiras com base no ID do convênio
-  const handleTablesFinance = async (financialAgreementId) => {
-    try {
-      const userApi = new ManageTablesFinance(user?.id);
-      const response = await userApi.getAllTablesFinance(financialAgreementId);
-      setTablesFinance(response.data);
-    } catch (error) {
-      notify("Carregue a tabela", { type: "warning" });
-    }
-  };
-
-  // Combine os useEffect para evitar a alteração da ordem dos hooks
-  useEffect(() => {
-    if (bank_id) {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
+  // Manipulação de Formulário
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "cpf") {
+      const rawValue = value.replace(/\D/g, "");
+      setFormData((prev) => ({ ...prev, cpf: rawValue }));
+    } else if (name === "bank_id") {
+      setBankId(value);
+      setFormData((prev) => ({
+        ...prev,
+        bank_id: value,
         financial_agreements_id: "",
         tables_finance_id: "",
       }));
-      handleFinancialAgreements(bank_id);
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
-  }, [bank_id]);
+  };
 
-  useEffect(() => {
-    if (formData.financial_agreements_id) {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        tables_finance_id: "",
-      }));
-      handleTablesFinance(formData.financial_agreements_id);
-    }
-  }, [formData.financial_agreements_id]);
-
-  useEffect(() => {
-    if (bank_id) {
-      handleFinancialAgreements(bank_id);
-    }
-  }, [bank_id]);
-
-  // Busca a proposta ao montar o componente
-  useEffect(() => {
-    getProposal();
-    handleBankers();
-    handleBenefit();
-    handleLoanOperation();
-  }, [id]);
-
-  // Exibe um loading enquanto os dados são carregados
-  if (loading) {
-    return <div>Carregando...</div>;
-  }
-
-  // Exibe uma mensagem se não houver dados da proposta
-  if (!proposal) {
-    return <div>Nenhuma proposta encontrada.</div>;
-  }
-
-  const handleAddImage = (e) => {
-    const { name, files: selectedFiles } = e.target;
-    setFiles((prevFiles) => ({
-      ...prevFiles,
-      [name]: selectedFiles[0],
+  const handleNumberFormatChange = (values, name) => {
+    const { floatValue } = values;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: floatValue !== undefined ? floatValue : "",
     }));
   };
 
-  const handleRemoveImage = (name, index) => {
-    setProposal((prevProposal) => {
-      const updatedUrls = prevProposal.image_urls[name].filter(
-        (_, i) => i !== index,
-      );
-      return {
-        ...prevProposal,
-        image_urls: {
-          ...prevProposal.image_urls,
-          [name]: updatedUrls,
-        },
-      };
-    });
+  const handleAddImage = (e) => {
+    const { name, files: selectedFiles } = e.target;
+    setFiles((prev) => ({ ...prev, [name]: selectedFiles[0] }));
   };
 
   const prepareDataForBackend = (formDataToSend, data) => {
     for (const key in data) {
-      if (data[key] === null || data[key] === "") {
-        formDataToSend.append(key, ""); // Envia string vazia para campos nulos ou vazios
-      } else {
-        formDataToSend.append(key, data[key]); // Adiciona o valor normal
-      }
+      formDataToSend.append(key, data[key] ?? "");
     }
   };
 
   const updateProposal = async () => {
     try {
       const formDataToSend = new FormData();
-
-      // Prepara os dados do formulário
       prepareDataForBackend(formDataToSend, formData);
-
-      // Adiciona os arquivos
       for (const key in files) {
         if (files[key]) {
           formDataToSend.append(key, files[key]);
         }
       }
-
-      // Envia os dados para o backend
-      const usersApi = new ManageSellers(user?.id);
-      const response = await usersApi.updateProposal(id, formDataToSend, token);
-
-      // Notifica sucesso e redireciona
-      notify("Proposta Editada com sucesso!", { type: "success" });
+      const api = new ManageSellers(user?.id);
+      await api.updateProposal(id, formDataToSend, token);
+      notify("Proposta editada com sucesso!", { type: "success" });
       navigate("/operational");
     } catch (error) {
-      // Notifica erro
       notify("Erro ao editar a proposta", { type: "error" });
       console.error("Erro ao enviar dados:", error);
     }
   };
+
+  // Efeitos
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      await Promise.all([
+        fetchProposal(),
+        fetchBankers(),
+        fetchBenefits(),
+        fetchLoanOperations(),
+      ]);
+    };
+    fetchInitialData();
+  }, [id]);
+
+  useEffect(() => {
+    if (proposal) {
+      const { proposal: proposalData } = proposal;
+      setFormData({
+        cpf: proposalData.cpf || "",
+        nome: proposalData.nome || "",
+        data_nascimento: proposalData.data_nascimento || "",
+        email: proposalData.email || "",
+        genero: proposalData.genero || "",
+        endereco: proposalData.endereco || "",
+        bairro: proposalData.bairro || "",
+        cidade: proposalData.cidade || "",
+        uf_cidade: proposalData.uf_cidade || "",
+        cep: proposalData.cep || "",
+        nome_mae: proposalData.nome_mae || "",
+        nome_pai: proposalData.nome_pai || "",
+        rg_documento: proposalData.rg_documento || "",
+        orgao_emissor: proposalData.orgao_emissor || "",
+        data_emissao: proposalData.data_emissao || "",
+        numero_endereco: proposalData.numero_endereco || "",
+        complemento_endereco: proposalData.complemento_endereco || "",
+        telefone: proposalData.telefone || "",
+        telefone_comercial: proposalData.telefone_comercial || "",
+        naturalidade: proposalData.naturalidade || "",
+        valor_salario: proposalData.valor_salario || "",
+        uf_naturalidade: proposalData.uf_naturalidade || "",
+        cidade_naturalidade: proposalData.cidade_naturalidade || "",
+        tipo_beneficio: proposalData.tipo_beneficio || "",
+        data_dispacho: proposalData.data_dispacho || "",
+        matricula: proposalData.matricula || "",
+        salario_liquido: proposalData.salario_liquido || "",
+        valor_operacao: proposalData.valor_operacao || "",
+        margem: proposalData.margem || "",
+        tipo_operacao: proposalData.tipo_operacao || "",
+        tipo_pagamento: proposalData.tipo_pagamento || "",
+        banker_name: proposalData.banker_name || "",
+        agencia_banco: proposalData.agencia_banco || "",
+        numero_conta: proposalData.numero_conta || "",
+        nome_tabela: proposalData.nome_tabela || "",
+        prazo_inicio: proposalData.prazo_inicio || "",
+        prazo_fim: proposalData.prazo_fim || "",
+        observe: proposalData.observe || "",
+      });
+      setBankId(proposalData.bank_id || "");
+    }
+  }, [proposal]);
+
+  useEffect(() => {
+    if (proposal?.image_urls) {
+      initializePdfs();
+    }
+    return () => {
+      Object.values(pdfStates).forEach((state) => {
+        if (state.blob) URL.revokeObjectURL(state.blob);
+      });
+    };
+  }, [proposal]);
+
+  useEffect(() => {
+    if (bank_id) {
+      fetchFinancialAgreements(bank_id);
+    }
+  }, [bank_id]);
+
+  useEffect(() => {
+    if (formData.financial_agreements_id) {
+      fetchTablesFinance(formData.financial_agreements_id);
+    }
+  }, [formData.financial_agreements_id]);
+
+  // Renderização
+  if (loading) return <div>Carregando...</div>;
+  if (!proposal) return <div>Nenhuma proposta encontrada.</div>;
 
   return (
     <div className="flex-1 p-15 w-full bg-gray-100 h-full text-gray-700">
@@ -494,23 +386,22 @@ const UpdateOperational = () => {
             <strong>Dados Pessoais:</strong>
           </h2>
           <DataUsers formData={formData} handleChange={handleChange} />
-          {/* Endereço */}
+          <hr />
           <h2 className="text-xl font-semibold mt-6 mb-4">
             <strong>Endereço:</strong>
           </h2>
           <AddressProposal formData={formData} handleChange={handleChange} />
-          {/* Documentação */}
+          <hr />
           <h2 className="text-xl font-semibold mt-6 mb-4">
             <strong>Documentação:</strong>
           </h2>
           <DocumentProposal formData={formData} handleChange={handleChange} />
-
-          {/* Dados Financeiros  */}
+          <hr />
           <h2 className="text-xl font-semibold mt-6 mb-4">
-            <strong>Dados de Finaceiro:</strong>
+            <strong>Dados Financeiros:</strong>
           </h2>
           <ProposalFinance formData={formData} handleChange={handleChange} />
-          {/* Dados da Operação  */}
+          <hr />
           <h2 className="text-xl font-semibold mt-6 mb-4">
             <strong>Dados da Operação:</strong>
           </h2>
@@ -522,26 +413,26 @@ const UpdateOperational = () => {
             loanOperations={loanOperations}
             bank_id={bank_id}
             bankers={bankers}
+            handleNumberFormatChange={handleNumberFormatChange}
           />
-          {/* Dados de Documentos  */}
+          <hr />
           <h2 className="text-xl font-semibold mt-6 mb-4">Observações:</h2>
-          <p>{formData.observe}</p>
+          <p>{formData.observe || "Nenhuma observação disponível."}</p>
           <h2 className="text-xl font-semibold mt-6 mb-4">
             Documentos Anexados:
           </h2>
           <UploadProposalDocument
-            image_urls={image_urls}
+            image_urls={proposal?.image_urls || {}}
             pdfStates={pdfStates}
             toggleExpandPdf={togglePdfExpand}
             downloadPdf={downloadPdf}
           />
-          {/* Seção de Upload de Arquivos */}
+          <hr />
           <h2 className="text-xl font-semibold mt-6 mb-4">
             <strong>Editar Documentos</strong>
           </h2>
           <UploadFilesProposal files={files} handleAddImage={handleAddImage} />
-
-          {/* Botão de Envio */}
+          <hr />
           <div className="mt-6">
             <button
               onClick={updateProposal}

@@ -1,3 +1,6 @@
+// src/module/Operational/ui/forms/DataOpertationProposal.jsx
+import { NumericFormat } from "react-number-format";
+
 const DataOperationProposal = ({
   formData,
   handleChange,
@@ -6,6 +9,7 @@ const DataOperationProposal = ({
   loanOperations,
   bank_id,
   bankers,
+  handleNumberFormatChange,
 }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -17,7 +21,7 @@ const DataOperationProposal = ({
           type="text"
           name="margem"
           id="margem"
-          value={formData.margem}
+          value={formData.margem || ""}
           onChange={handleChange}
           className="w-full p-2 border rounded"
         />
@@ -31,7 +35,7 @@ const DataOperationProposal = ({
           name="prazo_inicio"
           id="prazo_inicio"
           onChange={handleChange}
-          value={formData.prazo_inicio}
+          value={formData.prazo_inicio || ""}
           className="w-full p-2 border rounded"
         />
       </div>
@@ -44,7 +48,7 @@ const DataOperationProposal = ({
           name="prazo_fim"
           id="prazo_fim"
           onChange={handleChange}
-          value={formData.prazo_fim}
+          value={formData.prazo_fim || ""}
           className="w-full p-2 border rounded"
         />
       </div>
@@ -52,13 +56,21 @@ const DataOperationProposal = ({
         <label>
           <strong>Valor da Operação:</strong>
         </label>
-        <input
-          type="number"
+        <NumericFormat
           name="valor_operacao"
           id="valor_operacao"
-          onChange={handleChange}
-          value={formData.valor_operacao}
+          value={formData.valor_operacao || ""}
+          onValueChange={(values) =>
+            handleNumberFormatChange(values, "valor_operacao")
+          }
           className="w-full p-2 border rounded"
+          thousandSeparator="."
+          decimalSeparator=","
+          prefix="R$ "
+          decimalScale={2}
+          fixedDecimalScale
+          allowNegative={false}
+          placeholder="R$ 0,00"
         />
       </div>
       <div>
@@ -70,9 +82,9 @@ const DataOperationProposal = ({
           id="loan_operation_id"
           className="w-full p-2 border rounded"
           onChange={handleChange}
-          value={formData.loan_operation_id}
+          value={formData.loan_operation_id || ""}
         >
-          <option>Selecione a operação</option>
+          <option value="">Selecione a operação</option>
           {loanOperations.map((loan) => (
             <option key={loan.id} value={loan.id}>
               {loan.name}
@@ -88,10 +100,10 @@ const DataOperationProposal = ({
           name="bank_id"
           id="bank_id"
           onChange={handleChange}
-          value={bank_id}
+          value={bank_id || ""}
           className="w-full p-2 border rounded"
         >
-          <option>Selecione o banco</option>
+          <option value="">Selecione o banco</option>
           {bankers.map((bank) => (
             <option key={bank.id} value={bank.id}>
               {bank.name}
@@ -101,16 +113,16 @@ const DataOperationProposal = ({
       </div>
       <div>
         <label>
-          <strong>Selecio o Convênio:</strong>
+          <strong>Selecione o Convênio:</strong>
         </label>
         <select
           name="financial_agreements_id"
           id="financial_agreements_id"
           onChange={handleChange}
-          value={formData.financial_agreements_id}
+          value={formData.financial_agreements_id || ""}
           className="w-full p-2 border rounded"
         >
-          <option>Selecione o Convênio</option>
+          <option value="">Selecione o Convênio</option>
           {financialAgreements.map((agreement) => (
             <option
               key={agreement.id_financialagreements}
@@ -129,10 +141,10 @@ const DataOperationProposal = ({
           name="tables_finance_id"
           id="tables_finance_id"
           className="w-full p-2 border rounded"
-          value={formData.tables_finance_id}
+          value={formData.tables_finance_id || ""}
           onChange={handleChange}
         >
-          <option>Selecione a Tabela:</option>
+          <option value="">Selecione a Tabela</option>
           {tablesFinance.map((table) => (
             <option key={table.id} value={table.id}>
               Nome: {table.name} | Prazos: {table.start_tem}

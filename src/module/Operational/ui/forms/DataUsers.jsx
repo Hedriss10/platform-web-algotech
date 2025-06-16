@@ -1,5 +1,3 @@
-// src/module/Operational/ui/forms/DataUsers.jsx
-
 import MaskCpf from "@module/utils/MaskCpf";
 
 const DataUsers = ({ formData, handleChange }) => {
@@ -12,7 +10,7 @@ const DataUsers = ({ formData, handleChange }) => {
         <input
           type="text"
           name="nome"
-          value={formData.nome}
+          value={formData.nome || ""}
           onChange={handleChange}
           className="w-full p-2 border rounded"
         />
@@ -24,37 +22,42 @@ const DataUsers = ({ formData, handleChange }) => {
         <input
           type="text"
           name="cpf"
-          value={MaskCpf(formData.cpf)}
-          onChange={handleChange}
+          value={MaskCpf(formData.cpf || "")}
+          onChange={(e) => {
+            const rawValue = e.target.value.replace(/\D/g, "");
+            handleChange({
+              target: { name: "cpf", value: rawValue },
+            });
+          }}
           className="w-full p-2 border rounded"
           required
         />
       </div>
       <div>
         <label>
-          <strong>Data Nacismento:</strong>
+          <strong>Data Nascimento:</strong>
         </label>
         <input
           type="date"
           name="data_nascimento"
           id="data_nascimento"
-          value={formData.data_nascimento}
+          value={formData.data_nascimento || ""}
           onChange={handleChange}
           className="w-full p-2 border rounded"
         />
       </div>
       <div>
         <label>
-          <strong>Genero:</strong>
+          <strong>Gênero:</strong>
         </label>
         <select
           name="genero"
           id="genero"
-          value={formData.genero}
+          value={formData.genero || ""}
           onChange={handleChange}
           className="w-full p-2 border rounded"
         >
-          <option className="text-gray-400">Selecione</option>
+          <option value="">Selecione</option>
           <option value="M">Masculino</option>
           <option value="F">Feminino</option>
         </select>
@@ -67,7 +70,7 @@ const DataUsers = ({ formData, handleChange }) => {
           type="text"
           name="email"
           id="email"
-          value={formData.email}
+          value={formData.email || ""}
           onChange={handleChange}
           className="w-full p-2 border rounded"
         />
@@ -80,7 +83,7 @@ const DataUsers = ({ formData, handleChange }) => {
           type="text"
           name="naturalidade"
           id="naturalidade"
-          value={formData.naturalidade}
+          value={formData.naturalidade || ""}
           onChange={handleChange}
           className="w-full p-2 border rounded"
         />
@@ -93,7 +96,7 @@ const DataUsers = ({ formData, handleChange }) => {
           type="text"
           name="cidade_naturalidade"
           id="cidade_naturalidade"
-          value={formData.cidade_naturalidade}
+          value={formData.cidade_naturalidade || ""}
           onChange={handleChange}
           className="w-full p-2 border rounded"
         />
@@ -106,7 +109,7 @@ const DataUsers = ({ formData, handleChange }) => {
           type="text"
           name="uf_naturalidade"
           id="uf_naturalidade"
-          value={formData.uf_naturalidade}
+          value={formData.uf_naturalidade || ""}
           onChange={handleChange}
           className="w-full p-2 border rounded"
         />
@@ -119,7 +122,7 @@ const DataUsers = ({ formData, handleChange }) => {
           type="text"
           name="telefone"
           id="telefone"
-          value={formData.telefone}
+          value={formData.telefone || ""}
           onChange={handleChange}
           className="w-full p-2 border rounded"
         />
@@ -132,7 +135,7 @@ const DataUsers = ({ formData, handleChange }) => {
           type="text"
           name="telefone_comercial"
           id="telefone_comercial"
-          value={formData.telefone_comercial}
+          value={formData.telefone_comercial || ""}
           onChange={handleChange}
           className="w-full p-2 border rounded"
         />
