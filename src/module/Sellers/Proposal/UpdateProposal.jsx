@@ -436,6 +436,14 @@ const UpdateProposal = () => {
     }
   };
 
+  const handleNumberFormatChange = (values, name) => {
+    const { floatValue } = values;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: floatValue !== undefined ? floatValue : "",
+    }));
+  };
+
   const updateProposal = async () => {
     try {
       const formDataToSend = new FormData();
@@ -492,6 +500,7 @@ const UpdateProposal = () => {
           updateProposal={updateProposal}
           bank_id={bank_id}
           image_urls={image_urls}
+          handleNumberFormatChange={handleNumberFormatChange}
         />
       </div>
     </div>

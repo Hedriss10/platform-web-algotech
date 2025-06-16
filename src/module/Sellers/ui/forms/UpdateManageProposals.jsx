@@ -1,5 +1,6 @@
 import MaskCpf from "@module/utils/MaskCpf";
 import renderAdditionalFields from "@module/Sellers/ui/forms/RenderAdditionalFields";
+import { NumericFormat } from "react-number-format";
 
 const UpdateManageProposals = ({
   formData,
@@ -15,6 +16,7 @@ const UpdateManageProposals = ({
   updateProposal,
   bank_id,
   image_urls,
+  handleNumberFormatChange,
 }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
@@ -505,13 +507,21 @@ const UpdateManageProposals = ({
           <label>
             <strong>Valor da Operação:</strong>
           </label>
-          <input
-            type="number"
+          <NumericFormat
             name="valor_operacao"
             id="valor_operacao"
-            onChange={handleChange}
-            value={formData.valor_operacao}
+            value={formData.valor_operacao || ""}
+            onValueChange={(values) =>
+              handleNumberFormatChange(values, "valor_operacao")
+            }
             className="w-full p-2 border rounded"
+            thousandSeparator="."
+            decimalSeparator=","
+            prefix="R$ "
+            decimalScale={2}
+            fixedDecimalScale
+            allowNegative={false}
+            placeholder="R$ 0,00"
           />
         </div>
         <div>

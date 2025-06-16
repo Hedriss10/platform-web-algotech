@@ -13,7 +13,6 @@ import DataUsers from "@module/Operational/ui/forms/DataUsers";
 import DocumentProposal from "@module/Operational/ui/forms/DocumentProposal";
 import ProposalFinance from "@module/Operational/ui/forms/FinanceProposal";
 import UploadProposalDocument from "@module/Operational/ui/forms/UploadProposalDocument";
-import MaskCpf from "@module/utils/MaskCpf";
 
 const UpdateOperational = () => {
   const navigate = useNavigate();
