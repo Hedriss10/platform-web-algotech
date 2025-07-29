@@ -6,10 +6,11 @@ import {
   formatDateToBackend,
   mockFilterProposal,
 } from "@module/utils/FormatDataToBackend";
-import ManageOperational from "@module/Operational/Service/MangeOperational";
+import ManageOperational from "./Service/MangeOperational";
+import ManageBankers from "@module/Finance/Service/ManageBankers";
 import ListTablesOperational from "@module/Operational/ui/tables/ListTablesOperational";
 import Icons from "@module/utils/Icons";
-import FiltersListPrposal from "@module/Operational/ui/filters/FiltersListProposal";
+import FiltersListProposal from "@module/Operational/ui/filters/FiltersListProposal";
 import Pagination from "@module/ui/Pagination/Pagination";
 
 const PreviewOperational = () => {
@@ -21,8 +22,15 @@ const PreviewOperational = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [loadingBankers, setLoadingBankers] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [filterValues, setFilterValues] = useState(mockFilterProposal);
+  const [filterValues, setFilterValues] = useState({
+    ...mockFilterProposal,
+    selectedBankId: "",
+    selectedAgreementId: "",
+  });
+  const [bankers, setBankers] = useState([]);
+  const [financialAgreements, setFinancialAgreements] = useState([]);
 
   const openFilterModal = () => {
     setIsFilterModalOpen(true);
@@ -46,8 +54,7 @@ const PreviewOperational = () => {
 
   const loadOperational = async () => {
     setLoading(true);
-    setProposal([]); // Limpa os dados ANTES de fazer a requisição
-
+    setProposal([]);
     try {
       const usersApi = new ManageOperational(
         user?.id,
@@ -56,71 +63,81 @@ const PreviewOperational = () => {
         rowsPerPage,
         formatDateToBackend(filterValues.start_date),
         formatDateToBackend(filterValues.end_date),
+        filterValues.selectedBankId,
+        filterValues.selectedAgreementId,
       );
 
       const response = await usersApi.getListProposalOperational(token);
-
       if (response.empty) {
         notify("Nenhuma proposta encontrada", { type: "info" });
         setProposal([]);
         setTotalPages(1);
       } else {
         setProposal(response.data);
-        setTotalPages(response.totalPages);
+        setTotalPages(response.data.totalPages || 1);
       }
     } catch (error) {
-      console.error("Erro ao carregar propostas:", error);
       notify("Erro ao carregar propostas", { type: "error" });
     } finally {
       setLoading(false);
     }
   };
 
-  // Efeito para carregar os dados
+  const loadBankers = async () => {
+    setLoadingBankers(true);
+    try {
+      const userApi = new ManageBankers(user?.id, token);
+      const response = await userApi.getAllBankers();
+      const banks = Array.isArray(response.data) ? response.data : [];
+      setBankers(banks);
+    } catch (error) {
+      notify("Erro ao procurar o banco", { type: "warning" });
+      setBankers([]);
+    } finally {
+      setLoadingBankers(false);
+    }
+  };
+
   useEffect(() => {
     loadOperational();
+    loadBankers();
   }, [
     currentPage,
     searchTerm,
     rowsPerPage,
     filterValues.start_date,
     filterValues.end_date,
+    filterValues.selectedBankId,
+    filterValues.selectedAgreementId,
   ]);
 
-  // Função para redirecionar a visualização da proposta
   const handlePreviewProposal = (id) => {
     try {
       navigate(`/operational/proposal/${id}`);
     } catch (error) {
-      console.log(error);
       notify("Erro ao processar a Proposta", { type: "error" });
     }
   };
 
-  // Função para mudar a página
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };
 
-  // Função para mudar o número de linhas por página
   const handleRowsPerPageChange = (event) => {
     setRowsPerPage(Number(event.target.value));
     setCurrentPage(1);
   };
 
-  // Função para redirecionar para o update do proposal
   const handleUpdateProposal = (id) => {
     try {
       navigate(`/operational/proposal/update/${id}`);
     } catch (error) {
-      console.log(error);
       notify("Erro ao editar Proposta", { type: "error" });
     }
   };
 
   return (
     <div className="flex-1 p-15 w-full bg-gray-100 h-full text-gray-700">
-      {/* Título e Breadcrumb */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Gerenciamento Operacional</h1>
         <nav className="text-sm text-gray-400">
@@ -132,9 +149,7 @@ const PreviewOperational = () => {
         </nav>
       </div>
 
-      {/* Card da Tabela */}
       <div className="bg-gray-700 rounded-lg shadow-lg p-6">
-        {/* Título e Campo de Busca */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-white">
             Lista de Propostas
@@ -159,17 +174,19 @@ const PreviewOperational = () => {
           </div>
         </div>
 
-        {/* Modal de Filtro */}
         {isFilterModalOpen && (
-          <FiltersListPrposal
+          <FiltersListProposal
             filterValues={filterValues}
             setFilterValues={setFilterValues}
             setIsFilterModalOpen={setIsFilterModalOpen}
             applyFilter={applyFilter}
+            bankers={bankers}
+            financialAgreements={financialAgreements}
+            setFinancialAgreements={setFinancialAgreements}
+            loadingBankers={loadingBankers}
           />
         )}
 
-        {/* Tabela de Usuários */}
         <ListTablesOperational
           proposal={proposal}
           loading={loading}
@@ -177,7 +194,6 @@ const PreviewOperational = () => {
           handleUpdateProposal={handleUpdateProposal}
         />
 
-        {/* Paginação */}
         <Pagination
           rowsPerPage={rowsPerPage}
           handlePageChange={handlePageChange}

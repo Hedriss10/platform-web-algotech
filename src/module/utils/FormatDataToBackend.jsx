@@ -9,6 +9,7 @@ const mockFilterProposal = {
   current_status: "",
   start_date: "",
   end_date: "",
+  bank_id: "",
 };
 
 export { formatDateToBackend, mockFilterProposal };
