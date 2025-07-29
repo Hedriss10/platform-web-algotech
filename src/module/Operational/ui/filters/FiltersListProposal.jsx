@@ -23,7 +23,6 @@ const FiltersListProposal = ({
     try {
       const userApi = new ManageBankers(user?.id, token);
       const response = await userApi.getBankersById(bankId);
-      // Tentar diferentes estruturas de resposta
       let agreements = [];
       if (Array.isArray(response.data)) {
         agreements = response.data[0]?.financial_agreements || [];
@@ -45,6 +44,10 @@ const FiltersListProposal = ({
   useEffect(() => {
     loadFinancialAgreements(filterValues.selectedBankId);
   }, [filterValues.selectedBankId]);
+
+  const handleApplyFilter = () => {
+    applyFilter();
+  };
 
   return (
     <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
@@ -188,7 +191,7 @@ const FiltersListProposal = ({
           </button>
           <button
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-            onClick={applyFilter}
+            onClick={handleApplyFilter}
           >
             Aplicar
           </button>

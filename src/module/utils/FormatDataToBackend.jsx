@@ -1,4 +1,3 @@
-// Função para formatar data para DD-MM-YYYY
 const formatDateToBackend = (date) => {
   if (!date) return "";
   const [year, month, day] = date.split("-");
@@ -9,7 +8,8 @@ const mockFilterProposal = {
   current_status: "",
   start_date: "",
   end_date: "",
-  bank_id: "",
+  selectedBankId: "",
+  selectedAgreementId: "",
 };
 
 export { formatDateToBackend, mockFilterProposal };

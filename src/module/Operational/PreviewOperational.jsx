@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../service/UserContext";
 import { notify } from "@module/utils/toastify";
@@ -12,6 +12,7 @@ import ListTablesOperational from "@module/Operational/ui/tables/ListTablesOpera
 import Icons from "@module/utils/Icons";
 import FiltersListProposal from "@module/Operational/ui/filters/FiltersListProposal";
 import Pagination from "@module/ui/Pagination/Pagination";
+import debounce from "lodash/debounce";
 
 const PreviewOperational = () => {
   const { user, token } = useUser();
@@ -32,6 +33,17 @@ const PreviewOperational = () => {
   const [bankers, setBankers] = useState([]);
   const [financialAgreements, setFinancialAgreements] = useState([]);
 
+  const memoizedFilterValues = useMemo(
+    () => filterValues,
+    [
+      filterValues.current_status,
+      filterValues.start_date,
+      filterValues.end_date,
+      filterValues.selectedBankId,
+      filterValues.selectedAgreementId,
+    ],
+  );
+
   const openFilterModal = () => {
     setIsFilterModalOpen(true);
   };
@@ -47,43 +59,71 @@ const PreviewOperational = () => {
         return;
       }
     }
-    setSearchTerm(filterValues.current_status);
+    setSearchTerm(filterValues.current_status || "");
     setCurrentPage(1);
     setIsFilterModalOpen(false);
+    loadOperational();
   };
 
-  const loadOperational = async () => {
-    setLoading(true);
-    setProposal([]);
-    try {
-      const usersApi = new ManageOperational(
-        user?.id,
-        searchTerm,
-        currentPage,
-        rowsPerPage,
-        formatDateToBackend(filterValues.start_date),
-        formatDateToBackend(filterValues.end_date),
-        filterValues.selectedBankId,
-        filterValues.selectedAgreementId,
-      );
+  const loadOperational = useCallback(
+    debounce(async () => {
+      setLoading(true);
+      setProposal([]);
+      try {
+        const formattedStartDate = filterValues.start_date
+          ? formatDateToBackend(filterValues.start_date)
+          : "";
+        const formattedEndDate = filterValues.end_date
+          ? formatDateToBackend(filterValues.end_date)
+          : "";
+        const bankId = filterValues.selectedBankId || "";
 
-      const response = await usersApi.getListProposalOperational(token);
-      if (response.empty) {
-        notify("Nenhuma proposta encontrada", { type: "info" });
-        setProposal([]);
-        setTotalPages(1);
-      } else {
-        setProposal(response.data);
-        setTotalPages(response.data.totalPages || 1);
+        const usersApi = new ManageOperational(
+            user?.id,
+            searchTerm,
+            currentPage,
+            rowsPerPage,
+            1,
+            "",
+            "", 
+            formattedStartDate,
+            formattedEndDate,
+            bankId,
+            filterValues.selectedAgreementId || "" 
+        );
+
+
+        const response = await usersApi.getListProposalOperational(token);
+
+        if (response.empty) {
+          notify("Nenhuma proposta encontrada", { type: "info" });
+          setProposal([]);
+          setTotalPages(1);
+        } else {
+          setProposal(response.data || []);
+          setTotalPages(response.metadata?.total_pages || 1);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar propostas:", error);
+        notify("Erro ao carregar propostas", { type: "error" });
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      notify("Erro ao carregar propostas", { type: "error" });
-    } finally {
-      setLoading(false);
-    }
-  };
+    }, 300),
+    [
+      user?.id,
+      searchTerm,
+      currentPage,
+      rowsPerPage,
+      filterValues.start_date,
+      filterValues.end_date,
+      filterValues.selectedBankId,
+      filterValues.selectedAgreementId,
+      token,
+    ],
+  );
 
-  const loadBankers = async () => {
+  const loadBankers = useCallback(async () => {
     setLoadingBankers(true);
     try {
       const userApi = new ManageBankers(user?.id, token);
@@ -96,20 +136,15 @@ const PreviewOperational = () => {
     } finally {
       setLoadingBankers(false);
     }
-  };
+  }, [user?.id, token]);
+
+  useEffect(() => {
+    loadBankers();
+  }, [loadBankers]);
 
   useEffect(() => {
     loadOperational();
-    loadBankers();
-  }, [
-    currentPage,
-    searchTerm,
-    rowsPerPage,
-    filterValues.start_date,
-    filterValues.end_date,
-    filterValues.selectedBankId,
-    filterValues.selectedAgreementId,
-  ]);
+  }, [memoizedFilterValues, currentPage, searchTerm, rowsPerPage]);
 
   const handlePreviewProposal = (id) => {
     try {
@@ -132,6 +167,7 @@ const PreviewOperational = () => {
     try {
       navigate(`/operational/proposal/update/${id}`);
     } catch (error) {
+      console.log(error);
       notify("Erro ao editar Proposta", { type: "error" });
     }
   };

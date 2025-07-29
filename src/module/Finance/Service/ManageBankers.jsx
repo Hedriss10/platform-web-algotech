@@ -1,4 +1,4 @@
-import api from "../../Hooks/ApiConfig";
+import api from "@module/Hooks/ApiConfig";
 
 class ManageBankers {
   constructor(
