@@ -1,9 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isAxiosError } from "axios";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Button, Input } from "../../components/ui";
 import { useAuth } from "../../hooks/useAuth";
+import { titlePlatform } from "../../utils/title-platform";
+import { Toastify } from "../../utils/toastify";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Informe o e-mail").email("E-mail inválido"),
@@ -12,9 +14,35 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
+function getLoginErrorMessage(err: unknown): string {
+  if (!isAxiosError(err)) {
+    return "Erro inesperado. Tenta de novo.";
+  }
+  const status = err.response?.status;
+  const data = err.response?.data as
+    | { detail?: string; message?: string }
+    | undefined;
+  const fromApi = data?.detail ?? data?.message;
+  if (typeof fromApi === "string" && fromApi.trim()) {
+    return fromApi;
+  }
+  if (status === 401 || status === 403) {
+    return "E-mail ou senha incorretos.";
+  }
+  if (status === 422) {
+    return "Dados inválidos. Verifica o e-mail e a senha.";
+  }
+  if (status === 429) {
+    return "Muitas tentativas. Aguarda um momento e tenta de novo.";
+  }
+  if (status && status >= 500) {
+    return "Serviço indisponível. Tenta mais tarde.";
+  }
+  return "Não foi possível iniciar sessão. Tenta de novo.";
+}
+
 export default function Login() {
   const { login, isLoading } = useAuth();
-  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     register,
@@ -26,78 +54,62 @@ export default function Login() {
   });
 
   const onSubmit = handleSubmit(async (data) => {
-    setSubmitError(null);
     try {
       await login(data.email, data.password);
+      Toastify("Sessão iniciada com sucesso.", {
+        type: "success",
+        position: "bottom-right",
+        theme: "light",
+        autoClose: 2500,
+      });
     } catch (err) {
-      if (isAxiosError(err)) {
-        const msg =
-          (err.response?.data as { detail?: string; message?: string })
-            ?.detail ??
-          (err.response?.data as { message?: string })?.message ??
-          err.message;
-        setSubmitError(
-          typeof msg === "string" ? msg : "Falha ao entrar. Tente de novo."
-        );
-      } else {
-        setSubmitError("Erro inesperado. Tente de novo.");
-      }
+      const message = getLoginErrorMessage(err);
+      Toastify(message, {
+        type: "error",
+        position: "top-right",
+        theme: "light",
+        autoClose: 4000,
+      });
     }
   });
 
   return (
     <form
+      className="rounded-2xl border border-white/60 bg-white/95 p-8 shadow-2xl shadow-blue-900/10 ring-1 ring-slate-200/80 backdrop-blur-sm sm:p-9"
       onSubmit={onSubmit}
-      className="w-full max-w-sm space-y-4 rounded-xl border border-white/10 bg-zinc-900/80 p-8 shadow-xl backdrop-blur"
+      noValidate
     >
-      <div className="space-y-1">
-        <h2 className="text-lg font-semibold text-white">Entrar</h2>
-        <p className="text-sm text-zinc-400">
-          Use o e-mail e a senha da sua conta.
+      <div className="mb-7">
+        <h2 className="text-balance text-2xl font-bold tracking-tight text-slate-900">
+          {titlePlatform}
+        </h2>
+        <p className="mt-1.5 text-pretty text-sm leading-relaxed text-slate-600">
+          Email e senha para acessar o sistema.
         </p>
       </div>
 
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-zinc-300">
-          E-mail
-        </label>
-        <input
+      <div className="flex flex-col gap-5">
+        <Input
+          label="E-mail"
           type="email"
           autoComplete="email"
-          className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-white outline-none ring-emerald-500/50 focus:border-emerald-500 focus:ring-2"
+          error={errors.email?.message}
           {...register("email")}
         />
-        {errors.email && (
-          <p className="text-sm text-red-400">{errors.email.message}</p>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-zinc-300">Senha</label>
-        <input
+        <Input
+          label="Senha"
           type="password"
           autoComplete="current-password"
-          className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-white outline-none ring-emerald-500/50 focus:border-emerald-500 focus:ring-2"
+          error={errors.password?.message}
           {...register("password")}
         />
-        {errors.password && (
-          <p className="text-sm text-red-400">{errors.password.message}</p>
-        )}
       </div>
 
-      {submitError && (
-        <p className="rounded-lg bg-red-950/80 px-3 py-2 text-sm text-red-200">
-          {submitError}
-        </p>
-      )}
-
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {isLoading ? "Entrando…" : "Entrar"}
-      </button>
+      <div className="mt-7">
+        <Button type="submit" variant="primary" fullWidth loading={isLoading}>
+          {isLoading ? "A iniciar sessão…" : "Entrar"}
+        </Button>
+      </div>
     </form>
   );
 }
