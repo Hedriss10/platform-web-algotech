@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+/* Garante que as classes em `src/` entram no scan (Tailwind v4 + Vite) */
+@source "./**/*.{js,ts,jsx,tsx}";
+
+/* Base: evita “página branca” sem estilos se algo falhar no scan */
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  background-color: #f8fafc;
+  color: #0f172a;
+}
