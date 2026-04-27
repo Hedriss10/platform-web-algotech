@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { HiHome, HiUserGroup } from "react-icons/hi2";
+import { HiBanknotes, HiHome, HiUserGroup } from "react-icons/hi2";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { titlePlatform } from "../../utils/title-platform";
@@ -74,6 +74,16 @@ export function AppAside() {
                 <HiUserGroup className="h-5 w-5" />
               </NavIcon>
               Funcionários
+            </>
+          )}
+        </NavLink>
+        <NavLink to="/bankers" className={navLinkClass}>
+          {({ isActive }) => (
+            <>
+              <NavIcon active={isActive}>
+                <HiBanknotes className="h-5 w-5" />
+              </NavIcon>
+              Bancos
             </>
           )}
         </NavLink>

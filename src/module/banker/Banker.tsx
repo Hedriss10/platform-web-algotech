@@ -2,46 +2,45 @@ import { isAxiosError } from "axios";
 import { useCallback, useEffect, useState } from "react";
 import {
   HiArrowPath,
+  HiBanknotes,
+  HiEye,
   HiPencilSquare,
   HiPlus,
   HiTrash,
-  HiUserGroup,
 } from "react-icons/hi2";
 import { Button } from "../../components/ui";
-import { deleteEmployee, fetchEmployees } from "../../service/employees";
-import type { Employee as EmployeeModel } from "../../types/employee";
+import { deleteBanker, fetchBankers } from "../../service/bankers";
+import type { Banker as BankerModel } from "../../types/banker";
 import { getApiErrorMessage } from "../../utils/api-error";
-import { formatDateTime, formatDocumentBr } from "../../utils/format";
+import { formatDateTime } from "../../utils/format";
 import { Toastify } from "../../utils/toastify";
-import EmployeeFormModal from "./EmployeeFormModal";
+import BankerDetailModal from "./BankerDetailModal";
+import BankerFormModal from "./BankerFormModal";
 
-export default function Employee() {
-  const [employees, setEmployees] = useState<EmployeeModel[]>([]);
+export default function Banker() {
+  const [bankers, setBankers] = useState<BankerModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
-  const [editing, setEditing] = useState<EmployeeModel | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [formMode, setFormMode] = useState<"create" | "edit">("create");
+  const [editing, setEditing] = useState<BankerModel | null>(null);
+
+  const [detailId, setDetailId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const list = await fetchEmployees();
-      setEmployees(list);
+      const list = await fetchBankers();
+      setBankers(list);
     } catch (err) {
       if (isAxiosError(err)) {
-        const status = err.response?.status;
-        if (status === 401 || status === 403) {
-          setError("Sem permissão para listar funcionários.");
-        } else {
-          setError(getApiErrorMessage(err));
-        }
+        setError(getApiErrorMessage(err));
       } else {
         setError("Erro desconhecido ao carregar.");
       }
-      setEmployees([]);
+      setBankers([]);
     } finally {
       setLoading(false);
     }
@@ -52,25 +51,29 @@ export default function Employee() {
   }, [load]);
 
   const openCreate = () => {
-    setModalMode("create");
+    setFormMode("create");
     setEditing(null);
-    setModalOpen(true);
+    setFormOpen(true);
   };
 
-  const openEdit = (row: EmployeeModel) => {
-    setModalMode("edit");
+  const openEdit = (row: BankerModel) => {
+    setFormMode("edit");
     setEditing(row);
-    setModalOpen(true);
+    setFormOpen(true);
   };
 
-  const handleDelete = async (row: EmployeeModel) => {
+  const openDetail = (id: string) => {
+    setDetailId(id);
+  };
+
+  const handleDelete = async (row: BankerModel) => {
     const ok = globalThis.confirm(
-      `Remover ${row.first_name} ${row.last_name} da lista? Esta ação não pode ser desfeita.`
+      `Remover o banco «${row.name}»? Esta ação não pode ser desfeita.`
     );
     if (!ok) return;
     try {
-      await deleteEmployee(row.id);
-      Toastify("Funcionário removido.", {
+      await deleteBanker(row.id);
+      Toastify("Banco removido.", {
         type: "success",
         position: "top-right",
       });
@@ -89,14 +92,14 @@ export default function Employee() {
       <header className="flex flex-col gap-4 border-b border-slate-200/80 pb-8 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/20">
-            <HiUserGroup className="h-7 w-7" aria-hidden />
+            <HiBanknotes className="h-7 w-7" aria-hidden />
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-              Funcionários
+              Bancos
             </h1>
             <p className="mt-1 text-sm text-slate-600">
-              Listagem e gestão de funcionários.
+              Listagem e gestão de bancos.
             </p>
           </div>
         </div>
@@ -138,34 +141,31 @@ export default function Employee() {
       <section className="mt-8 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-200/40">
         {loading ? (
           <p className="px-6 py-10 text-center text-sm text-slate-500">
-            A carregar funcionários…
+            A carregar bancos…
           </p>
-        ) : employees.length === 0 ? (
-          <p className="px-6 py-10 text-center text-sm text-slate-500">
-            Nenhum funcionário encontrado.
-          </p>
+        ) : bankers.length === 0 ? (
+          <div className="px-6 py-10 text-center">
+            <p className="text-sm text-slate-500">Nenhum banco encontrado.</p>
+            <Button
+              type="button"
+              variant="primary"
+              className="mt-4 gap-2"
+              onClick={openCreate}
+            >
+              <HiPlus className="h-4 w-4" aria-hidden />
+              Criar banco
+            </Button>
+          </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[960px] border-collapse text-left text-sm">
+            <table className="w-full min-w-[640px] border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50/90">
                   <th className="whitespace-nowrap px-4 py-3 font-semibold text-slate-700">
                     Nome
                   </th>
                   <th className="whitespace-nowrap px-4 py-3 font-semibold text-slate-700">
-                    Documento
-                  </th>
-                  <th className="whitespace-nowrap px-4 py-3 font-semibold text-slate-700">
-                    E-mail
-                  </th>
-                  <th className="whitespace-nowrap px-4 py-3 font-semibold text-slate-700">
-                    Função
-                  </th>
-                  <th className="whitespace-nowrap px-4 py-3 font-semibold text-slate-700">
                     Criado em
-                  </th>
-                  <th className="whitespace-nowrap px-4 py-3 font-semibold text-slate-700">
-                    Atualizado em
                   </th>
                   <th className="whitespace-nowrap px-4 py-3 text-right font-semibold text-slate-700">
                     Ações
@@ -173,33 +173,27 @@ export default function Employee() {
                 </tr>
               </thead>
               <tbody>
-                {employees.map((row) => (
+                {bankers.map((row) => (
                   <tr
                     key={row.id}
                     className="border-b border-slate-100 last:border-0 hover:bg-blue-50/40"
                   >
                     <td className="px-4 py-3 font-medium text-slate-900">
-                      {row.first_name} {row.last_name}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-slate-700">
-                      {formatDocumentBr(row.document)}
-                    </td>
-                    <td className="max-w-[200px] truncate px-4 py-3 text-slate-700">
-                      {row.email}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3">
-                      <span className="inline-flex rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800">
-                        {row.role}
-                      </span>
+                      {row.name}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-slate-600">
                       {formatDateTime(row.created_at)}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-slate-600">
-                      {formatDateTime(row.updated_at)}
-                    </td>
                     <td className="whitespace-nowrap px-4 py-3 text-right">
-                      <div className="inline-flex gap-1">
+                      <div className="inline-flex justify-end gap-1">
+                        <button
+                          type="button"
+                          className="rounded-lg p-2 text-slate-600 transition hover:bg-blue-100 hover:text-blue-700"
+                          title="Ver detalhe"
+                          onClick={() => openDetail(row.id)}
+                        >
+                          <HiEye className="h-5 w-5" />
+                        </button>
                         <button
                           type="button"
                           className="rounded-lg p-2 text-slate-600 transition hover:bg-blue-100 hover:text-blue-700"
@@ -226,12 +220,20 @@ export default function Employee() {
         )}
       </section>
 
-      {modalOpen ? (
-        <EmployeeFormModal
-          mode={modalMode}
-          employee={editing}
-          onClose={() => setModalOpen(false)}
+      {formOpen ? (
+        <BankerFormModal
+          mode={formMode}
+          banker={editing}
+          onClose={() => setFormOpen(false)}
           onSaved={() => void load()}
+        />
+      ) : null}
+
+      {detailId ? (
+        <BankerDetailModal
+          bankerId={detailId}
+          onClose={() => setDetailId(null)}
+          onRequestEdit={(b) => openEdit(b)}
         />
       ) : null}
     </div>

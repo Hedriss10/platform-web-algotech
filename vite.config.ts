@@ -24,7 +24,7 @@ export default defineConfig({
             // Proxy para API principal (contorna CORS/preflight em desenvolvimento)
             "/api": {
                 // TODO: alterar quando for realizar o deploy
-                target: "http://127.0.0.1:8000",
+                target: "http://127.0.0.1:8005",
                 changeOrigin: true,
                 // Backend local em HTTP — não validar certificado TLS do target
                 secure: false,
