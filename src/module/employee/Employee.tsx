@@ -7,7 +7,7 @@ import {
   HiTrash,
   HiUserGroup,
 } from "react-icons/hi2";
-import { Button } from "../../components/ui";
+import { Button, ConfirmDeleteModal } from "../../components/ui";
 import { deleteEmployee, fetchEmployees } from "../../service/employees";
 import type { Employee as EmployeeModel } from "../../types/employee";
 import { getApiErrorMessage } from "../../utils/api-error";
@@ -23,6 +23,7 @@ export default function Employee() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
   const [editing, setEditing] = useState<EmployeeModel | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<EmployeeModel | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -63,11 +64,9 @@ export default function Employee() {
     setModalOpen(true);
   };
 
-  const handleDelete = async (row: EmployeeModel) => {
-    const ok = globalThis.confirm(
-      `Remover ${row.first_name} ${row.last_name} da lista? Esta ação não pode ser desfeita.`
-    );
-    if (!ok) return;
+  const runDeleteEmployee = async () => {
+    if (!deleteTarget) return;
+    const row = deleteTarget;
     try {
       await deleteEmployee(row.id);
       Toastify("Funcionário removido.", {
@@ -81,6 +80,7 @@ export default function Employee() {
         position: "top-right",
         autoClose: 5000,
       });
+      throw err;
     }
   };
 
@@ -212,7 +212,7 @@ export default function Employee() {
                           type="button"
                           className="rounded-lg p-2 text-slate-600 transition hover:bg-red-50 hover:text-red-600"
                           title="Remover"
-                          onClick={() => void handleDelete(row)}
+                          onClick={() => setDeleteTarget(row)}
                         >
                           <HiTrash className="h-5 w-5" />
                         </button>
@@ -234,6 +234,20 @@ export default function Employee() {
           onSaved={() => void load()}
         />
       ) : null}
+
+      <ConfirmDeleteModal
+        open={deleteTarget !== null}
+        title="Remover funcionário?"
+        description={
+          <>
+            Remover {deleteTarget?.first_name ?? ""}{" "}
+            {deleteTarget?.last_name ?? ""} da lista? Esta ação não pode ser
+            desfeita.
+          </>
+        }
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={runDeleteEmployee}
+      />
     </div>
   );
 }

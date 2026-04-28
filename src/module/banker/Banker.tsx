@@ -8,7 +8,7 @@ import {
   HiPlus,
   HiTrash,
 } from "react-icons/hi2";
-import { Button } from "../../components/ui";
+import { Button, ConfirmDeleteModal } from "../../components/ui";
 import { deleteBanker, fetchBankers } from "../../service/bankers";
 import type { Banker as BankerModel } from "../../types/banker";
 import { getApiErrorMessage } from "../../utils/api-error";
@@ -27,6 +27,7 @@ export default function Banker() {
   const [editing, setEditing] = useState<BankerModel | null>(null);
 
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<BankerModel | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -66,11 +67,9 @@ export default function Banker() {
     setDetailId(id);
   };
 
-  const handleDelete = async (row: BankerModel) => {
-    const ok = globalThis.confirm(
-      `Remover o banco «${row.name}»? Esta ação não pode ser desfeita.`
-    );
-    if (!ok) return;
+  const runDeleteBanker = async () => {
+    if (!deleteTarget) return;
+    const row = deleteTarget;
     try {
       await deleteBanker(row.id);
       Toastify("Banco removido.", {
@@ -84,6 +83,7 @@ export default function Banker() {
         position: "top-right",
         autoClose: 5000,
       });
+      throw err;
     }
   };
 
@@ -206,7 +206,7 @@ export default function Banker() {
                           type="button"
                           className="rounded-lg p-2 text-slate-600 transition hover:bg-red-50 hover:text-red-600"
                           title="Remover"
-                          onClick={() => void handleDelete(row)}
+                          onClick={() => setDeleteTarget(row)}
                         >
                           <HiTrash className="h-5 w-5" />
                         </button>
@@ -236,6 +236,19 @@ export default function Banker() {
           onRequestEdit={(b) => openEdit(b)}
         />
       ) : null}
+
+      <ConfirmDeleteModal
+        open={deleteTarget !== null}
+        title="Remover banco?"
+        description={
+          <>
+            Remover o banco <b>{deleteTarget?.name ?? ""}</b>? Esta ação não
+            pode ser desfeita.
+          </>
+        }
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={runDeleteBanker}
+      />
     </div>
   );
 }
