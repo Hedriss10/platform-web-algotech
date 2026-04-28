@@ -5,6 +5,7 @@ import {
   HiBanknotes,
   HiChevronLeft,
   HiChevronRight,
+  HiBolt,
   HiCurrencyDollar,
   HiHome,
   HiUserGroup,
@@ -47,7 +48,7 @@ function NavIcon({
   );
 }
 
-type NavSectionKey = "financeiro" | "gestao";
+type NavSectionKey = "financeiro" | "gestao" | "automacao";
 
 function NavSection({
   id,
@@ -133,17 +134,21 @@ export function AppAside() {
   >({
     financeiro: true,
     gestao: true,
+    automacao: true,
   });
 
   useEffect(() => {
     const path = location.pathname;
-    setOpenSections((s) => ({
-      ...s,
-      ...(path.startsWith("/bankers") || path.startsWith("/loan-operations")
-        ? { financeiro: true }
-        : {}),
-      ...(path.startsWith("/employee") ? { gestao: true } : {}),
-    }));
+    queueMicrotask(() => {
+      setOpenSections((s) => ({
+        ...s,
+        ...(path.startsWith("/bankers") || path.startsWith("/loan-operations")
+          ? { financeiro: true }
+          : {}),
+        ...(path.startsWith("/employee") ? { gestao: true } : {}),
+        ...(path.startsWith("/automation") ? { automacao: true } : {}),
+      }));
+    });
   }, [location.pathname]);
 
   const toggleCollapsed = useCallback(() => {
@@ -163,7 +168,7 @@ export function AppAside() {
   return (
     <aside
       className={[
-        "flex h-screen shrink-0 flex-col border-r border-slate-200/90 bg-white/95 shadow-sm shadow-slate-200/40 backdrop-blur-sm transition-[width] duration-200 ease-out",
+        "sticky top-0 flex h-dvh max-h-dvh shrink-0 flex-col border-r border-slate-200/95 bg-gradient-to-b from-white via-white to-slate-50/98 shadow-sm shadow-slate-200/35 transition-[width] duration-200 ease-out",
         collapsed ? "w-[4.25rem]" : "w-64",
       ].join(" ")}
     >
@@ -224,7 +229,7 @@ export function AppAside() {
 
       <nav
         className={[
-          "flex flex-1 flex-col overflow-y-auto overflow-x-hidden py-4",
+          "flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden overscroll-contain py-4",
           collapsed ? "px-1.5" : "px-3",
         ].join(" ")}
         aria-label="Principal"
@@ -287,6 +292,32 @@ export function AppAside() {
                 </NavIcon>
                 <span className={collapsed ? "sr-only" : undefined}>
                   Operação financeira
+                </span>
+              </>
+            )}
+          </NavLink>
+        </NavSection>
+
+        <NavSection
+          id="nav-automacao-heading"
+          label="Automação"
+          asideCollapsed={collapsed}
+          open={openSections.automacao}
+          onToggle={() => toggleNavSection("automacao")}
+        >
+          <NavLink
+            to="/automation/daycoval"
+            className={linkCls}
+            title={collapsed ? "Automação / Daycoval" : undefined}
+            aria-label={collapsed ? "Automação / Daycoval" : undefined}
+          >
+            {({ isActive }) => (
+              <>
+                <NavIcon active={isActive}>
+                  <HiBolt className="h-5 w-5" />
+                </NavIcon>
+                <span className={collapsed ? "sr-only" : undefined}>
+                  Daycoval
                 </span>
               </>
             )}

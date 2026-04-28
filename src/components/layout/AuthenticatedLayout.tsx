@@ -6,9 +6,9 @@ import { AppAside } from "./AppAside";
  */
 export function AuthenticatedLayout() {
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-dvh w-full items-stretch bg-slate-50">
       <AppAside />
-      <main className="min-h-screen flex-1 overflow-y-auto bg-gradient-to-b from-slate-50 via-white to-blue-50/50">
+      <main className="min-h-dvh min-w-0 flex-1 overflow-y-auto bg-gradient-to-b from-slate-50 via-white to-blue-50/50">
         <Outlet />
       </main>
     </div>
