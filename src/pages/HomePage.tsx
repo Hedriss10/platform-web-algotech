@@ -11,11 +11,7 @@ export default function HomePage() {
         </h1>
         <p className="mt-2 max-w-xl text-pretty text-sm leading-relaxed text-slate-600">
           Área autenticada — o token é enviado automaticamente nas chamadas
-          feitas com{" "}
-          <code className="rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-xs text-slate-800">
-            apiClient
-          </code>
-          .
+          feitas com .
         </p>
       </header>
       <section className="mt-10 flex max-w-lg flex-col gap-2 text-sm text-slate-800">

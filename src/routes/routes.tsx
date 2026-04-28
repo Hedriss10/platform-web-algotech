@@ -4,6 +4,7 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import BankerPage from "../pages/BankerPage";
 import EmployeePage from "../pages/EmployeePage";
 import HomePage from "../pages/HomePage";
+import LoanOperationsPage from "../pages/LoanOperationsPage";
 import LoginPage from "../pages/LoginPage";
 
 const AppRoutes = () => {
@@ -15,6 +16,7 @@ const AppRoutes = () => {
           <Route index element={<HomePage />} />
           <Route path="employee" element={<EmployeePage />} />
           <Route path="bankers" element={<BankerPage />} />
+          <Route path="loan-operations" element={<LoanOperationsPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
