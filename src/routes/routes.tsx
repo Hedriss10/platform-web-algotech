@@ -7,6 +7,8 @@ import EmployeePage from "../pages/EmployeePage";
 import HomePage from "../pages/HomePage";
 import LoanOperationsPage from "../pages/LoanOperationsPage";
 import LoginPage from "../pages/LoginPage";
+import NewProposalPage from "../pages/NewProposalPage";
+import ProposalsPage from "../pages/ProposalsPage";
 
 const DaycovalAutomationPage = lazy(
   () => import("../pages/DaycovalAutomationPage")
@@ -36,6 +38,8 @@ const AppRoutes = () => {
           <Route path="employee" element={<EmployeePage />} />
           <Route path="bankers" element={<BankerPage />} />
           <Route path="loan-operations" element={<LoanOperationsPage />} />
+          <Route path="proposals/new" element={<NewProposalPage />} />
+          <Route path="proposals" element={<ProposalsPage />} />
           <Route
             path="automation/daycoval"
             element={<DaycovalAutomationSuspended />}

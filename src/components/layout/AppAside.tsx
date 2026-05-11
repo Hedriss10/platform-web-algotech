@@ -7,6 +7,7 @@ import {
   HiChevronRight,
   HiBolt,
   HiCurrencyDollar,
+  HiDocumentText,
   HiHome,
   HiUserGroup,
 } from "react-icons/hi2";
@@ -142,7 +143,9 @@ export function AppAside() {
     queueMicrotask(() => {
       setOpenSections((s) => ({
         ...s,
-        ...(path.startsWith("/bankers") || path.startsWith("/loan-operations")
+        ...(path.startsWith("/bankers") ||
+        path.startsWith("/loan-operations") ||
+        path.startsWith("/proposals")
           ? { financeiro: true }
           : {}),
         ...(path.startsWith("/employee") ? { gestao: true } : {}),
@@ -292,6 +295,23 @@ export function AppAside() {
                 </NavIcon>
                 <span className={collapsed ? "sr-only" : undefined}>
                   Operação financeira
+                </span>
+              </>
+            )}
+          </NavLink>
+          <NavLink
+            to="/proposals"
+            className={linkCls}
+            title={collapsed ? "Propostas" : undefined}
+            aria-label={collapsed ? "Propostas" : undefined}
+          >
+            {({ isActive }) => (
+              <>
+                <NavIcon active={isActive}>
+                  <HiDocumentText className="h-5 w-5" />
+                </NavIcon>
+                <span className={collapsed ? "sr-only" : undefined}>
+                  Propostas
                 </span>
               </>
             )}
