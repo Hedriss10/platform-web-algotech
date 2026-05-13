@@ -14,7 +14,11 @@ export type MargemBpoRequestBody = {
   matricula: string;
 };
 
-/** Resposta de consulta BPO (shape alinhado à API Safra). */
+/**
+ * Resposta de consulta BPO — alinhado a `MargemBpoOutSchema` no OpenAPI do Hub
+ * (`/openapi.json`). Campos opcionais na prática podem vir ausentes ou em alias
+ * snake_case; o cliente normaliza em `normalizeMargemBpoResponse`.
+ */
 export type MargemBpoResponse = {
   cpf?: string;
   margem?: number;

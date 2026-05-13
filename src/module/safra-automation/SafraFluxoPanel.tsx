@@ -17,6 +17,10 @@ import type {
     SafraBank,
 } from "../../types/safra";
 import { getApiErrorMessage } from "../../utils/api-error";
+import {
+    isMargemBpoResponseEmpty,
+    normalizeMargemBpoResponse,
+} from "../../utils/safra-margin-response";
 import { Toastify } from "../../utils/toastify";
 
 function onlyDigits(value: string): string {
@@ -243,8 +247,8 @@ function MargemBpoResultado({ data }: { data: MargemBpoResponse }) {
 
 function MargemBpoCard() {
     const storedReq = useMemo(() => getStoredSafraMarginBpoRequest(), []);
-    const storedRes = useMemo(
-        () => getStoredSafraMarginBpoResponse() as MargemBpoResponse | null,
+    const storedResNormalized = useMemo(
+        () => normalizeMargemBpoResponse(getStoredSafraMarginBpoResponse()),
         []
     );
 
@@ -262,12 +266,7 @@ function MargemBpoCard() {
     const [busy, setBusy] = useState(false);
     const [err, setErr] = useState<string | null>(null);
     const [resultado, setResultado] = useState<MargemBpoResponse | null>(() =>
-        storedRes &&
-            typeof storedRes === "object" &&
-            !Array.isArray(storedRes) &&
-            Object.keys(storedRes as object).length > 0
-            ? (storedRes as MargemBpoResponse)
-            : null
+        !isMargemBpoResponseEmpty(storedResNormalized) ? storedResNormalized : null
     );
 
     const aplicarDemo = () => {
