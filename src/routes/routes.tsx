@@ -14,6 +14,8 @@ const DaycovalAutomationPage = lazy(
   () => import("../pages/DaycovalAutomationPage")
 );
 
+const SafraAutomationPage = lazy(() => import("../pages/SafraAutomationPage"));
+
 function DaycovalAutomationSuspended() {
   return (
     <Suspense
@@ -24,6 +26,20 @@ function DaycovalAutomationSuspended() {
       }
     >
       <DaycovalAutomationPage />
+    </Suspense>
+  );
+}
+
+function SafraAutomationSuspended() {
+  return (
+    <Suspense
+      fallback={
+        <div className="px-6 py-10 text-sm text-slate-500">
+          A carregar automação Safra…
+        </div>
+      }
+    >
+      <SafraAutomationPage />
     </Suspense>
   );
 }
@@ -43,6 +59,10 @@ const AppRoutes = () => {
           <Route
             path="automation/daycoval"
             element={<DaycovalAutomationSuspended />}
+          />
+          <Route
+            path="automation/safra"
+            element={<SafraAutomationSuspended />}
           />
         </Route>
       </Route>

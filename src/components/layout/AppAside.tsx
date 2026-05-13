@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   HiArrowRightOnRectangle,
   HiBanknotes,
+  HiBuildingOffice2,
   HiChevronLeft,
   HiChevronRight,
   HiBolt,
@@ -338,6 +339,23 @@ export function AppAside() {
                 </NavIcon>
                 <span className={collapsed ? "sr-only" : undefined}>
                   Daycoval
+                </span>
+              </>
+            )}
+          </NavLink>
+          <NavLink
+            to="/automation/safra"
+            className={linkCls}
+            title={collapsed ? "Automação / Safra" : undefined}
+            aria-label={collapsed ? "Automação / Safra" : undefined}
+          >
+            {({ isActive }) => (
+              <>
+                <NavIcon active={isActive}>
+                  <HiBuildingOffice2 className="h-5 w-5" />
+                </NavIcon>
+                <span className={collapsed ? "sr-only" : undefined}>
+                  Safra
                 </span>
               </>
             )}

@@ -8,7 +8,26 @@ export type ApiErrorBody = {
   code?: string;
   message?: string;
   detail?: string;
+  errors?: unknown;
 };
+
+function formatValidationErrorsList(errors: unknown): string | null {
+  if (!Array.isArray(errors) || errors.length === 0) return null;
+  const parts = errors.map((item) => {
+    if (typeof item === "string") return item.trim();
+    if (item && typeof item === "object" && "msg" in item) {
+      const m = (item as { msg?: unknown }).msg;
+      if (typeof m === "string" && m.trim()) return m.trim();
+    }
+    try {
+      return JSON.stringify(item);
+    } catch {
+      return String(item);
+    }
+  });
+  const joined = parts.filter(Boolean).join("; ");
+  return joined || null;
+}
 
 export function getApiErrorMessage(err: unknown): string {
   if (!isAxiosError(err)) {
@@ -17,8 +36,14 @@ export function getApiErrorMessage(err: unknown): string {
   const raw = err.response?.data;
   if (raw && typeof raw === "object") {
     const data = raw as ApiErrorBody;
+    const validation = formatValidationErrorsList(data.errors);
     if (typeof data.message === "string" && data.message.trim()) {
-      return data.message;
+      return validation
+        ? `${data.message.trim()}: ${validation}`
+        : data.message;
+    }
+    if (validation) {
+      return validation;
     }
     if (typeof data.detail === "string" && data.detail.trim()) {
       return data.detail;
