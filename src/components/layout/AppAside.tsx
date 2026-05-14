@@ -354,9 +354,7 @@ export function AppAside() {
                 <NavIcon active={isActive}>
                   <HiBuildingOffice2 className="h-5 w-5" />
                 </NavIcon>
-                <span className={collapsed ? "sr-only" : undefined}>
-                  Safra
-                </span>
+                <span className={collapsed ? "sr-only" : undefined}>Safra</span>
               </>
             )}
           </NavLink>

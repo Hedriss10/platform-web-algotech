@@ -1,5 +1,5 @@
-import type { FieldErrors, UseFormRegister } from "react-hook-form";
 import type { ReactNode } from "react";
+import type { FieldErrors, UseFormRegister } from "react-hook-form";
 import { Input, Select } from "../../components/ui";
 import type { Banker } from "../../types/banker";
 import type { FinancialAgreement } from "../../types/financial-agreement";
@@ -122,8 +122,8 @@ export default function ProposalMasterFormFields<
               ))}
             </Select>
             <p className="text-xs text-slate-500">
-              Enum da API: tipo de documento oficial. O número do CPF vai no
-              campo «CPF»; o número do RG no campo «RG».
+              tipo de documento oficial. O número do CPF vai no campo «CPF»; o
+              número do RG no campo «RG».
             </p>
           </div>
           <Input

@@ -44,7 +44,13 @@ function asBool(v: unknown): boolean | undefined {
   if (typeof v === "string") {
     const s = v.trim().toLowerCase();
     if (s === "true" || s === "s" || s === "sim" || s === "yes") return true;
-    if (s === "false" || s === "n" || s === "nao" || s === "não" || s === "no") {
+    if (
+      s === "false" ||
+      s === "n" ||
+      s === "nao" ||
+      s === "não" ||
+      s === "no"
+    ) {
       return false;
     }
   }

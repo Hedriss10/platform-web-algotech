@@ -7,9 +7,40 @@ import { isAxiosError } from "axios";
 export type ApiErrorBody = {
   code?: string;
   message?: string;
-  detail?: string;
+  detail?: unknown;
   errors?: unknown;
 };
+
+function formatDetailField(detail: unknown): string | null {
+  if (typeof detail === "string") {
+    const t = detail.trim();
+    return t || null;
+  }
+  if (Array.isArray(detail)) {
+    const msgs = detail
+      .map((item) => {
+        if (item && typeof item === "object" && "msg" in item) {
+          const m = (item as { msg?: unknown }).msg;
+          return typeof m === "string" ? m.trim() : null;
+        }
+        return null;
+      })
+      .filter((x): x is string => Boolean(x));
+    if (msgs.length) return msgs.join("; ");
+  }
+  if (detail && typeof detail === "object") {
+    const messages = (detail as { messages?: unknown }).messages;
+    if (Array.isArray(messages) && messages.length > 0) {
+      const parts = messages
+        .map((m) =>
+          typeof m === "string" ? m.trim() : m != null ? String(m) : ""
+        )
+        .filter(Boolean);
+      if (parts.length) return parts.join("\n");
+    }
+  }
+  return null;
+}
 
 function formatValidationErrorsList(errors: unknown): string | null {
   if (!Array.isArray(errors) || errors.length === 0) return null;
@@ -45,8 +76,9 @@ export function getApiErrorMessage(err: unknown): string {
     if (validation) {
       return validation;
     }
-    if (typeof data.detail === "string" && data.detail.trim()) {
-      return data.detail;
+    const detailMsg = formatDetailField(data.detail);
+    if (detailMsg) {
+      return detailMsg;
     }
   }
   if (typeof raw === "string" && raw.trim()) {

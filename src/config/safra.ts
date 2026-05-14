@@ -6,7 +6,7 @@ const STORAGE_LAST_MARGIN_RES = "safra.margin.bpo.lastResponseJson";
 /** Fingerprint usado pelo backend para resposta simulada em homologação/demo. */
 export const SAFRA_DEMO_MARGIN_BPO: MargemBpoRequestBody = {
   convenio: 10237,
-  cpf: 38585766034,
+  cpf: "38585766034",
   idProduto: 1,
   matricula: "303048269980000",
 };
@@ -20,15 +20,23 @@ export function getStoredSafraMarginBpoRequest(): MargemBpoRequestBody | null {
     const r = o as Record<string, unknown>;
     if (
       typeof r.convenio !== "number" ||
-      typeof r.cpf !== "number" ||
       typeof r.idProduto !== "number" ||
       typeof r.matricula !== "string"
     ) {
       return null;
     }
+    let cpfStr: string;
+    if (typeof r.cpf === "string") {
+      cpfStr = r.cpf.replace(/\D/g, "");
+    } else if (typeof r.cpf === "number" && Number.isFinite(r.cpf)) {
+      cpfStr = String(Math.trunc(r.cpf)).padStart(11, "0");
+    } else {
+      return null;
+    }
+    if (cpfStr.length !== 11) return null;
     return {
       convenio: r.convenio,
-      cpf: r.cpf,
+      cpf: cpfStr,
       idProduto: r.idProduto,
       matricula: r.matricula,
     };
@@ -37,7 +45,9 @@ export function getStoredSafraMarginBpoRequest(): MargemBpoRequestBody | null {
   }
 }
 
-export function setStoredSafraMarginBpoRequest(body: MargemBpoRequestBody): void {
+export function setStoredSafraMarginBpoRequest(
+  body: MargemBpoRequestBody
+): void {
   sessionStorage.setItem(STORAGE_LAST_MARGIN_REQ, JSON.stringify(body));
 }
 
