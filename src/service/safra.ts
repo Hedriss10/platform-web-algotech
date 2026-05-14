@@ -74,12 +74,8 @@ export async function safraBatchSearchJobIds(): Promise<string[]> {
 }
 
 /** Exclusão física do lote em Postgres — `DELETE …/batch/search/{job_id}` (204, sem Redis). */
-export const safraBatchSearchDelete = async (
-  jobId: string
-): Promise<void> => {
-  await apiClient.delete(
-    `${PREFIX}/batch/search/${encodeURIComponent(jobId)}`
-  );
+export const safraBatchSearchDelete = async (jobId: string): Promise<void> => {
+  await apiClient.delete(`${PREFIX}/batch/search/${encodeURIComponent(jobId)}`);
 };
 
 /**

@@ -3,11 +3,11 @@ PROJECT_NAME := platform-web-algotech
 DOCKER_DEV_FILE := dockers/docker-compose.dev.yml
 DOCKER_PROD_FILE := dockers/docker-compose.prod.yml
 
-.PHONY: help dev-up dev-down dev-build dev-logs prod-up prod-down prod-build prod-logs
+.PHONY: help dev-up dev-down dev-build dev-logs prod-up prod-down prod-build prod-logs deploy
 
 DEPLOY_IMAGE := docker buildx build \
   --platform linux/amd64 \
-  -f docker/Dockerfile \
+  -f Dockerfile \
   -t hedris10/platform-web-algotech:latest \
   --push .
 
@@ -21,6 +21,7 @@ help:
 	@echo "  prod-down   - derruba o ambiente de produção"
 	@echo "  prod-build  - builda a imagem de produção"
 	@echo "  prod-logs   - mostra logs do container web (prod)"
+	@echo "  deploy      - builda e publica a imagem Docker"
 
 dev-up:
 	docker compose -f $(DOCKER_DEV_FILE) up -d --build

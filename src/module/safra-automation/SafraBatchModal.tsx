@@ -282,8 +282,7 @@ export default function SafraBatchModal({
     setDeleteBusyId(jobId);
     try {
       await safraBatchSearchDelete(jobId);
-      const atual =
-        jobStatus?.job_id ?? accepted?.job_id ?? null;
+      const atual = jobStatus?.job_id ?? accepted?.job_id ?? null;
       if (atual === jobId) {
         stopPolling();
         setAccepted(null);
@@ -510,10 +509,12 @@ export default function SafraBatchModal({
             </div>
             <p className="mb-3 text-xs leading-relaxed text-slate-500">
               Lista dos envios que já têm resultado guardado.{" "}
-              <strong className="font-medium text-slate-600">Descarregar</strong>{" "}
+              <strong className="font-medium text-slate-600">
+                Descarregar
+              </strong>{" "}
               guarda a folha no computador (abre bem no Excel).{" "}
-              <strong className="font-medium text-slate-600">Apagar</strong> remove
-              para sempre os dados desse envio no servidor.
+              <strong className="font-medium text-slate-600">Apagar</strong>{" "}
+              remove para sempre os dados desse envio no servidor.
             </p>
             {jobIdsErr ? (
               <div
@@ -542,43 +543,43 @@ export default function SafraBatchModal({
                         key={id}
                         className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-100 bg-slate-50/80 px-3 py-2"
                       >
-                      <span className="font-mono text-[11px] text-slate-800 break-all">
-                        {id}
-                      </span>
-                      <div className="flex shrink-0 flex-wrap gap-2">
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          className="gap-1.5 !min-h-9 text-xs"
-                          disabled={
-                            exportBusyId === id ||
-                            deleteBusyId === id ||
-                            jobIdsBusy
-                          }
-                          onClick={() => void exportJob(id)}
-                        >
-                          <HiArrowDownTray
-                            className="h-3.5 w-3.5"
-                            aria-hidden
-                          />
-                          Descarregar
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          className="gap-1.5 !min-h-9 border-red-200 text-xs text-red-800 hover:border-red-300 hover:bg-red-50"
-                          disabled={
-                            exportBusyId === id ||
-                            deleteBusyId === id ||
-                            jobIdsBusy
-                          }
-                          onClick={() => void deleteLot(id)}
-                          aria-label="Apagar resultados guardados deste envio"
-                        >
-                          <HiTrash className="h-3.5 w-3.5" aria-hidden />
-                          Apagar
-                        </Button>
-                      </div>
+                        <span className="font-mono text-[11px] text-slate-800 break-all">
+                          {id}
+                        </span>
+                        <div className="flex shrink-0 flex-wrap gap-2">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            className="gap-1.5 !min-h-9 text-xs"
+                            disabled={
+                              exportBusyId === id ||
+                              deleteBusyId === id ||
+                              jobIdsBusy
+                            }
+                            onClick={() => void exportJob(id)}
+                          >
+                            <HiArrowDownTray
+                              className="h-3.5 w-3.5"
+                              aria-hidden
+                            />
+                            Descarregar
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            className="gap-1.5 !min-h-9 border-red-200 text-xs text-red-800 hover:border-red-300 hover:bg-red-50"
+                            disabled={
+                              exportBusyId === id ||
+                              deleteBusyId === id ||
+                              jobIdsBusy
+                            }
+                            onClick={() => void deleteLot(id)}
+                            aria-label="Apagar resultados guardados deste envio"
+                          >
+                            <HiTrash className="h-3.5 w-3.5" aria-hidden />
+                            Apagar
+                          </Button>
+                        </div>
                       </li>
                     ))}
                   </ul>
