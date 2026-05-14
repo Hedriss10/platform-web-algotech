@@ -5,6 +5,12 @@ DOCKER_PROD_FILE := dockers/docker-compose.prod.yml
 
 .PHONY: help dev-up dev-down dev-build dev-logs prod-up prod-down prod-build prod-logs
 
+DEPLOY_IMAGE := docker buildx build \
+  --platform linux/amd64 \
+  -f docker/Dockerfile \
+  -t hedris10/platform-web-algotech:latest \
+  --push .
+
 help:
 	@echo "Targets disponíveis:"
 	@echo "  dev-up      - sobe o ambiente de desenvolvimento (docker-compose.dev)"
@@ -39,3 +45,6 @@ prod-build:
 
 prod-logs:
 	docker compose -f $(DOCKER_PROD_FILE) logs -f web
+
+deploy:
+	$(DEPLOY_IMAGE)
