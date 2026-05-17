@@ -5,6 +5,7 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import BankerPage from "../pages/BankerPage";
 import EmployeePage from "../pages/EmployeePage";
 import HomePage from "../pages/HomePage";
+import RoomsPage from "../pages/RoomsPage";
 import LoanOperationsPage from "../pages/LoanOperationsPage";
 import LoginPage from "../pages/LoginPage";
 import NewProposalPage from "../pages/NewProposalPage";
@@ -52,6 +53,7 @@ const AppRoutes = () => {
         <Route element={<AuthenticatedLayout />}>
           <Route index element={<HomePage />} />
           <Route path="employee" element={<EmployeePage />} />
+          <Route path="rooms" element={<RoomsPage />} />
           <Route path="bankers" element={<BankerPage />} />
           <Route path="loan-operations" element={<LoanOperationsPage />} />
           <Route path="proposals/new" element={<NewProposalPage />} />

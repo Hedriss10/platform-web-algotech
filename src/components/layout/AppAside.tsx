@@ -8,6 +8,7 @@ import {
   HiChevronRight,
   HiBolt,
   HiCurrencyDollar,
+  HiCube,
   HiDocumentText,
   HiHome,
   HiUserGroup,
@@ -149,7 +150,9 @@ export function AppAside() {
         path.startsWith("/proposals")
           ? { financeiro: true }
           : {}),
-        ...(path.startsWith("/employee") ? { gestao: true } : {}),
+        ...(path.startsWith("/employee") || path.startsWith("/rooms")
+          ? { gestao: true }
+          : {}),
         ...(path.startsWith("/automation") ? { automacao: true } : {}),
       }));
     });
@@ -381,6 +384,21 @@ export function AppAside() {
                 <span className={collapsed ? "sr-only" : undefined}>
                   Funcionários
                 </span>
+              </>
+            )}
+          </NavLink>
+          <NavLink
+            to="/rooms"
+            className={linkCls}
+            title={collapsed ? "Salas" : undefined}
+            aria-label={collapsed ? "Salas" : undefined}
+          >
+            {({ isActive }) => (
+              <>
+                <NavIcon active={isActive}>
+                  <HiCube className="h-5 w-5" />
+                </NavIcon>
+                <span className={collapsed ? "sr-only" : undefined}>Salas</span>
               </>
             )}
           </NavLink>
