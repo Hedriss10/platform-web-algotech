@@ -16,14 +16,22 @@ import {
   setStoredSafraMarginBpoResponse,
 } from "../../config/safra";
 import {
+  safraConsultarFarolCredito,
   safraConsultarMargemBpo,
   safraListarBancos,
+  safraListarConvenios,
+  safraListarTabelasJuros,
+  safraObterTokenDebug,
 } from "../../service/safra";
 import {
   SAFRA_ID_PRODUTO_OPCOES,
+  type CreditLighthouseItem,
+  type CreditLighthouseRequestBody,
   type MargemBpoRequestBody,
   type MargemBpoResponse,
   type SafraBank,
+  type SafraFinancialAgreement,
+  type SafraInterestTable,
 } from "../../types/safra";
 import { getApiErrorMessage } from "../../utils/api-error";
 import {
@@ -34,6 +42,12 @@ import { Toastify } from "../../utils/toastify";
 
 function onlyDigits(value: string): string {
   return value.replace(/\D/g, "");
+}
+
+/** Converte CPF em inteiro de 11 dígitos para o Farol de crédito. */
+function cpfDigitsToFarolNumber(cpfDigits: string): number {
+  const d = onlyDigits(cpfDigits).padStart(11, "0").slice(-11);
+  return Number.parseInt(d, 10);
 }
 
 function formatCpfDigits(digits: string): string {
@@ -90,10 +104,10 @@ function BancosSafraCard() {
   return (
     <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-slate-200/40">
       <h2 className="text-lg font-semibold text-slate-900">
-        1. Bancos (Safra)
+        1 — Bancos parceiros
       </h2>
       <p className="mt-1 text-sm text-slate-600">
-        Lista devolvida pelo Hub a partir da API correspondente.
+        Instituições disponíveis nesta integração.
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
         <Button
@@ -227,11 +241,10 @@ function MargemBpoResultado({ data }: { data: MargemBpoResponse }) {
         Resultado da consulta
       </h3>
       <p className="mt-2 text-xs leading-relaxed text-slate-500">
-        O campo margem pode ser{" "}
-        <strong className="font-medium text-slate-600">negativo</strong> quando
-        a origem indica indisponibilidade; campos opcionais podem vir como{" "}
-        <code className="rounded bg-slate-100 px-1 text-[11px]">null</code> no
-        JSON.
+        A margem pode aparecer{" "}
+        <strong className="font-medium text-slate-600">negativa</strong> quando
+        não houver valor disponível. Alguns dados podem ficar em branco se o
+        banco não os enviar.
       </p>
       <dl className="mt-3">
         {margemRow("CPF", data.cpf)}
@@ -310,7 +323,7 @@ function MargemBpoCard() {
     }
     if (cpfDigits.length !== 11) {
       Toastify(
-        "CPF deve ter 11 dígitos (zeros à esquerda são preservados ao enviar).",
+        "O CPF deve ter 11 dígitos. Use zeros à esquerda se necessário.",
         {
           type: "warning",
           position: "top-right",
@@ -322,7 +335,7 @@ function MargemBpoCard() {
       !Number.isFinite(prod) ||
       !SAFRA_ID_PRODUTO_OPCOES.some((o) => o.value === prod)
     ) {
-      Toastify("Selecione um produto BPO válido (1, 2, 5 ou 7).", {
+      Toastify("Selecione um tipo de operação válido na lista.", {
         type: "warning",
         position: "top-right",
       });
@@ -360,7 +373,7 @@ function MargemBpoCard() {
       setErr(
         isAxiosError(e)
           ? getApiErrorMessage(e)
-          : "Erro na consulta de margem BPO."
+          : "Erro na consulta de margem."
       );
     } finally {
       setBusy(false);
@@ -370,13 +383,11 @@ function MargemBpoCard() {
   return (
     <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-slate-200/40">
       <h2 className="text-lg font-semibold text-slate-900">
-        2. Consulta de margem (BPO)
+        2 — Consulta de margem
       </h2>
       <p className="mt-1 text-sm text-slate-600">
-        CPF é enviado como{" "}
-        <strong className="font-medium text-slate-700">texto</strong> só com
-        dígitos, para preservar zeros à esquerda. Produtos: 1 NOVO, 2 REFIN, 5
-        RETENÇÃO, 7 PORTABILIDADE.
+        Informe o CPF completo (com zeros à esquerda, se aplicável) e escolha o
+        tipo de operação: novo, refinanciamento, retenção ou portabilidade.
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
         <Button type="button" variant="secondary" onClick={aplicarDemo}>
@@ -392,7 +403,7 @@ function MargemBpoCard() {
           placeholder="ex.: 10237"
         />
         <Select
-          label="Produto BPO (idProduto)"
+          label="Tipo de operação"
           value={idProduto}
           onChange={(e) => setIdProduto(e.target.value)}
         >
@@ -443,12 +454,531 @@ function MargemBpoCard() {
   );
 }
 
-/** Painel principal do fluxo Safra (proxy Hub `/api/v2/safra`). */
+function ConveniosSafraCard() {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [rows, setRows] = useState<SafraFinancialAgreement[]>([]);
+  const [page, setPage] = useState(1);
+
+  const load = useCallback(async () => {
+    setBusy(true);
+    setErr(null);
+    try {
+      const list = await safraListarConvenios();
+      setRows(list);
+      setPage(1);
+    } catch (e) {
+      setRows([]);
+      setErr(
+        isAxiosError(e) ? getApiErrorMessage(e) : "Erro ao listar convênios."
+      );
+    } finally {
+      setBusy(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const total = rows.length;
+  const totalPages = Math.max(1, Math.ceil(total / BANKS_PAGE_SIZE));
+  useEffect(() => {
+    setPage((p) => Math.min(p, totalPages));
+  }, [totalPages]);
+
+  const currentPage = Math.min(Math.max(1, page), totalPages);
+  const start = (currentPage - 1) * BANKS_PAGE_SIZE;
+  const pageRows = rows.slice(start, start + BANKS_PAGE_SIZE);
+  const rangeLabel = `A mostrar ${start + 1}–${Math.min(start + BANKS_PAGE_SIZE, total)} de ${total}`;
+
+  return (
+    <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-slate-200/40">
+      <h2 className="text-lg font-semibold text-slate-900">
+        3 — Convênios
+      </h2>
+      <p className="mt-1 text-sm text-slate-600">
+        Órgãos e convênios disponíveis. O código listado serve para a consulta
+        de margem e para as tabelas de juros abaixo.
+      </p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => void load()}
+          disabled={busy}
+          className="gap-2"
+        >
+          <HiArrowPath
+            className={`h-4 w-4 ${busy ? "animate-spin" : ""}`}
+            aria-hidden
+          />
+          Atualizar
+        </Button>
+      </div>
+      {err ? (
+        <div
+          className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+          role="alert"
+        >
+          {err}
+        </div>
+      ) : null}
+      {rows.length > 0 ? (
+        <>
+          <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200/90">
+            <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50/90">
+                  <th className="whitespace-nowrap px-4 py-2.5 font-semibold text-slate-700">
+                    Código
+                  </th>
+                  <th className="min-w-[10rem] px-4 py-2.5 font-semibold text-slate-700">
+                    Nome
+                  </th>
+                  <th className="min-w-[8rem] px-4 py-2.5 font-semibold text-slate-700">
+                    Fantasia
+                  </th>
+                  <th className="whitespace-nowrap px-4 py-2.5 font-semibold text-slate-700">
+                    UF
+                  </th>
+                  <th className="whitespace-nowrap px-4 py-2.5 font-semibold text-slate-700">
+                    CNPJ
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {pageRows.map((r) => (
+                  <tr
+                    key={r.idConvenio}
+                    className="border-b border-slate-100 last:border-0 hover:bg-emerald-50/30"
+                  >
+                    <td className="whitespace-nowrap px-4 py-2 font-mono text-xs text-slate-800">
+                      {r.idConvenio}
+                    </td>
+                    <td className="px-4 py-2 text-slate-700">{r.nome}</td>
+                    <td className="px-4 py-2 text-slate-600">
+                      {r.nomeFantasia}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-2 text-slate-700">
+                      {r.uf}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-2 font-mono text-xs text-slate-700">
+                      {r.cnpj}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div
+            className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4 text-sm text-slate-600 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between"
+            aria-label="Paginação dos convênios"
+          >
+            <span>{rangeLabel}</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={busy || currentPage <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="gap-1.5"
+              >
+                <HiChevronLeft className="h-4 w-4" aria-hidden />
+                Anterior
+              </Button>
+              <span className="tabular-nums text-slate-700">
+                Página {currentPage} de {totalPages}
+              </span>
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={busy || currentPage >= totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                className="gap-1.5"
+              >
+                Seguinte
+                <HiChevronRight className="h-4 w-4" aria-hidden />
+              </Button>
+            </div>
+          </div>
+        </>
+      ) : !busy && !err ? (
+        <p className="mt-4 text-sm text-slate-500">
+          Nenhum convênio na lista ou ainda a carregar…
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
+function TabelasJurosCard() {
+  const [convenioId, setConvenioId] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [rows, setRows] = useState<SafraInterestTable[]>([]);
+
+  const load = useCallback(async () => {
+    const id = Number.parseInt(convenioId.trim(), 10);
+    if (!Number.isFinite(id) || id <= 0) {
+      Toastify("Informe um id de convênio inteiro válido.", {
+        type: "warning",
+        position: "top-right",
+      });
+      return;
+    }
+    setBusy(true);
+    setErr(null);
+    try {
+      const list = await safraListarTabelasJuros(id);
+      setRows(list);
+      Toastify(
+        list.length
+          ? `${list.length} tabela(s) encontrada(s).`
+          : "Nenhuma tabela para este convênio.",
+        { type: list.length ? "success" : "info", position: "top-right" }
+      );
+    } catch (e) {
+      setRows([]);
+      setErr(
+        isAxiosError(e)
+          ? getApiErrorMessage(e)
+          : "Erro ao carregar tabelas de juros."
+      );
+    } finally {
+      setBusy(false);
+    }
+  }, [convenioId]);
+
+  return (
+    <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-slate-200/40">
+      <h2 className="text-lg font-semibold text-slate-900">
+        4 — Tabelas de juros
+      </h2>
+      <p className="mt-1 text-sm text-slate-600">
+        Indique o código do convênio (use o valor da coluna Código na lista de
+        convênios).
+      </p>
+      <div className="mt-4 flex flex-wrap items-end gap-4">
+        <div className="min-w-[12rem] flex-1">
+          <Input
+            label="Código do convênio"
+            value={convenioId}
+            inputMode="numeric"
+            onChange={(e) => setConvenioId(e.target.value)}
+            placeholder="ex.: 10324"
+          />
+        </div>
+        <Button
+          type="button"
+          variant="primary"
+          onClick={() => void load()}
+          disabled={busy}
+          className="gap-2"
+        >
+          <HiPlay className="h-4 w-4" aria-hidden />
+          Carregar tabelas
+        </Button>
+      </div>
+      {err ? (
+        <div
+          className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+          role="alert"
+        >
+          {err}
+        </div>
+      ) : null}
+      {rows.length > 0 ? (
+        <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200/90">
+          <table className="w-full min-w-[520px] border-collapse text-left text-sm">
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-50/90">
+                <th className="whitespace-nowrap px-4 py-2.5 font-semibold text-slate-700">
+                  Código
+                </th>
+                <th className="min-w-[12rem] px-4 py-2.5 font-semibold text-slate-700">
+                  Descrição
+                </th>
+                <th className="whitespace-nowrap px-4 py-2.5 font-semibold text-slate-700">
+                  Início vigência
+                </th>
+                <th className="whitespace-nowrap px-4 py-2.5 font-semibold text-slate-700">
+                  Fim vigência
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr
+                  key={r.id}
+                  className="border-b border-slate-100 last:border-0 hover:bg-emerald-50/30"
+                >
+                  <td className="whitespace-nowrap px-4 py-2 font-mono text-xs">
+                    {r.id}
+                  </td>
+                  <td className="px-4 py-2 text-slate-700">{r.descricao}</td>
+                  <td className="whitespace-nowrap px-4 py-2 text-xs text-slate-600">
+                    {r.dtInicioVigencia}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-2 text-xs text-slate-600">
+                    {r.dtFimVigencia}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : !busy && !err ? (
+        <p className="mt-4 text-sm text-slate-500">
+          Nenhuma tabela carregada — informe o convênio e carregue.
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
+function FarolCreditoCard() {
+  const [idConvenio, setIdConvenio] = useState("");
+  const [idTipoProduto, setIdTipoProduto] = useState("");
+  const [cpfMasked, setCpfMasked] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [resultado, setResultado] = useState<CreditLighthouseItem[] | null>(
+    null
+  );
+
+  const run = useCallback(async () => {
+    const conv = Number.parseInt(idConvenio.trim(), 10);
+    const tipo = Number.parseInt(idTipoProduto.trim(), 10);
+    const cpfDigits = onlyDigits(cpfMasked);
+
+    if (!Number.isFinite(conv) || conv <= 0) {
+      Toastify("Informe um código de convênio válido.", {
+        type: "warning",
+        position: "top-right",
+      });
+      return;
+    }
+    if (!Number.isFinite(tipo) || tipo <= 0) {
+      Toastify("Informe um tipo de produto válido.", {
+        type: "warning",
+        position: "top-right",
+      });
+      return;
+    }
+    if (cpfDigits.length !== 11) {
+      Toastify("O CPF deve ter 11 dígitos (incluindo zeros à esquerda).", {
+        type: "warning",
+        position: "top-right",
+      });
+      return;
+    }
+
+    const body: CreditLighthouseRequestBody = {
+      idConvenio: conv,
+      idTipoProduto: tipo,
+      cpf: cpfDigitsToFarolNumber(cpfDigits),
+    };
+
+    setBusy(true);
+    setErr(null);
+    try {
+      const data = await safraConsultarFarolCredito(body);
+      setResultado(data);
+      Toastify("Farol de crédito consultado.", {
+        type: "success",
+        position: "top-right",
+      });
+    } catch (e) {
+      setResultado(null);
+      setErr(
+        isAxiosError(e)
+          ? getApiErrorMessage(e)
+          : "Erro na consulta ao Farol de crédito."
+      );
+    } finally {
+      setBusy(false);
+    }
+  }, [idConvenio, idTipoProduto, cpfMasked]);
+
+  return (
+    <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-slate-200/40">
+      <h2 className="text-lg font-semibold text-slate-900">
+        5 — Farol de crédito
+      </h2>
+      <p className="mt-1 text-sm text-slate-600">
+        Consulta à análise prévia de crédito. Use o mesmo código de convênio das
+        secções anteriores e o tipo de produto acordado com o banco.
+      </p>
+      <div className="mt-6 grid gap-4 sm:grid-cols-3">
+        <Input
+          label="Código do convênio"
+          value={idConvenio}
+          inputMode="numeric"
+          onChange={(e) => setIdConvenio(e.target.value)}
+          placeholder="ex.: 10237"
+        />
+        <Input
+          label="Tipo de produto"
+          value={idTipoProduto}
+          inputMode="numeric"
+          onChange={(e) => setIdTipoProduto(e.target.value)}
+          placeholder="Conforme contrato com o banco"
+        />
+        <Input
+          label="CPF"
+          value={cpfMasked}
+          inputMode="numeric"
+          maxLength={14}
+          onChange={(e) => setCpfMasked(formatCpfDigits(e.target.value))}
+          placeholder="000.000.000-00"
+        />
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Button
+          type="button"
+          variant="primary"
+          onClick={() => void run()}
+          disabled={busy}
+          className="gap-2"
+        >
+          <HiPlay className="h-4 w-4" aria-hidden />
+          Consultar Farol
+        </Button>
+      </div>
+      {err ? (
+        <div
+          className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+          role="alert"
+        >
+          {err}
+        </div>
+      ) : null}
+      {resultado && resultado.length > 0 ? (
+        <div className="mt-6 overflow-x-auto rounded-xl border border-slate-200/90">
+          <table className="w-full min-w-[520px] border-collapse text-left text-sm">
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-50/90">
+                <th className="px-4 py-2.5 font-semibold text-slate-700">
+                  Decisão
+                </th>
+                <th className="px-4 py-2.5 font-semibold text-slate-700">CPF</th>
+                <th className="px-4 py-2.5 font-semibold text-slate-700">
+                  Tipo de produto
+                </th>
+                <th className="min-w-[12rem] px-4 py-2.5 font-semibold text-slate-700">
+                  Motivos
+                </th>
+                <th className="px-4 py-2.5 font-semibold text-slate-700">
+                  Indicador
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {resultado.map((row, i) => (
+                <tr
+                  key={`${row.cpf}-${row.decisaoFarol}-${i}`}
+                  className="border-b border-slate-100 last:border-0"
+                >
+                  <td className="whitespace-nowrap px-4 py-2 font-mono text-xs">
+                    {row.decisaoFarol}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-2 font-mono text-xs">
+                    {row.cpf}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-2 text-slate-700">
+                    {row.idTipoProduto === null ? "—" : row.idTipoProduto}
+                  </td>
+                  <td className="px-4 py-2 text-slate-700">
+                    {Array.isArray(row.motivos)
+                      ? row.motivos.join(" · ")
+                      : "—"}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-2 text-slate-700">
+                    {row.timeOut}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function TokenSafraDebugCard() {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+
+  const run = async () => {
+    setBusy(true);
+    setErr(null);
+    setPreview(null);
+    try {
+      const { token } = await safraObterTokenDebug();
+      const t = typeof token === "string" ? token : "";
+      setPreview(t.length > 48 ? `${t.slice(0, 24)}…${t.slice(-12)}` : t);
+      Toastify("Valor obtido. Trate esta informação como confidencial.", {
+        type: "info",
+        position: "top-right",
+      });
+    } catch (e) {
+      setErr(
+        isAxiosError(e) ? getApiErrorMessage(e) : "Erro ao verificar a ligação."
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="rounded-2xl border border-dashed border-slate-300/90 bg-slate-50/40 p-6">
+      <h2 className="text-lg font-semibold text-slate-800">
+        6 — Ligação com o banco (suporte interno)
+      </h2>
+      <p className="mt-1 text-sm text-slate-600">
+        Ferramenta apenas para equipas técnicas verificarem a sessão com o banco.
+        Não partilhe o valor obtido.
+      </p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => void run()}
+          disabled={busy}
+        >
+          Ver pré-visualização segura
+        </Button>
+      </div>
+      {err ? (
+        <div
+          className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+          role="alert"
+        >
+          {err}
+        </div>
+      ) : null}
+      {preview ? (
+        <pre className="mt-4 overflow-x-auto rounded-lg border border-slate-200 bg-white p-3 font-mono text-xs text-slate-800">
+          {preview}
+        </pre>
+      ) : null}
+    </section>
+  );
+}
+
+/** Painel principal dos fluxos da integração Safra. */
 export default function SafraFluxoPanel() {
   return (
     <div className="mt-8 flex flex-col gap-10">
       <BancosSafraCard />
       <MargemBpoCard />
+      <ConveniosSafraCard />
+      <TabelasJurosCard />
+      <FarolCreditoCard />
+      <TokenSafraDebugCard />
     </div>
   );
 }

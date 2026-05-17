@@ -19,7 +19,7 @@ export default function SafraAutomation() {
               Automação interna
             </p>
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-              Safra — Hub Banking
+              Integração Safra
             </h1>
             <p className="mt-1 max-w-2xl text-pretty text-sm leading-relaxed text-slate-600">
               Consulte bancos e margem aqui. Para tratar muitas linhas de uma

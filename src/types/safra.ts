@@ -69,3 +69,44 @@ export type MargemBpoResponse = {
   mensagemErro?: string;
   dataHoraConsulta?: string;
 };
+
+/** Resposta `POST /token` (uso informativo / debug no Hub). */
+export type SafraTokenResponse = {
+  token: string;
+};
+
+/** Item de `GET /financial-agreements` (proxy Safra `Convenio`). */
+export type SafraFinancialAgreement = {
+  idConvenio: number;
+  nome: string;
+  cnpj: number;
+  nomeFantasia: string;
+  uf: string;
+};
+
+/** Item de `GET /tables/{convenio_id}` (`TabelaJuros`). */
+export type SafraInterestTable = {
+  id: number;
+  descricao: string;
+  dtInicioVigencia: string;
+  dtFimVigencia: string;
+};
+
+/**
+ * Farol de crédito — no Hub o `cpf` é **número** (contrato alinhado à Safra).
+ * Na UI prefira derivar de 11 dígitos de texto para não perder zeros à esquerda antes da serialização.
+ */
+export type CreditLighthouseRequestBody = {
+  idConvenio: number;
+  idTipoProduto: number;
+  cpf: number;
+};
+
+/** Elemento da lista devolvida por `POST /credit-lighthouse`. */
+export type CreditLighthouseItem = {
+  decisaoFarol: number;
+  cpf: number;
+  idTipoProduto: number | null;
+  motivos: string[];
+  timeOut: number;
+};

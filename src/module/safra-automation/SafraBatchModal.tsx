@@ -377,10 +377,8 @@ export default function SafraBatchModal({
               como&quot; no Excel usando o modo .csv). Na primeira linha deve
               constar convênio, CPF, matrícula e tipo de produto — valores{" "}
               <span className="whitespace-nowrap">1, 2, 5 ou 7</span>. Pode
-              incluir colunas opcionais de telefone (
-              <span className="font-mono text-[11px]">phone_one</span> …{" "}
-              <span className="font-mono text-[11px]">phone_five</span>
-              ). No Excel em português as colunas costumam estar separadas por
+              incluir até cinco colunas opcionais de telefone (telefone um,
+              telefone dois, …, conforme o modelo que o sistema aceita). No Excel em português as colunas costumam estar separadas por
               ponto e vírgula; também pode usar vírgula.
             </p>
             <input

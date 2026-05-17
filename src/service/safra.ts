@@ -1,18 +1,31 @@
 import { isAxiosError } from "axios";
 
 import type {
+  CreditLighthouseItem,
+  CreditLighthouseRequestBody,
   MargemBpoRequestBody,
   MargemBpoResponse,
   SafraBank,
   SafraBatchJobIdsResponse,
   SafraBatchJobStatus,
   SafraBatchUploadAccepted,
+  SafraFinancialAgreement,
+  SafraInterestTable,
+  SafraTokenResponse,
 } from "../types/safra";
 import { getApiErrorMessage } from "../utils/api-error";
 import { normalizeMargemBpoResponse } from "../utils/safra-margin-response";
 import { apiClient } from "./api-base-client";
 
 const PREFIX = "/api/v2/safra";
+
+/** Token corporativo Safra exposto pelo Hub (debug). */
+export async function safraObterTokenDebug(): Promise<SafraTokenResponse> {
+  const { data } = await apiClient.post<SafraTokenResponse>(
+    `${PREFIX}/token`
+  );
+  return data;
+}
 
 export async function safraListarBancos(): Promise<SafraBank[]> {
   const { data } = await apiClient.get<SafraBank[]>(`${PREFIX}/banks`);
@@ -24,6 +37,40 @@ export async function safraConsultarMargemBpo(
 ): Promise<MargemBpoResponse> {
   const { data } = await apiClient.post<unknown>(`${PREFIX}/margin/bpo`, body);
   return normalizeMargemBpoResponse(data);
+}
+
+/** Lista convênios (`GET …/Convenio` na origem). */
+export async function safraListarConvenios(): Promise<
+  SafraFinancialAgreement[]
+> {
+  const { data } = await apiClient.get<SafraFinancialAgreement[]>(
+    `${PREFIX}/financial-agreements`
+  );
+  return Array.isArray(data) ? data : [];
+}
+
+/** Tabelas de juros do convênio (`idConvenio` da lista de convênios). */
+export async function safraListarTabelasJuros(
+  convenioId: number
+): Promise<SafraInterestTable[]> {
+  const { data } = await apiClient.get<SafraInterestTable[]>(
+    `${PREFIX}/tables/${encodeURIComponent(String(convenioId))}`
+  );
+  return Array.isArray(data) ? data : [];
+}
+
+/**
+ * Farol de crédito — resposta sempre tratada como lista (Hub normaliza objeto único).
+ */
+export async function safraConsultarFarolCredito(
+  body: CreditLighthouseRequestBody
+): Promise<CreditLighthouseItem[]> {
+  const { data } = await apiClient.post<
+    CreditLighthouseItem[] | CreditLighthouseItem
+  >(`${PREFIX}/credit-lighthouse`, body);
+  if (Array.isArray(data)) return data;
+  if (data && typeof data === "object") return [data];
+  return [];
 }
 
 /**
