@@ -378,8 +378,9 @@ export default function SafraBatchModal({
               constar convênio, CPF, matrícula e tipo de produto — valores{" "}
               <span className="whitespace-nowrap">1, 2, 5 ou 7</span>. Pode
               incluir até cinco colunas opcionais de telefone (telefone um,
-              telefone dois, …, conforme o modelo que o sistema aceita). No Excel em português as colunas costumam estar separadas por
-              ponto e vírgula; também pode usar vírgula.
+              telefone dois, …, conforme o modelo que o sistema aceita). No
+              Excel em português as colunas costumam estar separadas por ponto e
+              vírgula; também pode usar vírgula.
             </p>
             <input
               ref={fileInputRef}

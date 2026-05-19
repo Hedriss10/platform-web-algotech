@@ -8,10 +8,7 @@ import {
   unlinkRoomEmployee,
 } from "../../service/rooms";
 import type { Employee } from "../../types/employee";
-import type {
-  Room as RoomModel,
-  RoomEmployeeListItem,
-} from "../../types/room";
+import type { Room as RoomModel, RoomEmployeeListItem } from "../../types/room";
 import { getApiErrorMessage } from "../../utils/api-error";
 import { Toastify } from "../../utils/toastify";
 
@@ -138,7 +135,9 @@ export default function RoomEmployeesModal({
                 Funcionários da sala
               </h2>
               <p className="mt-1 text-sm text-slate-600">
-                <span className="font-semibold text-slate-800">{room.name}</span>
+                <span className="font-semibold text-slate-800">
+                  {room.name}
+                </span>
               </p>
             </div>
             <Button type="button" variant="secondary" onClick={onClose}>

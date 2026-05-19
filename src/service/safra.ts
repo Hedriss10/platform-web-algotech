@@ -9,7 +9,10 @@ import type {
   SafraBatchJobIdsResponse,
   SafraBatchJobStatus,
   SafraBatchUploadAccepted,
+  SafraCatalogItem,
   SafraFinancialAgreement,
+  SafraProposalRequestBody,
+  SafraProposalResponse,
   SafraInterestTable,
   SafraTokenResponse,
 } from "../types/safra";
@@ -21,9 +24,7 @@ const PREFIX = "/api/v2/safra";
 
 /** Token corporativo Safra exposto pelo Hub (debug). */
 export async function safraObterTokenDebug(): Promise<SafraTokenResponse> {
-  const { data } = await apiClient.post<SafraTokenResponse>(
-    `${PREFIX}/token`
-  );
+  const { data } = await apiClient.post<SafraTokenResponse>(`${PREFIX}/token`);
   return data;
 }
 
@@ -62,6 +63,50 @@ export async function safraListarTabelasJuros(
 /**
  * Farol de crédito — resposta sempre tratada como lista (Hub normaliza objeto único).
  */
+/** Órgãos empregadores do convênio (`idConvenio` da lista de convênios). */
+export async function safraListarOrgaosEmpregadores(
+  financialAgreementId: number
+): Promise<SafraCatalogItem[]> {
+  const { data } = await apiClient.get<SafraCatalogItem[]>(
+    `${PREFIX}/employing-bodies/${encodeURIComponent(String(financialAgreementId))}`
+  );
+  return Array.isArray(data) ? data : [];
+}
+
+/** Regimes jurídicos do convênio. */
+export async function safraListarRegimesJuridicos(
+  financialAgreementId: number
+): Promise<SafraCatalogItem[]> {
+  const { data } = await apiClient.get<SafraCatalogItem[]>(
+    `${PREFIX}/legal-regime/${encodeURIComponent(String(financialAgreementId))}`
+  );
+  return Array.isArray(data) ? data : [];
+}
+
+/**
+ * Situações do empregado — requer convênio e o `id` do regime jurídico selecionado.
+ */
+export async function safraListarSituacoesEmpregado(
+  financialAgreementId: number,
+  legalRegimeId: number
+): Promise<SafraCatalogItem[]> {
+  const { data } = await apiClient.get<SafraCatalogItem[]>(
+    `${PREFIX}/employee-situation/${encodeURIComponent(String(financialAgreementId))}/${encodeURIComponent(String(legalRegimeId))}`
+  );
+  return Array.isArray(data) ? data : [];
+}
+
+/** Nova proposta na Safra (`POST …/Propostas/Novo` na origem). */
+export async function safraCriarProposta(
+  body: SafraProposalRequestBody
+): Promise<SafraProposalResponse> {
+  const { data } = await apiClient.post<SafraProposalResponse>(
+    `${PREFIX}/proposal`,
+    body
+  );
+  return data;
+}
+
 export async function safraConsultarFarolCredito(
   body: CreditLighthouseRequestBody
 ): Promise<CreditLighthouseItem[]> {

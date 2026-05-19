@@ -110,3 +110,105 @@ export type CreditLighthouseItem = {
   motivos: string[];
   timeOut: number;
 };
+
+/**
+ * Item comum de catálogos Safra por convênio (`OrgaoEmpregador`, `RegimeJuridico`,
+ * `SituacaoEmpregado`). O `id` selecionado alimenta `dadosOcupacao` na proposta Safra.
+ */
+export type SafraCatalogItem = {
+  id: number;
+  descricao: string;
+};
+
+/** `contatos[]` em `POST /proposal`. */
+export type SafraProposalContato = {
+  ddd?: number | null;
+  telefone?: string | null;
+  email?: string | null;
+  whatsapp?: boolean | null;
+};
+
+export type SafraProposalDadosBancarios = {
+  tipoConta: string;
+  agencia?: number | null;
+  banco?: number | null;
+  conta?: string | null;
+};
+
+export type SafraProposalDadosOcupacao = {
+  idOrgaoEmpregador?: number | null;
+  idRegimeJuridico?: number | null;
+  idSituacaoEmpregado?: number | null;
+  idProfissao?: number | null;
+  idCargo?: number | null;
+  idTipoVinculoEmpregaticio?: number | null;
+  matricula?: string | null;
+  valorRenda?: number | null;
+  valorRendaLiquida?: number | null;
+  dataAdmissao?: string | null;
+  idTipoPagamentoBeneficio?: number | null;
+  idUFBeneficio?: string | null;
+};
+
+export type SafraProposalDadosPessoais = {
+  cpf?: number | null;
+  nomeCompleto?: string | null;
+  nomeMae?: string | null;
+  dataNascimento?: string | null;
+  sexo?: string | null;
+  email?: string | null;
+  alfabetizado?: string | null;
+};
+
+export type SafraProposalDadosProposta = {
+  idConvenio: number;
+  idTabelaJuros: number;
+  isCotacao: boolean;
+  valorParcela: number;
+  prazo: number;
+  valorPrincipal: number;
+  cpfAgenteCertificado: number;
+  dataPrimeiroVencimento: string;
+  taxaJuros?: number | null;
+  comSeguro?: boolean | null;
+  aumentoMargem?: boolean;
+};
+
+export type SafraProposalEndereco = {
+  logradouro: string;
+  numero: string;
+  cep: string;
+  cidade: string;
+  uf: string;
+  bairro?: string | null;
+  complemento?: string | null;
+};
+
+export type SafraProposalDadosBancariosAverbacao = {
+  bancoAverbacao?: number | null;
+  agenciaAverbacao?: number | null;
+  contaAverbacao?: string | null;
+};
+
+/** Corpo `POST /api/v2/safra/proposal`. */
+export type SafraProposalRequestBody = {
+  contatos: SafraProposalContato[];
+  dadosBancarios: SafraProposalDadosBancarios;
+  dadosOcupacao: SafraProposalDadosOcupacao;
+  dadosPessoais: SafraProposalDadosPessoais;
+  dadosProposta: SafraProposalDadosProposta;
+  endereco: SafraProposalEndereco;
+  submeter: boolean;
+  dadosBancariosAverbacao: SafraProposalDadosBancariosAverbacao;
+};
+
+export type SafraProposalErro = {
+  codigo: number | null;
+  descricao: string | null;
+};
+
+/** Resposta 200 de `POST /proposal`. */
+export type SafraProposalResponse = {
+  idProposta: number | null;
+  erro: SafraProposalErro | null;
+};

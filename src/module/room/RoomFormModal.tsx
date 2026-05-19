@@ -14,12 +14,7 @@ const schema = z.object({
   name: z
     .string()
     .transform((s) => s.trim())
-    .pipe(
-      z
-        .string()
-        .min(1, "Obrigatório")
-        .max(30, "Máximo 30 caracteres.")
-    ),
+    .pipe(z.string().min(1, "Obrigatório").max(30, "Máximo 30 caracteres.")),
 });
 
 type FormValues = z.input<typeof schema>;

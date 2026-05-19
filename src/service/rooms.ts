@@ -22,10 +22,7 @@ export async function updateRoom(
   id: string,
   payload: UpdateRoomPayload
 ): Promise<Room> {
-  const { data } = await apiClient.patch<Room>(
-    `/api/v2/rooms/${id}`,
-    payload
-  );
+  const { data } = await apiClient.patch<Room>(`/api/v2/rooms/${id}`, payload);
   return data;
 }
 
@@ -57,7 +54,5 @@ export async function unlinkRoomEmployee(
   roomId: string,
   employeeId: string
 ): Promise<void> {
-  await apiClient.delete(
-    `/api/v2/rooms/${roomId}/employees/${employeeId}`
-  );
+  await apiClient.delete(`/api/v2/rooms/${roomId}/employees/${employeeId}`);
 }

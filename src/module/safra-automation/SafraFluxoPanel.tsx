@@ -20,9 +20,13 @@ import {
   safraConsultarMargemBpo,
   safraListarBancos,
   safraListarConvenios,
+  safraListarOrgaosEmpregadores,
+  safraListarRegimesJuridicos,
+  safraListarSituacoesEmpregado,
   safraListarTabelasJuros,
-  safraObterTokenDebug,
 } from "../../service/safra";
+import { setStoredSafraOcupacaoSelection } from "../../config/safra-ocupacao";
+import SafraPropostaCard from "./SafraPropostaCard";
 import {
   SAFRA_ID_PRODUTO_OPCOES,
   type CreditLighthouseItem,
@@ -30,6 +34,7 @@ import {
   type MargemBpoRequestBody,
   type MargemBpoResponse,
   type SafraBank,
+  type SafraCatalogItem,
   type SafraFinancialAgreement,
   type SafraInterestTable,
 } from "../../types/safra";
@@ -371,9 +376,7 @@ function MargemBpoCard() {
     } catch (e) {
       setResultado(null);
       setErr(
-        isAxiosError(e)
-          ? getApiErrorMessage(e)
-          : "Erro na consulta de margem."
+        isAxiosError(e) ? getApiErrorMessage(e) : "Erro na consulta de margem."
       );
     } finally {
       setBusy(false);
@@ -494,9 +497,7 @@ function ConveniosSafraCard() {
 
   return (
     <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-slate-200/40">
-      <h2 className="text-lg font-semibold text-slate-900">
-        3 — Convênios
-      </h2>
+      <h2 className="text-lg font-semibold text-slate-900">3 — Convênios</h2>
       <p className="mt-1 text-sm text-slate-600">
         Órgãos e convênios disponíveis. O código listado serve para a consulta
         de margem e para as tabelas de juros abaixo.
@@ -862,7 +863,9 @@ function FarolCreditoCard() {
                 <th className="px-4 py-2.5 font-semibold text-slate-700">
                   Decisão
                 </th>
-                <th className="px-4 py-2.5 font-semibold text-slate-700">CPF</th>
+                <th className="px-4 py-2.5 font-semibold text-slate-700">
+                  CPF
+                </th>
                 <th className="px-4 py-2.5 font-semibold text-slate-700">
                   Tipo de produto
                 </th>
@@ -890,9 +893,7 @@ function FarolCreditoCard() {
                     {row.idTipoProduto === null ? "—" : row.idTipoProduto}
                   </td>
                   <td className="px-4 py-2 text-slate-700">
-                    {Array.isArray(row.motivos)
-                      ? row.motivos.join(" · ")
-                      : "—"}
+                    {Array.isArray(row.motivos) ? row.motivos.join(" · ") : "—"}
                   </td>
                   <td className="whitespace-nowrap px-4 py-2 text-slate-700">
                     {row.timeOut}
@@ -907,49 +908,247 @@ function FarolCreditoCard() {
   );
 }
 
-function TokenSafraDebugCard() {
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+function CatalogoSafraTable({
+  rows,
+  selectedId,
+  onSelect,
+  emptyLabel,
+}: {
+  rows: SafraCatalogItem[];
+  selectedId: number | null;
+  onSelect?: (id: number) => void;
+  emptyLabel: string;
+}) {
+  if (rows.length === 0) {
+    return <p className="mt-3 text-sm text-slate-500">{emptyLabel}</p>;
+  }
+  return (
+    <div className="mt-3 overflow-x-auto rounded-xl border border-slate-200/90">
+      <table className="w-full min-w-[420px] border-collapse text-left text-sm">
+        <thead>
+          <tr className="border-b border-slate-200 bg-slate-50/90">
+            <th className="whitespace-nowrap px-4 py-2.5 font-semibold text-slate-700">
+              Código
+            </th>
+            <th className="min-w-[12rem] px-4 py-2.5 font-semibold text-slate-700">
+              Descrição
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => {
+            const selected = selectedId === r.id;
+            return (
+              <tr
+                key={r.id}
+                className={`border-b border-slate-100 last:border-0 ${
+                  onSelect
+                    ? "cursor-pointer hover:bg-emerald-50/40"
+                    : "hover:bg-emerald-50/30"
+                } ${selected ? "bg-emerald-50/70" : ""}`}
+                onClick={onSelect ? () => onSelect(r.id) : undefined}
+                onKeyDown={
+                  onSelect
+                    ? (e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          onSelect(r.id);
+                        }
+                      }
+                    : undefined
+                }
+                tabIndex={onSelect ? 0 : undefined}
+                role={onSelect ? "button" : undefined}
+                aria-pressed={onSelect ? selected : undefined}
+              >
+                <td className="whitespace-nowrap px-4 py-2 font-mono text-xs text-slate-800">
+                  {r.id}
+                </td>
+                <td className="px-4 py-2 text-slate-700">{r.descricao}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
-  const run = async () => {
-    setBusy(true);
-    setErr(null);
-    setPreview(null);
-    try {
-      const { token } = await safraObterTokenDebug();
-      const t = typeof token === "string" ? token : "";
-      setPreview(t.length > 48 ? `${t.slice(0, 24)}…${t.slice(-12)}` : t);
-      Toastify("Valor obtido. Trate esta informação como confidencial.", {
-        type: "info",
-        position: "top-right",
-      });
-    } catch (e) {
-      setErr(
-        isAxiosError(e) ? getApiErrorMessage(e) : "Erro ao verificar a ligação."
-      );
-    } finally {
-      setBusy(false);
-    }
+function CatalogosOcupacaoSafraCard() {
+  const [convenioId, setConvenioId] = useState("");
+  const [busyOrgaos, setBusyOrgaos] = useState(false);
+  const [busyRegimes, setBusyRegimes] = useState(false);
+  const [busySituacoes, setBusySituacoes] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const [orgaos, setOrgaos] = useState<SafraCatalogItem[]>([]);
+  const [orgaoSelecionado, setOrgaoSelecionado] = useState<number | null>(null);
+  const [regimes, setRegimes] = useState<SafraCatalogItem[]>([]);
+  const [regimeSelecionado, setRegimeSelecionado] = useState<number | null>(
+    null
+  );
+  const [situacoes, setSituacoes] = useState<SafraCatalogItem[]>([]);
+  const [situacaoSelecionada, setSituacaoSelecionada] = useState<number | null>(
+    null
+  );
+
+  const parseConvenio = (): number | null => {
+    const id = Number.parseInt(convenioId.trim(), 10);
+    if (!Number.isFinite(id) || id <= 0) return null;
+    return id;
   };
 
+  useEffect(() => {
+    const conv = Number.parseInt(convenioId.trim(), 10);
+    setStoredSafraOcupacaoSelection({
+      ...(Number.isFinite(conv) && conv > 0 ? { convenioId: conv } : {}),
+      ...(orgaoSelecionado != null
+        ? { idOrgaoEmpregador: orgaoSelecionado }
+        : {}),
+      ...(regimeSelecionado != null
+        ? { idRegimeJuridico: regimeSelecionado }
+        : {}),
+      ...(situacaoSelecionada != null
+        ? { idSituacaoEmpregado: situacaoSelecionada }
+        : {}),
+    });
+  }, [convenioId, orgaoSelecionado, regimeSelecionado, situacaoSelecionada]);
+
+  const carregarOrgaosERegimes = useCallback(async () => {
+    const conv = parseConvenio();
+    if (conv === null) {
+      Toastify("Informe um código de convênio válido (idConvenio).", {
+        type: "warning",
+        position: "top-right",
+      });
+      return;
+    }
+
+    setErr(null);
+    setOrgaoSelecionado(null);
+    setRegimeSelecionado(null);
+    setSituacaoSelecionada(null);
+    setSituacoes([]);
+    setBusyOrgaos(true);
+    setBusyRegimes(true);
+
+    const [orgaosRes, regimesRes] = await Promise.allSettled([
+      safraListarOrgaosEmpregadores(conv),
+      safraListarRegimesJuridicos(conv),
+    ]);
+
+    if (orgaosRes.status === "fulfilled") {
+      setOrgaos(orgaosRes.value);
+    } else {
+      setOrgaos([]);
+    }
+    if (regimesRes.status === "fulfilled") {
+      setRegimes(regimesRes.value);
+    } else {
+      setRegimes([]);
+    }
+
+    const falhas: string[] = [];
+    if (orgaosRes.status === "rejected") {
+      falhas.push(
+        isAxiosError(orgaosRes.reason)
+          ? getApiErrorMessage(orgaosRes.reason)
+          : "Erro ao listar órgãos empregadores."
+      );
+    }
+    if (regimesRes.status === "rejected") {
+      falhas.push(
+        isAxiosError(regimesRes.reason)
+          ? getApiErrorMessage(regimesRes.reason)
+          : "Erro ao listar regimes jurídicos."
+      );
+    }
+    if (falhas.length === 2) {
+      setErr(falhas.join(" · "));
+    } else if (falhas.length === 1) {
+      setErr(falhas[0]);
+      Toastify("Um dos catálogos não pôde ser carregado.", {
+        type: "warning",
+        position: "top-right",
+      });
+    } else {
+      Toastify("Catálogos carregados.", {
+        type: "success",
+        position: "top-right",
+      });
+    }
+
+    setBusyOrgaos(false);
+    setBusyRegimes(false);
+  }, [convenioId]);
+
+  const carregarSituacoes = useCallback(
+    async (legalRegimeId: number) => {
+      const conv = parseConvenio();
+      if (conv === null) return;
+
+      setRegimeSelecionado(legalRegimeId);
+      setSituacaoSelecionada(null);
+      setBusySituacoes(true);
+      setErr(null);
+      try {
+        const list = await safraListarSituacoesEmpregado(conv, legalRegimeId);
+        setSituacoes(list);
+        if (!list.length) {
+          Toastify("Nenhuma situação para este regime.", {
+            type: "info",
+            position: "top-right",
+          });
+        }
+      } catch (e) {
+        setSituacoes([]);
+        setErr(
+          isAxiosError(e)
+            ? getApiErrorMessage(e)
+            : "Erro ao listar situações do empregado."
+        );
+      } finally {
+        setBusySituacoes(false);
+      }
+    },
+    [convenioId]
+  );
+
+  const busyCatalogos = busyOrgaos || busyRegimes;
+
   return (
-    <section className="rounded-2xl border border-dashed border-slate-300/90 bg-slate-50/40 p-6">
-      <h2 className="text-lg font-semibold text-slate-800">
-        6 — Ligação com o banco (suporte interno)
+    <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-slate-200/40">
+      <h2 className="text-lg font-semibold text-slate-900">
+        7 — Catálogos de ocupação (proposta)
       </h2>
       <p className="mt-1 text-sm text-slate-600">
-        Ferramenta apenas para equipas técnicas verificarem a sessão com o banco.
-        Não partilhe o valor obtido.
+        Órgãos empregadores, regimes jurídicos e situações do empregado por
+        convênio. Use o mesmo código da lista de convênios (
+        <span className="font-mono text-xs">idConvenio</span>). Depois de
+        escolher um regime na tabela, carregamos as situações correspondentes.
+        Os códigos selecionados servem para{" "}
+        <span className="font-mono text-xs">dadosOcupacao</span> no envio de
+        proposta Safra.
       </p>
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-4 flex flex-wrap items-end gap-4">
+        <div className="min-w-[12rem] flex-1">
+          <Input
+            label="Código do convênio"
+            value={convenioId}
+            inputMode="numeric"
+            onChange={(e) => setConvenioId(e.target.value)}
+            placeholder="ex.: 10324"
+          />
+        </div>
         <Button
           type="button"
-          variant="secondary"
-          onClick={() => void run()}
-          disabled={busy}
+          variant="primary"
+          onClick={() => void carregarOrgaosERegimes()}
+          disabled={busyCatalogos}
+          className="gap-2"
         >
-          Ver pré-visualização segura
+          <HiPlay className="h-4 w-4" aria-hidden />
+          Carregar órgãos e regimes
         </Button>
       </div>
       {err ? (
@@ -960,11 +1159,89 @@ function TokenSafraDebugCard() {
           {err}
         </div>
       ) : null}
-      {preview ? (
-        <pre className="mt-4 overflow-x-auto rounded-lg border border-slate-200 bg-white p-3 font-mono text-xs text-slate-800">
-          {preview}
-        </pre>
-      ) : null}
+
+      <div className="mt-8">
+        <h3 className="text-sm font-semibold text-slate-800">
+          Órgãos empregadores
+        </h3>
+        <p className="mt-1 text-xs text-slate-500">
+          Campo na proposta:{" "}
+          <span className="font-mono">dadosOcupacao.idOrgaoEmpregador</span>
+        </p>
+        {busyOrgaos ? (
+          <p className="mt-3 text-sm text-slate-500">A carregar…</p>
+        ) : (
+          <CatalogoSafraTable
+            rows={orgaos}
+            selectedId={orgaoSelecionado}
+            onSelect={setOrgaoSelecionado}
+            emptyLabel="Nenhum órgão — carregue pelo convênio acima."
+          />
+        )}
+        {orgaoSelecionado != null ? (
+          <p className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50/80 px-3 py-2 text-sm text-emerald-950">
+            Órgão selecionado:{" "}
+            <span className="font-mono font-medium">{orgaoSelecionado}</span>
+          </p>
+        ) : null}
+      </div>
+
+      <div className="mt-8">
+        <h3 className="text-sm font-semibold text-slate-800">
+          Regimes jurídicos
+        </h3>
+        <p className="mt-1 text-xs text-slate-500">
+          Selecione uma linha para carregar situações. Campo na proposta:{" "}
+          <span className="font-mono">dadosOcupacao.idRegimeJuridico</span>
+        </p>
+        {busyRegimes ? (
+          <p className="mt-3 text-sm text-slate-500">A carregar…</p>
+        ) : (
+          <CatalogoSafraTable
+            rows={regimes}
+            selectedId={regimeSelecionado}
+            onSelect={(id) => void carregarSituacoes(id)}
+            emptyLabel="Nenhum regime — carregue pelo convênio acima."
+          />
+        )}
+      </div>
+
+      <div className="mt-8">
+        <h3 className="text-sm font-semibold text-slate-800">
+          Situações do empregado
+        </h3>
+        <p className="mt-1 text-xs text-slate-500">
+          Campo na proposta:{" "}
+          <span className="font-mono">dadosOcupacao.idSituacaoEmpregado</span>
+          {regimeSelecionado != null ? (
+            <>
+              {" "}
+              · regime selecionado:{" "}
+              <span className="font-mono">{regimeSelecionado}</span>
+            </>
+          ) : null}
+        </p>
+        {busySituacoes ? (
+          <p className="mt-3 text-sm text-slate-500">A carregar situações…</p>
+        ) : (
+          <CatalogoSafraTable
+            rows={situacoes}
+            selectedId={situacaoSelecionada}
+            onSelect={setSituacaoSelecionada}
+            emptyLabel={
+              regimeSelecionado == null
+                ? "Selecione um regime jurídico na tabela acima."
+                : "Nenhuma situação para este regime."
+            }
+          />
+        )}
+        {situacaoSelecionada != null ? (
+          <p className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50/80 px-3 py-2 text-sm text-emerald-950">
+            Situação selecionada:{" "}
+            <span className="font-mono font-medium">{situacaoSelecionada}</span>
+          </p>
+        ) : null}
+      </div>
     </section>
   );
 }
@@ -978,7 +1255,8 @@ export default function SafraFluxoPanel() {
       <ConveniosSafraCard />
       <TabelasJurosCard />
       <FarolCreditoCard />
-      <TokenSafraDebugCard />
+      <CatalogosOcupacaoSafraCard />
+      <SafraPropostaCard />
     </div>
   );
 }
