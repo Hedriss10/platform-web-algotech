@@ -6,6 +6,7 @@ import {
   HiPencilSquare,
   HiPlus,
   HiTrash,
+  HiUsers,
 } from "react-icons/hi2";
 import { Button, ConfirmDeleteModal } from "../../components/ui";
 import { deleteRoom, fetchRooms } from "../../service/rooms";
@@ -13,6 +14,7 @@ import type { Room as RoomModel } from "../../types/room";
 import { getApiErrorMessage } from "../../utils/api-error";
 import { formatDateTime } from "../../utils/format";
 import { Toastify } from "../../utils/toastify";
+import RoomEmployeesModal from "./RoomEmployeesModal";
 import RoomFormModal from "./RoomFormModal";
 
 export default function Room() {
@@ -24,6 +26,7 @@ export default function Room() {
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
   const [editing, setEditing] = useState<RoomModel | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<RoomModel | null>(null);
+  const [employeesRoom, setEmployeesRoom] = useState<RoomModel | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -91,7 +94,7 @@ export default function Room() {
               Salas
             </h1>
             <p className="mt-1 text-sm text-slate-600">
-              Listagem e gestão de salas.
+              Listagem e gestão de salas e dos funcionários por sala.
             </p>
           </div>
         </div>
@@ -177,6 +180,14 @@ export default function Room() {
                       <div className="inline-flex gap-1">
                         <button
                           type="button"
+                          className="rounded-lg p-2 text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-700"
+                          title="Funcionários da sala"
+                          onClick={() => setEmployeesRoom(row)}
+                        >
+                          <HiUsers className="h-5 w-5" />
+                        </button>
+                        <button
+                          type="button"
                           className="rounded-lg p-2 text-slate-600 transition hover:bg-blue-100 hover:text-blue-700"
                           title="Editar"
                           onClick={() => openEdit(row)}
@@ -200,6 +211,14 @@ export default function Room() {
           </div>
         )}
       </section>
+
+      {employeesRoom ? (
+        <RoomEmployeesModal
+          room={employeesRoom}
+          onClose={() => setEmployeesRoom(null)}
+          onChanged={() => void load()}
+        />
+      ) : null}
 
       {modalOpen ? (
         <RoomFormModal
