@@ -16,15 +16,15 @@ export default function SafraAutomation() {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Automação interna
+              Consignado Safra
             </p>
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-              Integração Safra
+              Nova operação
             </h1>
             <p className="mt-1 max-w-2xl text-pretty text-sm leading-relaxed text-slate-600">
-              Consulte bancos e margem aqui. Para tratar muitas linhas de uma
-              vez, use o botão à direita — abre um assistente simples, à parte
-              deste ecrã.
+              Fluxo guiado para o vendedor: margem, farol de crédito, simulação,
+              proposta e link de formalização. Para consultar margem em lote,
+              use o botão à direita.
             </p>
           </div>
         </div>

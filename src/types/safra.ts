@@ -212,3 +212,60 @@ export type SafraProposalResponse = {
   idProposta: number | null;
   erro: SafraProposalErro | null;
 };
+
+/** Item de simulação em `POST /calculation/new`. */
+export type SafraSimulacaoItem = {
+  prazo: number;
+  valorParcela: number;
+  valorPrincipal: number;
+  taxaJuros: number;
+};
+
+/** Corpo `POST /api/v2/safra/calculation/new`. */
+export type CalculationNewRequestBody = {
+  idConvenio: number;
+  cpf: number;
+  comSeguro?: boolean;
+  matricula?: string;
+  prazos?: number[];
+  idTabelaJuros?: number;
+  valorParcela?: number;
+  valorPrincipal?: number;
+  prazo?: number;
+  dtNascimento?: string;
+  idSituacaoEmpregado?: number;
+  /** API Hub/Safra exige string (ex.: `"1"`, `"2"` ou `"M"`, `"F"`). */
+  idSexo?: string;
+  idRegimeJuridico?: number;
+  idOrgaoEmpregador?: number;
+};
+
+/** Valores de `idSexo` para simulação (`POST /calculation/new`). */
+export const SAFRA_ID_SEXO_OPCOES: ReadonlyArray<{
+  value: "1" | "2";
+  label: string;
+  sexoProposta: string;
+}> = [
+  { value: "1", label: "Masculino", sexoProposta: "M" },
+  { value: "2", label: "Feminino", sexoProposta: "F" },
+];
+
+/** Resposta `POST /calculation/new`. */
+export type CalculationNewResponse = {
+  dataSimulacao?: string;
+  simulacoes: SafraSimulacaoItem[];
+  criticas: string[];
+  avisos: string[];
+};
+
+/** Query `GET /proposal/formalization-link`. */
+export type FormalizationLinkQuery = {
+  id_proposta?: number;
+  id_cliente?: number;
+  dt_inicio?: string;
+  dt_fim?: string;
+  id_convenio?: number;
+};
+
+/** Resposta flexível — estrutura varia; normalizada no cliente. */
+export type FormalizationLinkResponse = Record<string, unknown>;

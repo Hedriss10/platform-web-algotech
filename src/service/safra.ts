@@ -15,9 +15,14 @@ import type {
   SafraProposalResponse,
   SafraInterestTable,
   SafraTokenResponse,
+  CalculationNewRequestBody,
+  CalculationNewResponse,
+  FormalizationLinkQuery,
+  FormalizationLinkResponse,
 } from "../types/safra";
 import { getApiErrorMessage } from "../utils/api-error";
 import { normalizeMargemBpoResponse } from "../utils/safra-margin-response";
+import { normalizeSafraFinancialAgreements } from "../utils/safra-convenios";
 import { apiClient } from "./api-base-client";
 
 const PREFIX = "/api/v2/safra";
@@ -44,10 +49,10 @@ export async function safraConsultarMargemBpo(
 export async function safraListarConvenios(): Promise<
   SafraFinancialAgreement[]
 > {
-  const { data } = await apiClient.get<SafraFinancialAgreement[]>(
+  const { data } = await apiClient.get<unknown>(
     `${PREFIX}/financial-agreements`
   );
-  return Array.isArray(data) ? data : [];
+  return normalizeSafraFinancialAgreements(data);
 }
 
 /** Tabelas de juros do convênio (`idConvenio` da lista de convênios). */
@@ -105,6 +110,45 @@ export async function safraCriarProposta(
     body
   );
   return data;
+}
+
+/** Simulação consignado novo (`POST /calculation/new`). */
+export async function safraSimularNovo(
+  body: CalculationNewRequestBody
+): Promise<CalculationNewResponse> {
+  const { data } = await apiClient.post<CalculationNewResponse>(
+    `${PREFIX}/calculation/new`,
+    body
+  );
+  return {
+    dataSimulacao: data.dataSimulacao,
+    simulacoes: Array.isArray(data.simulacoes) ? data.simulacoes : [],
+    criticas: Array.isArray(data.criticas) ? data.criticas : [],
+    avisos: Array.isArray(data.avisos) ? data.avisos : [],
+  };
+}
+
+/** Link de formalização digital (`GET /proposal/formalization-link`). */
+export async function safraObterLinkFormalizacao(
+  query: FormalizationLinkQuery
+): Promise<FormalizationLinkResponse> {
+  const params = new URLSearchParams();
+  if (query.id_proposta != null) {
+    params.set("id_proposta", String(query.id_proposta));
+  }
+  if (query.id_cliente != null) {
+    params.set("id_cliente", String(query.id_cliente));
+  }
+  if (query.dt_inicio) params.set("dt_inicio", query.dt_inicio);
+  if (query.dt_fim) params.set("dt_fim", query.dt_fim);
+  if (query.id_convenio != null) {
+    params.set("id_convenio", String(query.id_convenio));
+  }
+  const qs = params.toString();
+  const { data } = await apiClient.get<FormalizationLinkResponse>(
+    `${PREFIX}/proposal/formalization-link${qs ? `?${qs}` : ""}`
+  );
+  return data && typeof data === "object" ? data : {};
 }
 
 export async function safraConsultarFarolCredito(

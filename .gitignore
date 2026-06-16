@@ -24,6 +24,14 @@ dist-ssr
 *.sw?
 
 
+# Ignore documents
+docs/*
+docs/.*
+.docs
+
+
+
+
 # Environment variables
 .env
 .env.local

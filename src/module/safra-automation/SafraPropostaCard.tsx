@@ -1,5 +1,5 @@
 import { isAxiosError } from "axios";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { HiPlay } from "react-icons/hi2";
 
 import { Button, Input } from "../../components/ui";
@@ -109,8 +109,38 @@ function PropostaResultado({ data }: { data: SafraProposalResponse }) {
 const checkboxClass =
   "h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500/40";
 
-/** Secção 8 — envio de proposta à Safra (`POST /proposal`). */
-export default function SafraPropostaCard() {
+export type SafraPropostaPrefill = {
+  idConvenio?: number;
+  idTabelaJuros?: number;
+  valorParcela?: number;
+  prazo?: number;
+  valorPrincipal?: number;
+  taxaJuros?: number;
+  cpfCliente?: string;
+  nomeCompleto?: string;
+  matricula?: string;
+  valorRenda?: number;
+  dataAdmissao?: string;
+  dataNascimento?: string;
+  sexo?: string;
+  idRegimeJuridico?: number;
+  idSituacaoEmpregado?: number;
+};
+
+type SafraPropostaCardProps = {
+  prefill?: SafraPropostaPrefill | null;
+  disabled?: boolean;
+  disabledHint?: string;
+  onPropostaCriada?: (idProposta: number) => void;
+};
+
+/** Envio de proposta à Safra (`POST /proposal`). */
+export default function SafraPropostaCard({
+  prefill,
+  disabled = false,
+  disabledHint,
+  onPropostaCriada,
+}: SafraPropostaCardProps) {
   const ocupacaoStored = useMemo(() => getStoredSafraOcupacaoSelection(), []);
 
   const [submeter, setSubmeter] = useState(false);
@@ -181,6 +211,37 @@ export default function SafraPropostaCard() {
   const [resultado, setResultado] = useState<SafraProposalResponse | null>(
     null
   );
+
+  useEffect(() => {
+    if (!prefill) return;
+    if (prefill.idConvenio != null) setIdConvenio(String(prefill.idConvenio));
+    if (prefill.idTabelaJuros != null) {
+      setIdTabelaJuros(String(prefill.idTabelaJuros));
+    }
+    if (prefill.valorParcela != null) {
+      setValorParcela(String(prefill.valorParcela));
+    }
+    if (prefill.prazo != null) setPrazo(String(prefill.prazo));
+    if (prefill.valorPrincipal != null) {
+      setValorPrincipal(String(prefill.valorPrincipal));
+    }
+    if (prefill.taxaJuros != null) setTaxaJuros(String(prefill.taxaJuros));
+    if (prefill.cpfCliente) {
+      setCpfCliente(formatCpfDigits(prefill.cpfCliente));
+    }
+    if (prefill.nomeCompleto) setNomeCompleto(prefill.nomeCompleto);
+    if (prefill.matricula) setMatricula(prefill.matricula);
+    if (prefill.valorRenda != null) setValorRenda(String(prefill.valorRenda));
+    if (prefill.dataAdmissao) setDataAdmissao(prefill.dataAdmissao);
+    if (prefill.dataNascimento) setDataNascimento(prefill.dataNascimento);
+    if (prefill.sexo) setSexo(prefill.sexo);
+    if (prefill.idRegimeJuridico != null) {
+      setIdRegimeJuridico(String(prefill.idRegimeJuridico));
+    }
+    if (prefill.idSituacaoEmpregado != null) {
+      setIdSituacaoEmpregado(String(prefill.idSituacaoEmpregado));
+    }
+  }, [prefill]);
 
   const importarCatalogos = () => {
     const sel = getStoredSafraOcupacaoSelection();
@@ -418,6 +479,13 @@ export default function SafraPropostaCard() {
   ]);
 
   const enviar = async () => {
+    if (disabled) {
+      Toastify(
+        disabledHint ?? "Complete os passos anteriores antes de enviar.",
+        { type: "warning", position: "top-right" }
+      );
+      return;
+    }
     const body = buildBody();
     if (!body) return;
 
@@ -427,6 +495,9 @@ export default function SafraPropostaCard() {
     try {
       const data = await safraCriarProposta(body);
       setResultado(data);
+      if (data.idProposta != null) {
+        onPropostaCriada?.(data.idProposta);
+      }
       if (data.erro?.descricao) {
         Toastify("Proposta processada com aviso da Safra.", {
           type: "warning",
@@ -452,13 +523,22 @@ export default function SafraPropostaCard() {
   return (
     <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-slate-200/40">
       <h2 className="text-lg font-semibold text-slate-900">
-        8 — Criar proposta
+        4. Criar proposta
       </h2>
       <p className="mt-1 text-sm text-slate-600">
-        Envia uma nova proposta à Safra. Campos obrigatórios: dados da proposta,
-        conta bancária (tipo de conta), endereço e indicador de submissão. Pode
-        importar órgão, regime e situação da secção 7.
+        Dados da simulação selecionada são preenchidos automaticamente. Complete
+        conta bancária, endereço e contato antes de enviar. Use &quot;Importar
+        ocupação&quot; para preencher órgão, regime e situação dos catálogos do
+        convênio.
       </p>
+      {disabled && disabledHint ? (
+        <p className="mt-2 text-sm text-amber-800">{disabledHint}</p>
+      ) : null}
+      {prefill ? (
+        <p className="mt-2 text-xs text-emerald-800">
+          Valores da simulação importados nesta sessão.
+        </p>
+      ) : null}
 
       <div className="mt-4 flex flex-wrap gap-2">
         <Button type="button" variant="secondary" onClick={importarCatalogos}>
@@ -778,7 +858,7 @@ export default function SafraPropostaCard() {
         <Button
           type="button"
           variant="primary"
-          disabled={busy}
+          disabled={busy || disabled}
           className="gap-2"
           onClick={() => void enviar()}
         >

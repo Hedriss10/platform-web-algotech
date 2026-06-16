@@ -11,6 +11,12 @@ export const SAFRA_DEMO_MARGIN_BPO: MargemBpoRequestBody = {
   matricula: "303048269980000",
 };
 
+/** Dados de cliente usados em demo (simulação exige para convênio 10237). */
+export const SAFRA_DEMO_CLIENTE = {
+  dataNascimento: "1980-05-20",
+  idSexo: "1",
+};
+
 export function getStoredSafraMarginBpoRequest(): MargemBpoRequestBody | null {
   try {
     const raw = sessionStorage.getItem(STORAGE_LAST_MARGIN_REQ);
