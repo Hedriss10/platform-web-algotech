@@ -92,6 +92,16 @@ export type SafraInterestTable = {
   dtFimVigencia: string;
 };
 
+/** Faixa de prazo da tabela de juros (`GET …/tables/{id}/bands`). */
+export type SafraInterestTableBand = {
+  idFaixa?: number;
+  idTabelaJuros?: number;
+  prazoInicial?: number;
+  prazoFinal?: number;
+  valorFinanciamentiMinimo?: number;
+  valorFinanciamentiMaximo?: number;
+};
+
 /**
  * Farol de crédito — no Hub o `cpf` é **número** (contrato alinhado à Safra).
  * Na UI prefira derivar de 11 dígitos de texto para não perder zeros à esquerda antes da serialização.
@@ -221,33 +231,45 @@ export type SafraSimulacaoItem = {
   taxaJuros: number;
 };
 
-/** Corpo `POST /api/v2/safra/calculation/new`. */
+/** Corpo `POST /api/v2/safra/calculation/new` — alinhado a `CalculationInSchema` no Hub. */
 export type CalculationNewRequestBody = {
   idConvenio: number;
   cpf: number;
   comSeguro?: boolean;
   matricula?: string;
   prazos?: number[];
+  idUF?: string;
+  idCorban?: number;
+  idCorbansubs?: number;
+  idComercial?: number;
+  isCotacao?: boolean;
   idTabelaJuros?: number;
-  valorParcela?: number;
+  taxaJuros?: number;
+  tarifaCadastro?: number;
+  idSeguro?: number;
   valorPrincipal?: number;
+  valorParcela?: number;
   prazo?: number;
-  dtNascimento?: string;
+  comissao?: number;
+  idServicos?: number[];
+  /** Formato `YYYY-MM-DD`. */
+  dataAdmissao?: string;
+  valorRenda?: number;
+  valorDescontos?: number;
   idSituacaoEmpregado?: number;
-  /** API Hub/Safra exige string (ex.: `"1"`, `"2"` ou `"M"`, `"F"`). */
+  /** Safra: **M** (masculino) ou **F** (feminino), 1 caractere. */
   idSexo?: string;
-  idRegimeJuridico?: number;
-  idOrgaoEmpregador?: number;
+  /** Formato `YYYY-MM-DD` (sem hora), como no contrato Safra. */
+  dtNascimento?: string;
 };
 
-/** Valores de `idSexo` para simulação (`POST /calculation/new`). */
+/** Valores de `idSexo` para simulação — Safra exige **M** ou **F** (max 1 char). */
 export const SAFRA_ID_SEXO_OPCOES: ReadonlyArray<{
-  value: "1" | "2";
+  value: "M" | "F";
   label: string;
-  sexoProposta: string;
 }> = [
-  { value: "1", label: "Masculino", sexoProposta: "M" },
-  { value: "2", label: "Feminino", sexoProposta: "F" },
+  { value: "M", label: "Masculino" },
+  { value: "F", label: "Feminino" },
 ];
 
 /** Resposta `POST /calculation/new`. */

@@ -126,7 +126,8 @@ export function filtrarConveniosSafra(
   if (!t) return rows;
   const digits = t.replace(/\D/g, "");
   return rows.filter((c) => {
-    const label = `${c.idConvenio} ${c.nome} ${c.nomeFantasia} ${c.uf}`.toLowerCase();
+    const label =
+      `${c.idConvenio} ${c.nome} ${c.nomeFantasia} ${c.uf}`.toLowerCase();
     if (label.includes(t)) return true;
     if (digits && String(c.idConvenio).includes(digits)) return true;
     return false;

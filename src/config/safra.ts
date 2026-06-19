@@ -14,7 +14,22 @@ export const SAFRA_DEMO_MARGIN_BPO: MargemBpoRequestBody = {
 /** Dados de cliente usados em demo (simulação exige para convênio 10237). */
 export const SAFRA_DEMO_CLIENTE = {
   dataNascimento: "1980-05-20",
-  idSexo: "1",
+  dataAdmissao: "1979-09-17",
+  idSexo: "M",
+  idSituacaoEmpregado: 1,
+};
+
+/** Prazos padrão para simulação demo (convênio 10237). */
+export const SAFRA_DEMO_PRAZOS: readonly number[] = [27, 76];
+
+/** Campos extras de simulação para homologação (convênio 10237). */
+export const SAFRA_DEMO_CALCULATION = {
+  idCorban: 7629,
+  idCorbansubs: 3,
+  idComercial: 9598,
+  idSeguro: 3683,
+  idServicos: [5956, 5788] as const,
+  isCotacao: true,
 };
 
 export function getStoredSafraMarginBpoRequest(): MargemBpoRequestBody | null {

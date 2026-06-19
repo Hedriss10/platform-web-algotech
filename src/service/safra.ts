@@ -14,6 +14,7 @@ import type {
   SafraProposalRequestBody,
   SafraProposalResponse,
   SafraInterestTable,
+  SafraInterestTableBand,
   SafraTokenResponse,
   CalculationNewRequestBody,
   CalculationNewResponse,
@@ -61,6 +62,16 @@ export async function safraListarTabelasJuros(
 ): Promise<SafraInterestTable[]> {
   const { data } = await apiClient.get<SafraInterestTable[]>(
     `${PREFIX}/tables/${encodeURIComponent(String(convenioId))}`
+  );
+  return Array.isArray(data) ? data : [];
+}
+
+/** Faixas de prazo da tabela de juros (`GET …/tables/{table_id}/bands`). */
+export async function safraListarFaixasTabela(
+  tableId: number
+): Promise<SafraInterestTableBand[]> {
+  const { data } = await apiClient.get<SafraInterestTableBand[]>(
+    `${PREFIX}/tables/${encodeURIComponent(String(tableId))}/bands`
   );
   return Array.isArray(data) ? data : [];
 }

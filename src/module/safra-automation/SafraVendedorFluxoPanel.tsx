@@ -1,18 +1,15 @@
 import { isAxiosError } from "axios";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  HiArrowPath,
-  HiCheckCircle,
-  HiPlay,
-  HiXCircle,
-} from "react-icons/hi2";
+import { HiArrowPath, HiCheckCircle, HiPlay, HiXCircle } from "react-icons/hi2";
 
 import { Button, Input, Select } from "../../components/ui";
 import {
   getStoredSafraMarginBpoRequest,
   getStoredSafraMarginBpoResponse,
+  SAFRA_DEMO_CALCULATION,
   SAFRA_DEMO_CLIENTE,
   SAFRA_DEMO_MARGIN_BPO,
+  SAFRA_DEMO_PRAZOS,
   setStoredSafraMarginBpoRequest,
   setStoredSafraMarginBpoResponse,
 } from "../../config/safra";
@@ -28,6 +25,7 @@ import {
   safraConsultarFarolCredito,
   safraConsultarMargemBpo,
   safraListarConvenios,
+  safraListarFaixasTabela,
   safraListarOrgaosEmpregadores,
   safraListarRegimesJuridicos,
   safraListarSituacoesEmpregado,
@@ -43,11 +41,19 @@ import type {
   SafraCatalogItem,
   SafraFinancialAgreement,
   SafraInterestTable,
+  SafraInterestTableBand,
   SafraSimulacaoItem,
 } from "../../types/safra";
-import { SAFRA_ID_PRODUTO_OPCOES, SAFRA_ID_SEXO_OPCOES } from "../../types/safra";
+import {
+  SAFRA_ID_PRODUTO_OPCOES,
+  SAFRA_ID_SEXO_OPCOES,
+} from "../../types/safra";
 import { getApiErrorMessage } from "../../utils/api-error";
 import { extrairUrlsFormalizacao } from "../../utils/safra-formalization";
+import {
+  buildSafraCalculationNewBody,
+  toSafraDateOnly,
+} from "../../utils/safra-calculation-body";
 import {
   filtrarConveniosSafra,
   mesclarConveniosSafra,
@@ -56,6 +62,11 @@ import {
   isMargemBpoResponseEmpty,
   normalizeMargemBpoResponse,
 } from "../../utils/safra-margin-response";
+import {
+  formatFaixaPrazoLabel,
+  prazoDaFaixa,
+  prazosFromBands,
+} from "../../utils/safra-table-bands";
 import { Toastify } from "../../utils/toastify";
 import SafraPropostaCard, {
   type SafraPropostaPrefill,
@@ -80,12 +91,22 @@ function formatCpfDigits(digits: string): string {
   return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`;
 }
 
-function toIsoNascimento(value: string): string {
-  const t = value.trim();
-  if (!t) return "";
-  if (/Z$|[+-]\d{2}:\d{2}$/.test(t)) return t;
-  if (t.includes("T")) return t.endsWith("Z") ? t : `${t}Z`;
-  return `${t}T00:00:00Z`;
+function parseOptionalFloat(value: string): number | undefined {
+  const v = value.trim().replace(",", ".");
+  if (!v) return undefined;
+  const n = Number.parseFloat(v);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+function parseOptionalInt(value: string): number | undefined {
+  const v = value.trim();
+  if (!v) return undefined;
+  const n = Number.parseInt(v, 10);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+function isSafraDemoConvenio(convenioId: number): boolean {
+  return convenioId === SAFRA_DEMO_MARGIN_BPO.convenio;
 }
 
 function farolAprovado(items: CreditLighthouseItem[]): boolean {
@@ -138,6 +159,9 @@ function MargemResumo({ data }: { data: MargemBpoResponse }) {
 export default function SafraVendedorFluxoPanel() {
   const snap = useMemo(() => getStoredSafraVendedorSnapshot(), []);
   const storedMarginReq = useMemo(() => getStoredSafraMarginBpoRequest(), []);
+  const initialConvenio =
+    snap?.convenioId ?? storedMarginReq?.convenio ?? 0;
+  const initialDemo = isSafraDemoConvenio(initialConvenio);
   const storedMarginRes = useMemo(
     () => normalizeMargemBpoResponse(getStoredSafraMarginBpoResponse()),
     []
@@ -156,10 +180,7 @@ export default function SafraVendedorFluxoPanel() {
         : ""
   );
   const [cpfMasked, setCpfMasked] = useState(() => {
-    const cpf =
-      snap?.cpf ??
-      storedMarginReq?.cpf ??
-      "";
+    const cpf = snap?.cpf ?? storedMarginReq?.cpf ?? "";
     return cpf ? formatCpfDigits(cpf) : "";
   });
   const [matricula, setMatricula] = useState(
@@ -176,8 +197,7 @@ export default function SafraVendedorFluxoPanel() {
   const [marginBusy, setMarginBusy] = useState(false);
   const [marginErr, setMarginErr] = useState<string | null>(null);
   const [marginResult, setMarginResult] = useState<MargemBpoResponse | null>(
-    () =>
-      !isMargemBpoResponseEmpty(storedMarginRes) ? storedMarginRes : null
+    () => (!isMargemBpoResponseEmpty(storedMarginRes) ? storedMarginRes : null)
   );
 
   const [farolBusy, setFarolBusy] = useState(false);
@@ -192,15 +212,55 @@ export default function SafraVendedorFluxoPanel() {
     snap?.idTabelaJuros != null ? String(snap.idTabelaJuros) : ""
   );
   const [comSeguro, setComSeguro] = useState(false);
+  const [isCotacao, setIsCotacao] = useState(
+    initialDemo ? SAFRA_DEMO_CALCULATION.isCotacao : false
+  );
   const [valorParcelaSim, setValorParcelaSim] = useState("");
-  const [prazoSim, setPrazoSim] = useState("");
-  const [dtNascimento, setDtNascimento] = useState(SAFRA_DEMO_CLIENTE.dataNascimento);
+  const [valorPrincipalSim, setValorPrincipalSim] = useState("");
+  const [dataAdmissaoSim, setDataAdmissaoSim] = useState(
+    SAFRA_DEMO_CLIENTE.dataAdmissao
+  );
+  const [idUfSim, setIdUfSim] = useState("");
+  const [valorRendaSim, setValorRendaSim] = useState("");
+  const [valorDescontosSim, setValorDescontosSim] = useState("");
+  const [idCorbanSim, setIdCorbanSim] = useState(
+    initialDemo ? String(SAFRA_DEMO_CALCULATION.idCorban) : ""
+  );
+  const [idCorbansubsSim, setIdCorbansubsSim] = useState(
+    initialDemo ? String(SAFRA_DEMO_CALCULATION.idCorbansubs) : ""
+  );
+  const [idComercialSim, setIdComercialSim] = useState(
+    initialDemo ? String(SAFRA_DEMO_CALCULATION.idComercial) : ""
+  );
+  const [idSeguroSim, setIdSeguroSim] = useState(
+    initialDemo ? String(SAFRA_DEMO_CALCULATION.idSeguro) : ""
+  );
+  const [idServico1Sim, setIdServico1Sim] = useState(
+    initialDemo ? String(SAFRA_DEMO_CALCULATION.idServicos[0]) : ""
+  );
+  const [idServico2Sim, setIdServico2Sim] = useState(
+    initialDemo ? String(SAFRA_DEMO_CALCULATION.idServicos[1]) : ""
+  );
+  const [taxaJurosSim, setTaxaJurosSim] = useState("");
+  const [tarifaCadastroSim, setTarifaCadastroSim] = useState("");
+  const [comissaoSim, setComissaoSim] = useState("");
+  const [faixasTabela, setFaixasTabela] = useState<SafraInterestTableBand[]>(
+    []
+  );
+  const [faixasBusy, setFaixasBusy] = useState(false);
+  const [prazosSelecionados, setPrazosSelecionados] = useState<Set<number>>(
+    () => new Set()
+  );
+  const [dtNascimento, setDtNascimento] = useState(
+    SAFRA_DEMO_CLIENTE.dataNascimento
+  );
   const [idSexo, setIdSexo] = useState(String(SAFRA_DEMO_CLIENTE.idSexo));
 
   const [regimes, setRegimes] = useState<SafraCatalogItem[]>([]);
   const [situacoes, setSituacoes] = useState<SafraCatalogItem[]>([]);
   const [idRegimeJuridico, setIdRegimeJuridico] = useState("");
   const [idSituacaoEmpregado, setIdSituacaoEmpregado] = useState("");
+  const [idSituacaoManual, setIdSituacaoManual] = useState("");
   const [catalogBusy, setCatalogBusy] = useState(false);
 
   const [simBusy, setSimBusy] = useState(false);
@@ -208,9 +268,10 @@ export default function SafraVendedorFluxoPanel() {
   const [simResult, setSimResult] = useState<CalculationNewResponse | null>(
     null
   );
-  const [simSelecionada, setSimSelecionada] = useState<SafraSimulacaoItem | null>(
-    () => snap?.simulacaoSelecionada ?? null
-  );
+  const [simSelecionada, setSimSelecionada] =
+    useState<SafraSimulacaoItem | null>(
+      () => snap?.simulacaoSelecionada ?? null
+    );
 
   const [idProposta, setIdProposta] = useState<number | null>(
     snap?.idProposta ?? null
@@ -282,6 +343,11 @@ export default function SafraVendedorFluxoPanel() {
     void loadConvenios();
   }, [loadConvenios]);
 
+  useEffect(() => {
+    if (idSexo === "1") setIdSexo("M");
+    else if (idSexo === "2") setIdSexo("F");
+  }, [idSexo]);
+
   const loadTabelas = useCallback(async () => {
     if (!convValido) return;
     setTabelasBusy(true);
@@ -301,6 +367,39 @@ export default function SafraVendedorFluxoPanel() {
   useEffect(() => {
     if (convValido) void loadTabelas();
   }, [convValido, loadTabelas]);
+
+  const loadFaixasTabela = useCallback(async (tableId: number) => {
+    setFaixasBusy(true);
+    try {
+      const bands = await safraListarFaixasTabela(tableId);
+      setFaixasTabela(bands);
+      setPrazosSelecionados(new Set(prazosFromBands(bands)));
+    } catch {
+      setFaixasTabela([]);
+      setPrazosSelecionados(new Set());
+    } finally {
+      setFaixasBusy(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const tableId = Number.parseInt(idTabelaJuros.trim(), 10);
+    if (Number.isFinite(tableId) && tableId > 0) {
+      void loadFaixasTabela(tableId);
+    } else {
+      setFaixasTabela([]);
+      setPrazosSelecionados(new Set());
+    }
+  }, [idTabelaJuros, loadFaixasTabela]);
+
+  const togglePrazo = (prazo: number) => {
+    setPrazosSelecionados((prev) => {
+      const next = new Set(prev);
+      if (next.has(prazo)) next.delete(prazo);
+      else next.add(prazo);
+      return next;
+    });
+  };
 
   const carregarSituacoesPorRegime = useCallback(
     async (regimeId: number, preferSituacaoId?: number) => {
@@ -377,7 +476,10 @@ export default function SafraVendedorFluxoPanel() {
       let situacaoId: number | undefined;
       const regimeId = regimes[0]?.id;
       if (regimeId != null) {
-        const situacoes = await safraListarSituacoesEmpregado(convNum, regimeId);
+        const situacoes = await safraListarSituacoesEmpregado(
+          convNum,
+          regimeId
+        );
         situacaoId = situacoes[0]?.id;
       }
       setStoredSafraOcupacaoSelection({
@@ -401,7 +503,9 @@ export default function SafraVendedorFluxoPanel() {
     setIdProduto(String(SAFRA_DEMO_MARGIN_BPO.idProduto));
     setMatricula(SAFRA_DEMO_MARGIN_BPO.matricula);
     setDtNascimento(SAFRA_DEMO_CLIENTE.dataNascimento);
-    setIdSexo(String(SAFRA_DEMO_CLIENTE.idSexo));
+    setIdSexo(SAFRA_DEMO_CLIENTE.idSexo);
+    setIdSituacaoEmpregado(String(SAFRA_DEMO_CLIENTE.idSituacaoEmpregado));
+    setIdSituacaoManual("");
     Toastify("Dados de demonstração preenchidos.", {
       type: "info",
       position: "top-right",
@@ -411,22 +515,34 @@ export default function SafraVendedorFluxoPanel() {
   const consultarMargem = async () => {
     const prod = Number.parseInt(idProduto.trim(), 10);
     if (!convValido) {
-      Toastify("Selecione um convênio.", { type: "warning", position: "top-right" });
+      Toastify("Selecione um convênio.", {
+        type: "warning",
+        position: "top-right",
+      });
       return;
     }
     if (!cpfValido) {
-      Toastify("CPF deve ter 11 dígitos.", { type: "warning", position: "top-right" });
+      Toastify("CPF deve ter 11 dígitos.", {
+        type: "warning",
+        position: "top-right",
+      });
       return;
     }
     if (!matricula.trim()) {
-      Toastify("Informe a matrícula.", { type: "warning", position: "top-right" });
+      Toastify("Informe a matrícula.", {
+        type: "warning",
+        position: "top-right",
+      });
       return;
     }
     if (
       !Number.isFinite(prod) ||
       !SAFRA_ID_PRODUTO_OPCOES.some((o) => o.value === prod)
     ) {
-      Toastify("Selecione o tipo de operação.", { type: "warning", position: "top-right" });
+      Toastify("Selecione o tipo de operação.", {
+        type: "warning",
+        position: "top-right",
+      });
       return;
     }
 
@@ -445,6 +561,22 @@ export default function SafraVendedorFluxoPanel() {
     try {
       const data = await safraConsultarMargemBpo(body);
       setMarginResult(data);
+      if (
+        data.margem != null &&
+        Number.isFinite(data.margem) &&
+        !valorParcelaSim.trim()
+      ) {
+        setValorParcelaSim(String(data.margem));
+      }
+      if (data.renda != null && Number.isFinite(data.renda)) {
+        setValorRendaSim(String(data.renda));
+      }
+      if (data.dataAdmissao?.trim()) {
+        setDataAdmissaoSim(toSafraDateOnly(data.dataAdmissao) ?? data.dataAdmissao);
+      }
+      if (data.uf?.trim()) {
+        setIdUfSim(data.uf.trim().toUpperCase().slice(0, 2));
+      }
       setStoredSafraMarginBpoRequest(body);
       setStoredSafraMarginBpoResponse(data);
       patchStoredSafraVendedorSnapshot({
@@ -457,7 +589,11 @@ export default function SafraVendedorFluxoPanel() {
       });
       setIdProposta(null);
       void carregarCatalogosOcupacao();
-      Toastify("Margem consultada.", { type: "success", position: "top-right" });
+      void loadCatalogosSimulacao();
+      Toastify("Margem consultada.", {
+        type: "success",
+        position: "top-right",
+      });
     } catch (e) {
       setMarginResult(null);
       setMarginErr(
@@ -478,7 +614,10 @@ export default function SafraVendedorFluxoPanel() {
       return;
     }
     if (!Number.isFinite(prod) || prod <= 0) {
-      Toastify("Tipo de produto inválido.", { type: "warning", position: "top-right" });
+      Toastify("Tipo de produto inválido.", {
+        type: "warning",
+        position: "top-right",
+      });
       return;
     }
 
@@ -537,20 +676,25 @@ export default function SafraVendedorFluxoPanel() {
     }
 
     const tabela = Number.parseInt(idTabelaJuros.trim(), 10);
-    const situacao = Number.parseInt(idSituacaoEmpregado.trim(), 10);
-    const regime = Number.parseInt(idRegimeJuridico.trim(), 10);
-    const sexoStr = idSexo.trim();
-    const nascIso = toIsoNascimento(dtNascimento);
+    const situacaoRaw =
+      idSituacaoManual.trim() ||
+      idSituacaoEmpregado.trim() ||
+      (convNum === SAFRA_DEMO_MARGIN_BPO.convenio
+        ? String(SAFRA_DEMO_CLIENTE.idSituacaoEmpregado)
+        : "");
+    const situacao = Number.parseInt(situacaoRaw, 10);
+    const sexoStr = idSexo.trim().toUpperCase();
+    const nascDate = toSafraDateOnly(dtNascimento);
 
-    if (!nascIso) {
-      Toastify("Informe a data de nascimento do cliente.", {
+    if (!nascDate) {
+      Toastify("Informe a data de nascimento (formato YYYY-MM-DD).", {
         type: "warning",
         position: "top-right",
       });
       return;
     }
     if (!sexoStr || !SAFRA_ID_SEXO_OPCOES.some((o) => o.value === sexoStr)) {
-      Toastify("Selecione o sexo do cliente.", {
+      Toastify("Selecione o sexo: M (masculino) ou F (feminino).", {
         type: "warning",
         position: "top-right",
       });
@@ -558,38 +702,101 @@ export default function SafraVendedorFluxoPanel() {
     }
     if (!Number.isFinite(situacao) || situacao <= 0) {
       Toastify(
-        "Selecione a situação do empregado (obrigatório para este convênio).",
+        "Selecione ou digite a situação do empregado (ex.: 1 para homologação).",
         { type: "warning", position: "top-right" }
       );
       return;
     }
+    if (!Number.isFinite(tabela) || tabela <= 0) {
+      Toastify("Selecione a tabela de juros antes de simular.", {
+        type: "warning",
+        position: "top-right",
+      });
+      return;
+    }
+    if (!matricula.trim()) {
+      Toastify("Informe a matrícula no passo 1.", {
+        type: "warning",
+        position: "top-right",
+      });
+      return;
+    }
 
-    const body: Parameters<typeof safraSimularNovo>[0] = {
+    let prazos = [...prazosSelecionados]
+      .filter((p) => Number.isFinite(p) && p > 0)
+      .sort((a, b) => a - b);
+    if (prazos.length === 0) {
+      if (convNum === SAFRA_DEMO_MARGIN_BPO.convenio) {
+        prazos = [...SAFRA_DEMO_PRAZOS];
+      } else {
+        Toastify("Marque pelo menos um prazo da tabela de juros.", {
+          type: "warning",
+          position: "top-right",
+        });
+        return;
+      }
+    }
+
+    let valorParcela: number | undefined = parseOptionalFloat(valorParcelaSim);
+    if (valorParcela == null) {
+      if (
+        marginResult?.margem != null &&
+        Number.isFinite(marginResult.margem)
+      ) {
+        valorParcela = marginResult.margem;
+      }
+    }
+
+    const valorPrincipal = parseOptionalFloat(valorPrincipalSim);
+    const valorRenda =
+      parseOptionalFloat(valorRendaSim) ??
+      (marginResult?.renda != null && Number.isFinite(marginResult.renda)
+        ? marginResult.renda
+        : undefined);
+    const valorDescontos = parseOptionalFloat(valorDescontosSim);
+    const idCorban = parseOptionalInt(idCorbanSim);
+    const idCorbansubs = parseOptionalInt(idCorbansubsSim);
+    const idComercial = parseOptionalInt(idComercialSim);
+    const idSeguro = comSeguro ? parseOptionalInt(idSeguroSim) : undefined;
+    const idServicos = [
+      parseOptionalInt(idServico1Sim),
+      parseOptionalInt(idServico2Sim),
+    ].filter((id): id is number => id != null && id > 0);
+    const taxaJuros = parseOptionalFloat(taxaJurosSim);
+    const tarifaCadastro = parseOptionalFloat(tarifaCadastroSim);
+    const comissao = parseOptionalFloat(comissaoSim);
+
+    const body = buildSafraCalculationNewBody({
       idConvenio: convNum,
       cpf: cpfDigitsToNumber(cpfDigits),
+      matricula: matricula.trim(),
       comSeguro,
-      dtNascimento: nascIso,
+      isCotacao,
+      idTabelaJuros: tabela,
+      dtNascimento: nascDate,
       idSexo: sexoStr,
       idSituacaoEmpregado: situacao,
-      ...(matricula.trim() ? { matricula: matricula.trim() } : {}),
-      ...(Number.isFinite(tabela) && tabela > 0
-        ? { idTabelaJuros: tabela }
-        : {}),
-      ...(Number.isFinite(regime) && regime > 0
-        ? { idRegimeJuridico: regime }
-        : {}),
-    };
-
-    const vp = valorParcelaSim.trim().replace(",", ".");
-    if (vp) {
-      const n = Number.parseFloat(vp);
-      if (Number.isFinite(n)) body.valorParcela = n;
-    }
-    const pr = prazoSim.trim();
-    if (pr) {
-      const n = Number.parseInt(pr, 10);
-      if (Number.isFinite(n)) body.prazo = n;
-    }
+      prazos,
+      ...(valorParcela != null ? { valorParcela } : {}),
+      ...(valorPrincipal != null ? { valorPrincipal } : {}),
+      ...(valorRenda != null ? { valorRenda } : {}),
+      ...(valorDescontos != null ? { valorDescontos } : {}),
+      ...(idCorban != null ? { idCorban } : {}),
+      ...(idCorbansubs != null ? { idCorbansubs } : {}),
+      ...(idComercial != null ? { idComercial } : {}),
+      ...(idSeguro != null ? { idSeguro } : {}),
+      ...(idServicos.length > 0 ? { idServicos } : {}),
+      ...(taxaJuros != null ? { taxaJuros } : {}),
+      ...(tarifaCadastro != null ? { tarifaCadastro } : {}),
+      ...(comissao != null ? { comissao } : {}),
+      dataAdmissao:
+        toSafraDateOnly(dataAdmissaoSim) ??
+        marginResult?.dataAdmissao ??
+        (convNum === SAFRA_DEMO_MARGIN_BPO.convenio
+          ? SAFRA_DEMO_CLIENTE.dataAdmissao
+          : undefined),
+      idUF: idUfSim.trim() || marginResult?.uf,
+    });
 
     setSimBusy(true);
     setSimErr(null);
@@ -623,9 +830,7 @@ export default function SafraVendedorFluxoPanel() {
       }
     } catch (e) {
       setSimResult(null);
-      setSimErr(
-        isAxiosError(e) ? getApiErrorMessage(e) : "Erro na simulação."
-      );
+      setSimErr(isAxiosError(e) ? getApiErrorMessage(e) : "Erro na simulação.");
     } finally {
       setSimBusy(false);
     }
@@ -705,7 +910,7 @@ export default function SafraVendedorFluxoPanel() {
       valorRenda: marginResult?.renda ?? undefined,
       dataAdmissao: marginResult?.dataAdmissao ?? undefined,
       dataNascimento: dtNascimento.trim() || undefined,
-      sexo: sexoOpt?.sexoProposta,
+      sexo: sexoOpt?.value,
       ...(Number.isFinite(regime) && regime > 0
         ? { idRegimeJuridico: regime }
         : {}),
@@ -958,7 +1163,9 @@ export default function SafraVendedorFluxoPanel() {
         <p className="mt-1 text-sm text-slate-600">
           Escolha a tabela de juros e simule. Para convênios como{" "}
           <span className="font-mono text-xs">10237</span>, data de nascimento,
-          sexo e situação do empregado são obrigatórios.
+          sexo e situação do empregado são obrigatórios. O sexo deve ser{" "}
+          <span className="font-mono text-xs">M</span> ou{" "}
+          <span className="font-mono text-xs">F</span> (não use 1 ou 2).
         </p>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Input
@@ -968,9 +1175,9 @@ export default function SafraVendedorFluxoPanel() {
             onChange={(e) => setDtNascimento(e.target.value)}
           />
           <Select
-            label="Sexo (idSexo)"
+            label="Sexo (idSexo — M ou F)"
             value={idSexo}
-            onChange={(e) => setIdSexo(e.target.value)}
+            onChange={(e) => setIdSexo(e.target.value.toUpperCase())}
           >
             <option value="">Selecione…</option>
             {SAFRA_ID_SEXO_OPCOES.map((o) => (
@@ -979,6 +1186,34 @@ export default function SafraVendedorFluxoPanel() {
               </option>
             ))}
           </Select>
+          <Input
+            label="Data admissão (dataAdmissao)"
+            type="date"
+            value={dataAdmissaoSim}
+            onChange={(e) => setDataAdmissaoSim(e.target.value)}
+          />
+          <Input
+            label="UF (idUF)"
+            value={idUfSim}
+            maxLength={2}
+            placeholder="SP"
+            onChange={(e) =>
+              setIdUfSim(e.target.value.replace(/[^a-zA-Z]/g, "").toUpperCase())
+            }
+          />
+          <Input
+            label="Valor renda (valorRenda)"
+            value={valorRendaSim}
+            inputMode="decimal"
+            onChange={(e) => setValorRendaSim(e.target.value)}
+            placeholder="Da margem"
+          />
+          <Input
+            label="Valor descontos (valorDescontos)"
+            value={valorDescontosSim}
+            inputMode="decimal"
+            onChange={(e) => setValorDescontosSim(e.target.value)}
+          />
           <Select
             label={`Regime jurídico${catalogBusy ? " — a carregar…" : ""}`}
             value={idRegimeJuridico}
@@ -1010,7 +1245,21 @@ export default function SafraVendedorFluxoPanel() {
             label={`Situação do empregado (idSituacaoEmpregado)${catalogBusy ? " — a carregar…" : ""}`}
             value={idSituacaoEmpregado}
             disabled={situacoes.length === 0 || catalogBusy}
-            onChange={(e) => setIdSituacaoEmpregado(e.target.value)}
+            onChange={(e) => {
+              setIdSituacaoEmpregado(e.target.value);
+              setIdSituacaoManual("");
+              const sit = Number.parseInt(e.target.value, 10);
+              const regime = Number.parseInt(idRegimeJuridico.trim(), 10);
+              if (Number.isFinite(sit) && sit > 0) {
+                setStoredSafraOcupacaoSelection({
+                  convenioId: convNum,
+                  ...(Number.isFinite(regime) && regime > 0
+                    ? { idRegimeJuridico: regime }
+                    : {}),
+                  idSituacaoEmpregado: sit,
+                });
+              }
+            }}
           >
             <option value="">
               {situacoes.length === 0
@@ -1023,6 +1272,16 @@ export default function SafraVendedorFluxoPanel() {
               </option>
             ))}
           </Select>
+          <Input
+            label="Ou código situação (manual)"
+            value={idSituacaoManual}
+            inputMode="numeric"
+            placeholder="Se a lista estiver vazia"
+            onChange={(e) => {
+              setIdSituacaoManual(e.target.value.replace(/\D/g, ""));
+              if (e.target.value.trim()) setIdSituacaoEmpregado("");
+            }}
+          />
           <Select
             label={`Tabela de juros${tabelasBusy ? " — a carregar…" : ""}`}
             value={idTabelaJuros}
@@ -1040,19 +1299,127 @@ export default function SafraVendedorFluxoPanel() {
               </option>
             ))}
           </Select>
+          <div className="col-span-full">
+            <p className="text-sm font-semibold text-slate-800">
+              Prazos (prazos)
+              {faixasBusy ? " — a carregar faixas…" : ""}
+            </p>
+            {faixasTabela.length > 0 ? (
+              <div className="mt-2 flex flex-wrap gap-4">
+                {faixasTabela.map((band, index) => {
+                  const prazo = prazoDaFaixa(band);
+                  if (prazo == null) return null;
+                  return (
+                    <label
+                      key={band.idFaixa ?? `faixa-${index}`}
+                      className="flex items-center gap-2 text-sm text-slate-700"
+                    >
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500/40"
+                        checked={prazosSelecionados.has(prazo)}
+                        onChange={() => togglePrazo(prazo)}
+                      />
+                      {formatFaixaPrazoLabel(band)}
+                    </label>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="mt-1 text-sm text-slate-500">
+                {faixasBusy
+                  ? "Carregando faixas da tabela…"
+                  : "Selecione a tabela de juros para listar os prazos."}
+              </p>
+            )}
+            {prazosSelecionados.size > 0 ? (
+              <p className="mt-2 text-xs text-slate-500">
+                Body: prazos = [
+                {[...prazosSelecionados].sort((a, b) => a - b).join(", ")}]
+              </p>
+            ) : null}
+          </div>
           <Input
-            label="Valor parcela (opcional)"
+            label="Valor parcela (valorParcela)"
             value={valorParcelaSim}
             inputMode="decimal"
             onChange={(e) => setValorParcelaSim(e.target.value)}
-            placeholder="Usar margem disponível"
+            placeholder="Preenchido pela margem"
           />
           <Input
-            label="Prazo (opcional)"
-            value={prazoSim}
+            label="Valor principal (valorPrincipal)"
+            value={valorPrincipalSim}
+            inputMode="decimal"
+            onChange={(e) => setValorPrincipalSim(e.target.value)}
+            placeholder="Opcional"
+          />
+          <Input
+            label="idCorban"
+            value={idCorbanSim}
             inputMode="numeric"
-            onChange={(e) => setPrazoSim(e.target.value)}
-            placeholder="Meses"
+            onChange={(e) =>
+              setIdCorbanSim(e.target.value.replace(/\D/g, ""))
+            }
+          />
+          <Input
+            label="idCorbansubs"
+            value={idCorbansubsSim}
+            inputMode="numeric"
+            onChange={(e) =>
+              setIdCorbansubsSim(e.target.value.replace(/\D/g, ""))
+            }
+          />
+          <Input
+            label="idComercial"
+            value={idComercialSim}
+            inputMode="numeric"
+            onChange={(e) =>
+              setIdComercialSim(e.target.value.replace(/\D/g, ""))
+            }
+          />
+          <Input
+            label="idServicos — serviço 1"
+            value={idServico1Sim}
+            inputMode="numeric"
+            onChange={(e) =>
+              setIdServico1Sim(e.target.value.replace(/\D/g, ""))
+            }
+          />
+          <Input
+            label="idServicos — serviço 2"
+            value={idServico2Sim}
+            inputMode="numeric"
+            onChange={(e) =>
+              setIdServico2Sim(e.target.value.replace(/\D/g, ""))
+            }
+          />
+          {comSeguro ? (
+            <Input
+              label="idSeguro"
+              value={idSeguroSim}
+              inputMode="numeric"
+              onChange={(e) =>
+                setIdSeguroSim(e.target.value.replace(/\D/g, ""))
+              }
+            />
+          ) : null}
+          <Input
+            label="taxaJuros (opcional)"
+            value={taxaJurosSim}
+            inputMode="decimal"
+            onChange={(e) => setTaxaJurosSim(e.target.value)}
+          />
+          <Input
+            label="tarifaCadastro (opcional)"
+            value={tarifaCadastroSim}
+            inputMode="decimal"
+            onChange={(e) => setTarifaCadastroSim(e.target.value)}
+          />
+          <Input
+            label="comissao (opcional)"
+            value={comissaoSim}
+            inputMode="decimal"
+            onChange={(e) => setComissaoSim(e.target.value)}
           />
         </div>
         <label className="mt-4 flex items-center gap-2 text-sm text-slate-700">
@@ -1063,6 +1430,15 @@ export default function SafraVendedorFluxoPanel() {
             onChange={(e) => setComSeguro(e.target.checked)}
           />
           Incluir seguro
+        </label>
+        <label className="mt-2 flex items-center gap-2 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500/40"
+            checked={isCotacao}
+            onChange={(e) => setIsCotacao(e.target.checked)}
+          />
+          É cotação (isCotacao)
         </label>
         <div className="mt-4">
           <Button
@@ -1265,9 +1641,7 @@ export default function SafraVendedorFluxoPanel() {
           </ul>
         ) : null}
         {formRaw && formUrls.length === 0 ? (
-          <pre
-            className="mt-4 max-h-48 overflow-auto rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-800"
-          >
+          <pre className="mt-4 max-h-48 overflow-auto rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-800">
             {JSON.stringify(formRaw, null, 2)}
           </pre>
         ) : null}
